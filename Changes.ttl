@@ -1,0 +1,62 @@
+#############################################################
+
+@prefix :        <http://usefulinc.com/ns/doap#> .
+@prefix dcs:     <http://ontologi.es/doap-changeset#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix my:      <http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix toby:    <http://tobyinkster.co.uk/#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+#############################################################
+
+<>
+
+	dc:title         "Changes" ;
+	dc:description   "Revision history for Perl extension RDF-RDB2RDF."@en ;
+	dc:subject       my:project ;
+	dc:creator       toby:i .
+
+#############################################################
+
+my:v_0-001
+
+	a               :Version ;
+	dc:issued       "2011-09-15"^^xsd:date ;
+	:revision       "0.001"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.001.tar.gz> ;
+	rdfs:label      "Initial release"@en .
+
+#############################################################
+
+my:project
+
+	a               :Project ;
+	:name           "RDF-RDB2RDF" ;
+	:shortdesc      "map relational database to RDF declaratively"@en ;
+	:programming-language  "Perl" ;
+	:homepage       <https://metacpan.org/release/RDF-RDB2RDF> ;
+	:download-page  <https://metacpan.org/release/RDF-RDB2RDF> ;
+	:bug-database   <http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF> ;
+	:repository     [ a :SVNRepository ; :browse <http://goddamn.co.uk/svn-web/perlmods/browse/RDF-RDB2RDF/> ] ;
+	:maintainer     toby:i ;
+	:developer      toby:i ;
+	:documenter     toby:i ;
+	:tester         toby:i ;
+	:created        "2011-09-13"^^xsd:date ;
+	:license        <http://dev.perl.org/licenses/> ;
+	:release        my:v_0-001 .
+
+#############################################################
+
+toby:i
+
+	a               foaf:Person ;
+	foaf:name       "Toby Inkster" ;
+	foaf:homepage   <http://tobyinkster.co.uk/> ;
+	foaf:page       <https://metacpan.org/author/TOBYINK> ;
+	foaf:mbox       <mailto:tobyink@cpan.org> ;
+	<http://www.w3.org/2002/07/owl#sameAs> <http://purl.org/NET/cpan-uri/person/tobyink> .
+
+#############################################################
