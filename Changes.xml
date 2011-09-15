@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:dbug="http://ontologi.es/doap-bugs#" xmlns:dc="http://purl.org/dc/terms/" xmlns:dcs="http://ontologi.es/doap-changeset#" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-<rdf:Description rdf:nodeID="rC5AE3B04DFB711E095F32170A9282C2Dr0">
+<rdf:Description rdf:nodeID="rB1380FA0DFB811E0AF009674A9282C2Dr0">
 	<doap:browse rdf:resource="http://goddamn.co.uk/svn-web/perlmods/browse/RDF-RDB2RDF/"/>
 	<rdf:type rdf:resource="http://usefulinc.com/ns/doap#SVNRepository"/>
 </rdf:Description>
@@ -22,7 +22,7 @@
 	<doap:name>RDF-RDB2RDF</doap:name>
 	<doap:programming-language>Perl</doap:programming-language>
 	<doap:release rdf:resource="http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-001"/>
-	<doap:repository rdf:nodeID="rC5AE3B04DFB711E095F32170A9282C2Dr0"/>
+	<doap:repository rdf:nodeID="rB1380FA0DFB811E0AF009674A9282C2Dr0"/>
 	<doap:shortdesc xml:lang="en">map relational database to RDF declaratively</doap:shortdesc>
 	<doap:tester rdf:resource="http://tobyinkster.co.uk/#i"/>
 	<rdf:type rdf:resource="http://usefulinc.com/ns/doap#Project"/>

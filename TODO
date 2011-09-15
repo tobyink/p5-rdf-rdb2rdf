@@ -1,3 +1,5 @@
+* print to handle option for process_turtle
+* allow ->process($dbh, $callback)
 * implement support for R2RML RefPredicateObjectMapClass, etc.
 * compliance testing against R2RML.
 
