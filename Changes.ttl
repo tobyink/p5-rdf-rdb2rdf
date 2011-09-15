@@ -28,6 +28,17 @@ my:v_0-001
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.001.tar.gz> ;
 	rdfs:label      "Initial release"@en .
 
+my:v_0-002
+
+	a               :Version ;
+	dc:issued       "2011-09-15"^^xsd:date ; ????
+	:revision       "0.002"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.002.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-001 ;
+		dcs:item   [ rdfs:label "Allow 'process' method to take a callback." ; a dcs:Addition ]
+		] .
+
 #############################################################
 
 my:project
@@ -46,7 +57,8 @@ my:project
 	:tester         toby:i ;
 	:created        "2011-09-13"^^xsd:date ;
 	:license        <http://dev.perl.org/licenses/> ;
-	:release        my:v_0-001 .
+	rdfs:seeAlso    <http://answers.semanticweb.com/questions/11245/#11652> , <http://buzzword.org.uk/2011/sqlite-to-rdf/> ;
+	:release        my:v_0-001 , my:v_0-002 .
 
 #############################################################
 

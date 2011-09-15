@@ -6,6 +6,7 @@ use common::sense;
 use Data::UUID;
 use DBI;
 use JSON qw[];
+use overload qw[];
 use RDF::Trine qw[statement blank literal];
 use RDF::Trine::Namespace qw[rdf rdfs owl xsd];
 use Scalar::Util qw[blessed];
@@ -20,7 +21,7 @@ sub iri
 
 use namespace::clean;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 
 sub new
 {
@@ -95,6 +96,7 @@ sub process
 	my ($self, $dbh, $model) = @_;
 	$model = RDF::Trine::Model->temporary_model unless defined $model;
 	
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};	
 	my $parsers  = {};
 	my %NS       = $self->namespaces;
 	my $mappings = $self->mappings;
@@ -130,7 +132,7 @@ sub process
 			foreach (@{ $tmap->{typeof} })
 			{
 				$_ = iri($_) unless ref $_;
-				$model->add_statement(statement($subject, $rdf->type, $_));
+				$callback->(statement($subject, $rdf->type, $_));
 			}
 
 			# ->{columns}
@@ -197,11 +199,11 @@ sub process
 						if ($map->{graph} || $tmap->{graph})
 						{
 							my $ctxt = iri( $self->template($map->{graph}||$tmap->{graph}, %row) );
-							$model->add_statement($st, $ctxt);
+							$callback->($st, $ctxt);
 						}
 						else
 						{
-							$model->add_statement($st);
+							$callback->($st);
 						}
 					}
 				}
@@ -328,10 +330,11 @@ L<RDF::Trine::NamespaceMap>.
 
 =over
 
-=item * C<< process($dbh [, $model]) >>
+=item * C<< process($dbh [, $destination]) >>
 
-Given a database handle, produces RDF data. Can optionally be passed an
-existing model to add data to.
+Given a database handle, produces RDF data. Can optionally be passed a
+destination for triples: either an existing model to add data to, or a
+reference to a callback function.
 
 Returns a L<RDF::Trine::Model>.
 
