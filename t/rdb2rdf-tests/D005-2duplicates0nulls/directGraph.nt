@@ -1,0 +1,17 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+  
+  _:a a <IOUs> .
+  _:a <IOUs#fname> "Bob" .
+  _:a <IOUs#lname> "Smith" .
+  _:a <IOUs#amount> "30"^^xsd:float .
+  
+  _:b a <IOUs> .
+  _:b <IOUs#fname> "Sue" .
+  _:b <IOUs#lname> "Jones" .
+  _:b <IOUs#amount> "20"^^xsd:float .
+  
+  _:c a <IOUs> .
+  _:c <IOUs#fname> "Bob" .
+  _:c <IOUs#lname> "Smith" .
+  _:c <IOUs#amount> "30"^^xsd:float .
+

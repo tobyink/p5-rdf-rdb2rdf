@@ -9,7 +9,7 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 1.01'
+generated_by: 'Module::Install version 1.00'
 keywords:
   - Perl
   - RDF
@@ -31,7 +31,7 @@ requires:
   DBI: 0
   Data::UUID: 0
   JSON: 0
-  RDF::Trine: 0.135
+  RDF::Trine: 0.133
   Scalar::Util: 0
   Storable: 0
   common::sense: 0
@@ -43,4 +43,3 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: http://goddamn.co.uk/svn-web/perlmods/browse/RDF-RDB2RDF/
 version: 0.002
-

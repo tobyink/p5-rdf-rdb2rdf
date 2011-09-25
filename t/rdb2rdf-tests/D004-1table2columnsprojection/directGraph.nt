@@ -1,0 +1,3 @@
+_:a a <Student_Sport> .
+_:a <Student_Sport#Student> "Venus" .
+_:a <Student_Sport#Sport> "Tennis" .

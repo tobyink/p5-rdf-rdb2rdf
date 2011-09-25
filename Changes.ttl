@@ -31,12 +31,13 @@ my:v_0-001
 my:v_0-002
 
 	a               :Version ;
-	dc:issued       "2011-09-15"^^xsd:date ; ????
+	dc:issued       "2011-09-23"^^xsd:date ;
 	:revision       "0.002"^^xsd:string ;
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.002.tar.gz> ;
 	dcs:changeset [
 		dcs:versus my:v_0-001 ;
-		dcs:item   [ rdfs:label "Allow 'process' method to take a callback." ; a dcs:Addition ]
+		dcs:item   [ rdfs:label "Allow 'process' method to take a callback." ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "Support 20 Sept 2011 Working Draft of R2RML" ; a dcs:Update ]
 		] .
 
 #############################################################

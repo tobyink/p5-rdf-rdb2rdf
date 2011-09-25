@@ -1,0 +1,3 @@
+_:a a <Student> .
+_:a <Student#id> 10 .
+_:a <Student#name> "Venus" .

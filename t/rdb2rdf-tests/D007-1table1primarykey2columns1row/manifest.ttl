@@ -1,0 +1,22 @@
+@prefix test: <http://www.w3.org/2006/03/test-description#> .
+@prefix dcterms: <http://purl.org/dc/elements/1.1/> .
+@prefix rdb2rdftest: <http://purl.org/NET/rdb2rdf-test#> .
+@base <http://mappingpedia.org/rdb2rdf/tc/> .
+
+<d007> a rdb2rdftest:DataBase;
+	dcterms:title "One table, one column, one primary key" ;
+	dcterms:identifier "D007-1table1primarykey2columns1row" ;
+	rdb2rdftest:sqlScriptFile "create.sql";
+	rdb2rdftest:relatedTestCase <dg0007> ;
+.
+
+<dg0007> a rdb2rdftest:DirectMapping ;	
+	dcterms:title "A table with a primary key and 2 columns"; 
+	dcterms:identifier "Direct Graph TC0007" ;
+	test:purpose "Tests a table with a primary key and 2 columns" ;
+	test:specificationReference "#rules_table_triples" ;
+	test:reviewStatus test:accepted ;
+	rdb2rdftest:database <d007> ;
+	rdb2rdftest:hasExpectedOutput true ;
+	rdb2rdftest:output "directGraph.nt" ;
+.

@@ -1,0 +1,29 @@
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ex: <http://example.com/ns#> .
+@prefix emp: <http://example.com/emp#> .
+@prefix dept: <http://example.com/dept#> .
+@prefix likes: <http://example.com/likes#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@base <http://mappingpedia.org/rdb2rdf/r2rml/tc/> .
+
+<TriplesMap3>
+    a rr:TriplesMap;
+    rr:logicalTable [ rr:sqlQuery """
+      Select ('http://example.com/emp/' || id) AS empId
+           , ('http://example.com/emp/likes/' || likeType) AS empLikes
+           , likedObj
+        from SCOTT.LIKES
+      """ ];
+
+    rr:subjectMap [
+      rr:column "empId";
+      rr:graphMap [ rr:graph ex:LikesGraph ];
+    ];
+
+    rr:predicateObjectMap 
+    [ 
+      rr:predicateMap [ rr:column "empLikes" ];
+      rr:objectMap    [ rr:column "likedObj" ]
+    ]
+    .

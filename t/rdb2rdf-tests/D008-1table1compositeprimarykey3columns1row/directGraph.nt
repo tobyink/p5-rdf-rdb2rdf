@@ -1,0 +1,5 @@
+<Student/ID.10_Name.Venus+Williams#_> <Student#ID> "10"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<Student/ID.10_Name.Venus+Williams#_> <Student#Name> "Venus Williams" .
+<Student/ID.10_Name.Venus+Williams#_> <Student#Sport> "Tennis" .
+<Student/ID.10_Name.Venus+Williams#_> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <Student> .
+

@@ -1,0 +1,13 @@
+<Student/ID.20#_> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <Student> .
+<Student/ID.20#_> <Student#ID> "20"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<Student/ID.20#_> <Student#Name> "Demi Moore" .
+
+<Student/ID.10#_> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <Student> .
+<Student/ID.10#_> <Student#ID> "10"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<Student/ID.10#_> <Student#Name> "Venus Williams" .
+<Student/ID.10#_> <Student#Sport> <Sport/ID.100#_> .
+
+<Sport/ID.100#_> <Sport#ID> "100"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<Sport/ID.100#_> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <Sport> .
+<Sport/ID.100#_> <Sport#Name> "Tennis" .
+

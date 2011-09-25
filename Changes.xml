@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:dbug="http://ontologi.es/doap-bugs#" xmlns:dc="http://purl.org/dc/terms/" xmlns:dcs="http://ontologi.es/doap-changeset#" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-<rdf:Description rdf:nodeID="rB1380FA0DFB811E0AF009674A9282C2Dr0">
+<rdf:Description rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr0">
+	<dcs:item rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr1"/>
+	<dcs:item rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr2"/>
+	<dcs:versus rdf:resource="http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-001"/>
+</rdf:Description>
+<rdf:Description rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr1">
+	<rdf:type rdf:resource="http://ontologi.es/doap-changeset#Addition"/>
+	<rdfs:label>Allow 'process' method to take a callback.</rdfs:label>
+</rdf:Description>
+<rdf:Description rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr2">
+	<rdf:type rdf:resource="http://ontologi.es/doap-changeset#Update"/>
+	<rdfs:label>Support 20 Sept 2011 Working Draft of R2RML</rdfs:label>
+</rdf:Description>
+<rdf:Description rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr3">
 	<doap:browse rdf:resource="http://goddamn.co.uk/svn-web/perlmods/browse/RDF-RDB2RDF/"/>
 	<rdf:type rdf:resource="http://usefulinc.com/ns/doap#SVNRepository"/>
 </rdf:Description>
@@ -22,10 +35,13 @@
 	<doap:name>RDF-RDB2RDF</doap:name>
 	<doap:programming-language>Perl</doap:programming-language>
 	<doap:release rdf:resource="http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-001"/>
-	<doap:repository rdf:nodeID="rB1380FA0DFB811E0AF009674A9282C2Dr0"/>
+	<doap:release rdf:resource="http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-002"/>
+	<doap:repository rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr3"/>
 	<doap:shortdesc xml:lang="en">map relational database to RDF declaratively</doap:shortdesc>
 	<doap:tester rdf:resource="http://tobyinkster.co.uk/#i"/>
 	<rdf:type rdf:resource="http://usefulinc.com/ns/doap#Project"/>
+	<rdfs:seeAlso rdf:resource="http://answers.semanticweb.com/questions/11245/#11652"/>
+	<rdfs:seeAlso rdf:resource="http://buzzword.org.uk/2011/sqlite-to-rdf/"/>
 </rdf:Description>
 <rdf:Description rdf:about="http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-001">
 	<dc:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2011-09-15</dc:issued>
@@ -33,6 +49,13 @@
 	<doap:revision rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0.001</doap:revision>
 	<rdf:type rdf:resource="http://usefulinc.com/ns/doap#Version"/>
 	<rdfs:label xml:lang="en">Initial release</rdfs:label>
+</rdf:Description>
+<rdf:Description rdf:about="http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-002">
+	<dcs:changeset rdf:nodeID="r9825E454E7C111E08E81C8247CDE0FAFr0"/>
+	<dc:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2011-09-23</dc:issued>
+	<doap:file-release rdf:resource="http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.002.tar.gz"/>
+	<doap:revision rdf:datatype="http://www.w3.org/2001/XMLSchema#string">0.002</doap:revision>
+	<rdf:type rdf:resource="http://usefulinc.com/ns/doap#Version"/>
 </rdf:Description>
 <rdf:Description xmlns:ns1="http://www.w3.org/2002/07/owl#" rdf:about="http://tobyinkster.co.uk/#i">
 	<rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>

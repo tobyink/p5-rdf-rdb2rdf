@@ -1,0 +1,10 @@
+<Person#ID> rdfs:domain <Person> .
+<Person#Name> rdfs:domain <Person> .
+<Person#DateOfBirth> rdfs:domain <Person> .
+
+<Person/ID=1> a <Person> .
+<Person/ID=1> <Person#Name> "Alice" .
+
+<Person/ID=2> a <Person> .
+<Person/ID=2> <Person#Name> "Bob" .
+<Person/ID=2> <Person#DateOfBirth> "September, 2010" .

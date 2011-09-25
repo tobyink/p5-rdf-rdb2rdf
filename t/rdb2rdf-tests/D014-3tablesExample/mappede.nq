@@ -1,0 +1,2 @@
+<http://example.com/emp/7369> <http://example.com/emp/likes/Playing> "Soccer" <http://example.com/ns#LikesGraph> .
+<http://example.com/emp/7369> <http://example.com/emp/likes/Watching> "Basketball" <http://example.com/ns#LikesGraph> .

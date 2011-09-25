@@ -49,7 +49,7 @@ sub _r2rml
 		$self->{namespaces} = RDF::Trine::NamespaceMap->new;
 		my $parser = RDF::Trine::Parser->new('Turtle', namespaces=>$self->{namespaces});
 		my $model  = RDF::Trine::Model->temporary_model;
-		$parser->parse_into_model(undef, $r2rml, $model);
+		$parser->parse_into_model('http://example.com/', $r2rml, $model);
 		$r2rml = $model;
 	}
 	
@@ -67,7 +67,7 @@ sub _r2rml_TriplesMapClass
 	my $mapping = {};
 	
 	my ($tablename, $sqlquery);
-	foreach ($r2rml->objects($tmc, $rr->SQLQuery))
+	foreach ($r2rml->objects_for_predicate_list($tmc, $rr->SQLQuery, $rr->sqlQuery))
 	{
 		next unless $_->is_literal;
 		$sqlquery = $_->literal_value;
@@ -96,6 +96,45 @@ sub _r2rml_TriplesMapClass
 			}
 		}
 	}
+	
+	unless ($tablename)
+	{
+		LOGICALTABLE: foreach my $lt ($r2rml->objects($tmc, $rr->logicalTable))
+		{
+			next LOGICALTABLE if $lt->is_literal;
+
+			foreach ($r2rml->objects_for_predicate_list($lt, $rr->sqlQuery, $rr->SQLQuery))
+			{
+				next unless $_->is_literal;
+				$sqlquery = $_->literal_value;
+				last;
+			}
+			if ($sqlquery)
+			{
+				$tablename = sprintf('+q%s', md5_hex($sqlquery));
+				$mapping->{sql} = $sqlquery;
+				last LOGICALTABLE;
+			}
+
+			TABLENAME: foreach ($r2rml->objects($lt, $rr->tableName))
+			{
+				next TABLENAME unless $_->is_literal;
+				$tablename = $_->literal_value;
+				last TABLENAME;
+			}
+			if ($tablename)
+			{
+				TABLEOWNER: foreach ($r2rml->objects($tmc, $rr->tableOwner))
+				{
+					next TABLEOWNER unless $_->is_literal;
+					$tablename = sprintf('%s.%s', $_->literal_value, $tablename);
+					last TABLEOWNER ;
+				}
+				last LOGICALTABLE;
+			}
+		}
+	}
+	
 	return unless $tablename;
 	
 	foreach ($r2rml->objects($tmc, $rr->subjectMap))
@@ -103,6 +142,11 @@ sub _r2rml_TriplesMapClass
 		next if $_->is_literal;
 		$self->_r2rml_SubjectMapClass($r2rml, $_, $mapping);
 		last;
+	}
+	
+	unless ($mapping->{about})
+	{
+		($mapping->{about}) = grep { !$_->is_literal } $r2rml->objects_for_predicate_list($tmc, $rr->subject);
 	}
 
 	foreach ($r2rml->objects($tmc, $rr->predicateObjectMap))
@@ -121,6 +165,40 @@ sub _r2rml_TriplesMapClass
 	return $mapping;
 }
 
+sub _r2rml_graph
+{
+	my ($self, $r2rml, $thing) = @_;
+	
+	my ($graph) =
+		map { $_->is_resource ? $_->uri : $_->as_ntriples }
+		grep { !$_->is_literal }
+		$r2rml->objects($thing, $rr->graph);
+	return $graph if $graph;
+
+	foreach my $map ($r2rml->objects($thing, $rr->graphMap))
+	{
+		($graph) =
+			map { $_->is_resource ? $_->uri : $_->as_ntriples }
+			grep { !$_->is_literal }
+			$r2rml->objects_for_predicate_list($thing, $rr->constant, $rr->graph);
+		return $graph if $graph;
+		
+		($graph) =
+			map { sprintf('{%s}', $_->literal_value) }
+			grep { $_->is_literal }
+			$r2rml->objects($thing, $rr->column);
+		return $graph if $graph;
+
+		($graph) =
+			map { $_->literal_value }
+			grep { $_->is_literal }
+			$r2rml->objects($thing, $rr->template);
+		return $graph if $graph;
+	}
+	
+	return;
+}
+
 sub _r2rml_SubjectMapClass
 {
 	my ($self, $r2rml, $smc, $mapping) = @_;
@@ -129,20 +207,13 @@ sub _r2rml_SubjectMapClass
 	$mapping->{typeof} = [ grep { !$_->is_literal } $r2rml->objects($smc, $rr->class) ];
 	
 	# graph
-	($mapping->{graph}) = grep { $_->is_resource } $r2rml->objects($smc, $rr->graph);
-	unless ($mapping->{graph})
-	{
-		my ($col) = grep { $_->is_literal } $r2rml->objects($smc, $rr->graphColumn);
-		$mapping->{graph} = sprintf('{%s}', $col->literal_value) if $col;
-	}
-	unless ($mapping->{graph})
-	{
-		my ($tmpl) = grep { $_->is_literal } $r2rml->objects($smc, $rr->graphTemplate);
-		$mapping->{graph} = $tmpl->literal_value if $tmpl;
-	}
+	$mapping->{graph} = $self->_r2rml_graph($r2rml, $smc);
 
 	# subject
-	($mapping->{about}) = grep { !$_->is_literal } $r2rml->objects($smc, $rr->subject);
+	($mapping->{about}) =
+		map { $_->is_resource ? $_->uri : $_->as_ntriples }
+		grep { !$_->is_literal }
+		$r2rml->objects_for_predicate_list($smc, $rr->constant, $rr->subject);
 	unless ($mapping->{about})
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($smc, $rr->column);
@@ -155,8 +226,15 @@ sub _r2rml_SubjectMapClass
 	}
 	
 	# termtype
-	if ($mapping->{about}
-	and grep { !$_->is_literal and $_->literal_value =~ /^blank(node)?/i } $r2rml->objects($smc, $rr->termtype))
+	my ($termtype) =
+		map {
+				if ($_->as_ntriples =~ /(uri|iri|blank|blanknode|literal).?$/i)
+					{ { uri=>'IRI', iri=>'IRI', blank=>'BlankNode', blanknode=>'BlankNode', literal=>'Literal' }->{lc $1} }
+				else
+					{ $_->as_ntriples }
+			}
+		$r2rml->objects_for_predicate_list($smc, $rr->termType, $rr->termtype);
+	if ($mapping->{about} and $termtype =~ /^blank/i)
 	{
 		$mapping->{about} = sprintf('_:%s', $mapping->{about})
 			unless $mapping->{about} =~ /^_:/;
@@ -168,17 +246,7 @@ sub _r2rml_PredicateObjectMapClass
 	my ($self, $r2rml, $pomc, $mapping) = @_;
 	
 	# graph
-	my ($graph) = grep { $_->is_resource } $r2rml->objects($pomc, $rr->graph);
-	unless ($graph)
-	{
-		my ($col) = grep { $_->is_literal } $r2rml->objects($pomc, $rr->graphColumn);
-		$graph = sprintf('{%s}', $col->literal_value) if $col;
-	}
-	unless ($graph)
-	{
-		my ($tmpl) = grep { $_->is_literal } $r2rml->objects($pomc, $rr->graphTemplate);
-		$graph = $tmpl->literal_value if $tmpl;
-	}
+	my $graph = $self->_r2rml_graph($r2rml, $pomc);
 
 	# predicates
 	my @predicates;
@@ -187,7 +255,12 @@ sub _r2rml_PredicateObjectMapClass
 		next if $_->is_literal;
 		push @predicates, $self->_r2rml_PredicateMapClass($r2rml, $_);
 	}
-	
+
+	push @predicates,
+		map { $_->uri } 
+		grep { $_->is_resource }
+		$r2rml->objects_for_predicate_list($pomc, $rr->predicate);
+
 	# objects
 	my @objects;
 	foreach ($r2rml->objects($pomc, $rr->objectMap))
@@ -196,7 +269,31 @@ sub _r2rml_PredicateObjectMapClass
 		my $obj = $self->_r2rml_ObjectMapClass($r2rml, $_);
 		push @objects, $obj if defined $obj;
 	}
-	
+
+	push @objects,
+		map {
+				my $x = {};
+				if ($_->is_literal)
+				{
+					$x->{content}  = $_->literal_value;
+					$x->{lang}     = $_->literal_value_language;
+					$x->{datatype} = $_->literal_datatype;
+					$x->{kind}     = 'property';
+				}
+				elsif ($_->is_resource)
+				{
+					$x->{resource} = $_->uri;
+					$x->{kind}     = 'rel';
+				}
+				elsif ($_->is_blank)
+				{
+					$x->{resource} = $_->as_ntriples;
+					$x->{kind}     = 'rel';
+				}
+				$x;
+			} 
+		$r2rml->objects_for_predicate_list($pomc, $rr->object);
+
 	foreach my $obj (@objects)
 	{
 		foreach my $p (@predicates)
@@ -215,7 +312,7 @@ sub _r2rml_PredicateMapClass
 {
 	my ($self, $r2rml, $pmc) = @_;
 	
-	my ($p) = grep { $_->is_resource } $r2rml->objects($pmc, $rr->predicate);
+	my ($p) = map { $_->uri } grep { $_->is_resource } $r2rml->objects_for_predicate_list($pmc, $rr->constant, $rr->predicate);
 	unless ($p)
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($pmc, $rr->column);
@@ -234,8 +331,14 @@ sub _r2rml_ObjectMapClass
 {
 	my ($self, $r2rml, $omc) = @_;
 	
-	my $column;
-	my ($o) = grep { $_->is_resource } $r2rml->objects($omc, $rr->object);
+	my ($datatype, $language, $termtype, $column);
+	my ($o) = map {
+			if ($_->is_resource)   { $termtype = 'IRI'; $_->uri; }
+			elsif ($_->is_blank)   { $termtype = 'BlankNode'; $_->as_ntriples; }
+			elsif ($_->is_literal) { $datatype = $_->literal_datatype; $language = $_->literal_value_language; $termtype = 'Literal'; $_->literal_value; }
+			else                   { $_->as_ntriples; }
+		}
+		$r2rml->objects_for_predicate_list($omc, $rr->constant, $rr->object);
 	unless ($o)
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($omc, $rr->column);
@@ -248,12 +351,28 @@ sub _r2rml_ObjectMapClass
 		$o = $tmpl->literal_value if $tmpl;
 	}
 
-	my ($datatype) = grep { !$_->is_literal } $r2rml->objects($omc, $rr->datatype);
-	my ($language) = grep {  $_->is_literal } $r2rml->objects($omc, $rr->language);
-	my ($termtype) = grep {  $_->is_literal } $r2rml->objects($omc, $rr->termtype);
+	($datatype) =
+		map { $_->uri }
+		grep { $_->is_resource }
+		$r2rml->objects($omc, $rr->datatype)
+		unless $datatype;
+	($language) =
+		map { $_->literal_value }
+		grep {  $_->is_literal }
+		$r2rml->objects($omc, $rr->language)
+		unless $language;
+	($termtype) =
+		map {
+				if ($_->as_ntriples =~ /(uri|iri|blank|blanknode|literal).?$/i)
+					{ { uri=>'IRI', iri=>'IRI', blank=>'BlankNode', blanknode=>'BlankNode', literal=>'Literal' }->{lc $1} }
+				else
+					{ $_->as_ntriples }
+			}
+		$r2rml->objects_for_predicate_list($omc, $rr->termType, $rr->termtype)
+		unless $termtype;
 	
-	$termtype = $termtype->literal_value if $termtype;
-	$termtype ||= 'literal';
+	$termtype ||= 'Literal' if $datatype||$language;
+	$termtype ||= 'IRI';
 	
 	$o = sprintf('_:%s', $o)
 		if (!ref $o) && $termtype =~ /^blank/i && $o !~ /^_:/;
@@ -270,8 +389,8 @@ sub _r2rml_ObjectMapClass
 		$map->{$x} = $o;
 	}
 	
-	$map->{datatype} = $datatype->uri if $datatype;
-	$map->{lang}     = $language->literal_value if $language;
+	$map->{datatype} = $datatype if $datatype;
+	$map->{lang}     = $language if $language;
 	$map->{kind}     = ($termtype =~ /literal/i) ? 'property' : 'rel';
 
 	return $map;
@@ -290,9 +409,8 @@ RDF::RDB2RDF::R2RML - map relational database to RDF using R2RML
 
 =head1 DESCRIPTION
 
-This class offers support for W3C R2RML, based on the 24 March 2011 working
-draft. B<It does not yet support the "ref" stuff for generating triples based
-on foreign keys.>
+This class offers support for W3C R2RML, based on the 20 Sept 2011 working
+draft. See the BUGS section below for a list on unimplemented areas.
 
 This is a subclass of RDF::RDB2RDF::Simple. Differences noted below...
 
@@ -319,13 +437,30 @@ C<< no_r2rml => 1 >> can disable that feature.
 
 =back
 
+=head1 BUGS
+
+Limitations
+
+=over
+
+=item * rr:RefObjectMap, rr:parentTriplesMap, rr:joinCondition,
+rr:JoinCondition, rr:child, rr:parent are not yet supported.
+
+=item * rr:defaultGraph is not understood.
+
+=item * Scoping of blank nodes across graphs is incorrect.
+
+=item * Datatype conversions probably not done correctly.
+
+=back
+
 =head1 SEE ALSO
 
 L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::Simple>.
 
 L<http://perlrdf.org/>.
 
-L<http://www.w3.org/TR/2011/WD-r2rml-20110324/>.
+L<http://www.w3.org/TR/2011/WD-r2rml-20110920/>.
 
 =head1 AUTHOR
 

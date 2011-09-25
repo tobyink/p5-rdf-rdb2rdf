@@ -1,6 +1,6 @@
 use 5.008;
 use strict;
-use Test::More tests => 12;
+use Test::More tests => 14;
 
 BEGIN { use_ok( 'RDF::RDB2RDF::R2RML' ); }
 
@@ -21,17 +21,17 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 
 []
 	a rr:TriplesMapClass;
-	rr:tableName "books";
+	rr:logicalTable [ rr:tableName "books" ];
 
 	rr:subjectMap [ rr:template "http://example.com/id/book/{book_id}";
-	                rr:termtype "IRI";
+	                rr:termType "IRI";
 	                rr:class bibo:Book; 
 	                rr:graph exa:BookGraph ];
 
 	rr:predicateObjectMap
 	[ 
-		rr:predicateMap [ rr:predicate rdfs:label ]; 
-		rr:predicateMap [ rr:predicate dc:title ]; 
+		rr:predicate rdfs:label; 
+		rr:predicateMap [ rr:constant dc:title ]; 
 		rr:objectMap    [ rr:column "title"; rr:language "en" ]
 	]
 .
@@ -39,35 +39,41 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 []
 	a rr:TriplesMapClass;
 	
-	rr:SQLQuery """
+	rr:logicalTable [ rr:sqlQuery """
 	
 		SELECT *, forename||' '||surname AS fullname
 		FROM authors
 		
-	""" ;
+	""" ] ;
 
 	rr:subjectMap [ rr:template "http://example.com/id/author/{author_id}";
-	                rr:termtype "IRI";
+	                rr:termType "IRI";
 	                rr:class foaf:Person; 
 	                rr:graph exa:AuthorGraph ];
 
 	rr:predicateObjectMap
 	[ 
-		rr:predicateMap [ rr:predicate foaf:givenName ]; 
-		rr:objectMap    [ rr:column "forename" ]
+		rr:predicateMap [ rr:constant foaf:givenName ]; 
+		rr:objectMap    [ rr:column "forename" ; rr:termtype "litERAl" ]
+	];
+	
+	rr:predicateObjectMap
+	[
+		rr:predicate rdf:type ;
+		rr:object exa:Author
 	];
 
 	rr:predicateObjectMap
 	[ 
-		rr:predicateMap [ rr:predicate foaf:familyName ]; 
-		rr:objectMap    [ rr:column "surname" ]
+		rr:predicateMap [ rr:constant foaf:familyName ]; 
+		rr:objectMap    [ rr:column "surname" ; rr:termType rr:Literal ]
 	];
 
 	rr:predicateObjectMap
 	[ 
-		rr:predicateMap [ rr:predicate foaf:name ] ; 
-		rr:predicateMap [ rr:predicate rdfs:label  ]; 
-		rr:objectMap    [ rr:column "fullname" ]
+		rr:predicateMap [ rr:constant foaf:name ] ; 
+		rr:predicateMap [ rr:constant rdfs:label  ]; 
+		rr:objectMap    [ rr:column "fullname" ; rr:termType "literaL" ]
 	]
 .
 
@@ -81,8 +87,8 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 
 	rr:predicateObjectMap
 	[
-		rr:predicateMap [ rr:predicate rdfs:label ]; 
-		rr:predicateMap [ rr:predicate skos:prefLabel ]; 
+		rr:predicateMap [ rr:constant rdfs:label ]; 
+		rr:predicateMap [ rr:constant skos:prefLabel ]; 
 		rr:objectMap    [ rr:column "label"; rr:language "en" ]
 	]
 .
@@ -96,10 +102,10 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 
 	rr:predicateObjectMap
 	[
-		rr:predicateMap [ rr:predicate foaf:maker ]; 
-		rr:predicateMap [ rr:predicate bibo:author ]; 
-		rr:predicateMap [ rr:predicate dc:creator ]; 
-		rr:objectMap    [ rr:template "http://example.com/id/author/{author_id}"; rr:termtype "IRI" ]
+		rr:predicateMap [ rr:constant foaf:maker ]; 
+		rr:predicateMap [ rr:constant bibo:author ]; 
+		rr:predicateMap [ rr:constant dc:creator ]; 
+		rr:objectMap    [ rr:template "http://example.com/id/author/{author_id}"; rr:termType "IRI" ]
 	]
 .
 
@@ -112,8 +118,8 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 
 	rr:predicateObjectMap
 	[
-		rr:predicateMap [ rr:predicate foaf:made ]; 
-		rr:objectMap    [ rr:template "http://example.com/id/book/{book_id}"; rr:termtype "IRI" ]
+		rr:predicateMap [ rr:constant foaf:made ]; 
+		rr:objectMap    [ rr:template "http://example.com/id/book/{book_id}"; rr:termType "IRI" ]
 	]
 .
 
@@ -126,8 +132,8 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 
 	rr:predicateObjectMap
 	[
-		rr:predicateMap [ rr:predicate dc:subject ]; 
-		rr:objectMap    [ rr:template "http://example.com/id/topic/{topic_id}"; rr:termtype "IRI" ]
+		rr:predicateMap [ rr:constant dc:subject ]; 
+		rr:objectMap    [ rr:template "http://example.com/id/topic/{topic_id}"; rr:termType "IRI" ]
 	]
 .
 
@@ -174,4 +180,21 @@ is($model->count_statements(
 	'Simple class triple output.'
 	);
 
-# print $rdb2rdf->process_turtle($dbh);
+is($model->count_statements(
+		iri('http://example.com/id/book/3'),
+		iri('http://www.w3.org/2000/01/rdf-schema#label'),
+		literal('Zen and the Art of Motorcycle Maintenance: An Inquiry into Values', 'en'),
+		), 1,
+	'rr:predicate shortcut property'
+	);
+
+is($model->count_statements(
+		iri('http://example.com/id/author/2'),
+		iri('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
+		iri('http://example.com/core#Author'),
+		), 1,
+	'rr:object shortcut property'
+	);
+
+
+## print $rdb2rdf->process_turtle($dbh);

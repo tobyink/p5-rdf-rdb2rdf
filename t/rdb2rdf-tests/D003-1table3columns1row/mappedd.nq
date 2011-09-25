@@ -1,0 +1,3 @@
+_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7ff9 <http://xmlns.com/foaf/0.1/name> "Venus Williams" .
+_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7ff9 <http://example.com/id> "10"^^<http://www.w3.org/2001/XMLSchema#integer> .
+_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7ff9 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> .

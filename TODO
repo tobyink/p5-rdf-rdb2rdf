@@ -1,4 +1,5 @@
 * print to handle option for process_turtle
-* implement support for R2RML RefPredicateObjectMapClass, etc.
-* compliance testing against R2RML.
-
+* rr:RefObjectMap, rr:parentTriplesMap, rr:joinCondition, rr:JoinCondition, rr:child, rr:parent are not yet supported.
+* rr:defaultGraph is not understood.
+* Scoping of blank nodes across graphs is incorrect.
+* Datatype conversions probably not done correctly.
