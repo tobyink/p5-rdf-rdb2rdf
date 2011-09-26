@@ -13,13 +13,13 @@
     rr:predicateObjectMap
     [ 
       rr:predicateMap [ rr:predicate foaf:firstName ]; 
-      rr:objectMap    [ rr:column "FirstName" ]
+      rr:objectMap    [ rr:column "FirstName" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap
     [ 
       rr:predicateMap [ rr:predicate foaf:lastName ]; 
-      rr:objectMap    [ rr:column "LastName" ]
+      rr:objectMap    [ rr:column "LastName"; rr:termType rr:Literal  ]
     ]
 	.	
     
@@ -38,7 +38,7 @@
     rr:predicateObjectMap
     [ 
       rr:predicateMap [ rr:predicate ex:description ]; 
-      rr:objectMap    [ rr:column "Description" ]
+      rr:objectMap    [ rr:column "Description" ; rr:termType rr:Literal ]
     ]
 	.
 

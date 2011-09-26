@@ -13,7 +13,7 @@
       Select ('http://example.com/emp/' || id) AS empId
            , ('http://example.com/emp/likes/' || likeType) AS empLikes
            , likedObj
-        from SCOTT.LIKES
+        from LIKES
       """ ];
 
     rr:subjectMap [

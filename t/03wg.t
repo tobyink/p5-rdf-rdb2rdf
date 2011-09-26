@@ -4,43 +4,44 @@ use strict;
 BEGIN { use_ok('RDF::RDB2RDF') };
 
 my @manifests = qw(
-	D000-1table0rows         D004-1table2columnsprojection       D008-1table1compositeprimarykey3columns1row  D012-2tables2duplicates0nulls
-	D001-1table1row          D005-2duplicates0nulls              D009-2tables1primarykey1foreingkey           D013-1table3columns2rows1nullvalue
-	D002-1table2columns1row  D006-1table1primarykey1column1row   D010-I18NnoSpecialChars                      D014-3tablesExample
-	D003-1table3columns1row  D007-1table1primarykey2columns1row  D011-M2MRelations                            
+	D000-1table0rows         
+	D001-1table1row          
+	D002-1table2columns1row  
+	D003-1table3columns1row  
+	D003-1table3columns1row  
+	D004-1table2columnsprojection         
+	D005-2duplicates0nulls                	
+	D006-1table1primarykey1column1row     
+	D007-1table1primarykey2columns1row    
+	D008-1table1compositeprimarykey3columns1row
+	D009-2tables1primarykey1foreingkey         
+	D010-I18NnoSpecialChars                    
+	D011-M2MRelations                          
+	D012-2tables2duplicates0nulls
+	D013-1table3columns2rows1nullvalue
+	D014-3tablesExample               
 	);
-
 my $here = $0;
 $here =~ s/03wg.t$//;
 $here ||= '.';
+
+my $output = sub
+{
+	diag($_[0]);
+};
 
 MANIFEST: foreach (@manifests)
 {
 	my $filename = sprintf('%s/rdb2rdf-tests/%s/manifest.ttl', $here, $_);
 	my $manifest = Local::WGTest::Manifest->new($filename);
+	$manifest->output = $output;
 	
 	my %tests = $manifest->tests;
 	TEST: while (my ($i, $test) = each %tests)
 	{
 		SKIP: {
-			skip "Not working yet", 1
-				if $test->identifier =~ /^(
-					 R2RMLTC0004b
-					|R2RMLTC0004a
-					|R2RMLTC012a
-					|R2RMLTC012b
-					|R2RMLTC0001a
-					|R2RMLTC0001b
-					|R2RMLTC009
-					|R2RMLTC0002a
-					|R2RMLTC0002b
-					|R2RMLTC014a
-					|R2RMLTC014b
-					|R2RMLTC0003b
-					|R2RMLTC0003a
-					|R2RMLTC011a
-					|R2RMLTC011b
-					)$/ix;
+			skip "$1 not working yet", 1
+				if $test->identifier =~ /^(R2RMLTC009|R2RMLTC014b)$/;
 
 			ok($test->successful, $test->id_and_title);
 		}
@@ -72,11 +73,12 @@ sub new
 	my $model  = RDF::Trine::Model->new;
 	$parser->parse_file_into_model('http://tests.invalid/', $filename, $model);
 	
-	bless {filename=>$filename, model=>$model};
+	bless {filename=>$filename, model=>$model, output=>undef};
 }
 
-sub model    { $_[0]->{model} }
-sub filename { $_[0]->{filename} }
+sub model    :lvalue { $_[0]->{model} }
+sub filename :lvalue { $_[0]->{filename} }
+sub output   :lvalue { $_[0]->{output} }
 
 sub relative_file
 {
@@ -100,9 +102,11 @@ sub databases
 			my ($iri)    = @_;
 			my ($script) = $self->model->objects($iri, $RTEST->sqlScriptFile);
 			$script = slurp($self->relative_file($script));
+			my @script = split /\;\s*$/m, $script;
 			
-			my $dbh = DBI->connect('dbi:SQLite:dbname=:memory:');
-			$dbh->do($script);
+			my $filename = $iri->uri eq $ENV{KEEP_DATABASE} ? 'keep.db' : ':memory:';
+			my $dbh = DBI->connect("dbi:SQLite:dbname=${filename}");
+			$dbh->do($_) foreach @script;
 			$self->{databases}{$iri} = $dbh;
 		});
 	}
@@ -152,9 +156,9 @@ sub new
 	bless {iri=>$iri, manifest=>$manifest};
 }
 
-sub model    { $_[0]->{manifest}->model }
-sub iri      { $_[0]->{iri} }
-sub manifest { $_[0]->{manifest} }
+sub model    :lvalue { $_[0]->{manifest}->model }
+sub iri      :lvalue { $_[0]->{iri} }
+sub manifest :lvalue { $_[0]->{manifest} }
 
 sub identifier
 {
@@ -221,7 +225,18 @@ sub successful
 	my $actual   = RDF::Trine::Graph->new( $self->actual_output );
 	my $expected = RDF::Trine::Graph->new( $self->expected_output );
 	
-	return $expected->is_subgraph_of($actual);
+	my $pass = $expected->is_subgraph_of($actual);
+	
+	if (defined $self->manifest->output and !$pass)
+	{
+		$self->manifest->output->(sprintf("Failed '%s'. Actual graph was:\n", $self->identifier));
+		my $ser = RDF::Trine::Serializer->new('nquads');
+		$self->manifest->output->($ser->serialize_model_to_string($actual->{model}));
+		$self->manifest->output->("JSON mapping was:\n");
+		$self->manifest->output->($self->mapping->to_json(pretty=>1, canonical=>1));
+	}
+	
+	return $pass;
 }
 
 #######################################################################

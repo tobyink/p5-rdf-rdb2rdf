@@ -15,7 +15,7 @@ our $rr = RDF::Trine::Namespace->new('http://www.w3.org/ns/r2rml#');
 
 use base qw[RDF::RDB2RDF::Simple];
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 sub new
 {
@@ -53,7 +53,16 @@ sub _r2rml
 		$r2rml = $model;
 	}
 	
-	foreach my $tmc ($r2rml->subjects($rdf->type, $rr->TriplesMapClass))
+	my @TMC = values %{ {
+			map { $_->as_ntriples => $_ }
+			(
+				$r2rml->subjects($rdf->type, $rr->TriplesMap),
+				$r2rml->subjects($rdf->type, $rr->TriplesMapClass),
+				$r2rml->subjects($rr->subjectMap, undef),
+			)
+		} };
+		
+	foreach my $tmc (@TMC)
 	{
 		$self->_r2rml_TriplesMapClass($r2rml, $tmc);
 	}
@@ -447,8 +456,6 @@ Limitations
 rr:JoinCondition, rr:child, rr:parent are not yet supported.
 
 =item * rr:defaultGraph is not understood.
-
-=item * Scoping of blank nodes across graphs is incorrect.
 
 =item * Datatype conversions probably not done correctly.
 

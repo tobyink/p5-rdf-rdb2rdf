@@ -6,7 +6,7 @@ use common::sense;
 use RDF::RDB2RDF::Simple;
 use RDF::RDB2RDF::R2RML;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 1;
 

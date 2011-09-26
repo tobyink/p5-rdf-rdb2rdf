@@ -13,7 +13,7 @@
             , "deptno"
             , "dname"
             , "loc"
-         from SCOTT.DEPT
+         from DEPT
        """ ];
 
     rr:subjectMap [ rr:column "deptId"; rr:termType rr:BlankNode;
@@ -30,18 +30,18 @@
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate dept:name ]; 
-      rr:objectMap    [ rr:column "dname" ]
+      rr:objectMap    [ rr:column "dname" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate dept:location ]; 
-      rr:objectMap    [ rr:column "loc" ]
+      rr:objectMap    [ rr:column "loc" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate dept:COMPANY ]; 
-      rr:objectMap    [ rr:object "EXAMPLE Corporation" ]
+      rr:objectMap    [ rr:object "EXAMPLE Corporation" ; rr:termType rr:Literal ]
     ]
 .

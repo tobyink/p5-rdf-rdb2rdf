@@ -15,7 +15,7 @@
             , deptno
             , dname
             , loc
-         from SCOTT.DEPT
+         from DEPT
        """ ];
 
     rr:subjectMap [ rr:column "deptId"; rr:termType rr:BlankNode;
@@ -60,7 +60,7 @@
             , ('http://example.com/emp/etype/'|| etype) AS empTypeURI
             , etype
             , ('http://example.com/graph/'|| job || '/' || etype) AS graphURI
-       from SCOTT.EMP
+       from EMP
        """ ];
 
     rr:subjectMap [ rr:column "empURI";

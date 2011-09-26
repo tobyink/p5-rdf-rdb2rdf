@@ -4,6 +4,7 @@ use 5.008;
 use common::sense;
 
 use Data::UUID;
+use Digest::MD5 qw[md5_hex];
 use DBI;
 use JSON qw[];
 use overload qw[];
@@ -13,15 +14,30 @@ use Scalar::Util qw[blessed];
 
 sub iri
 {
-	my ($iri) = @_;
-	return $iri if blessed($iri) && $iri->isa('RDF::Trine::Node');
-	return blank(substr $iri, 2) if $iri =~ /^_:/;
-	return RDF::Trine::iri($iri);
+	my ($iri, $graph) = @_;
+	
+	return $iri
+		if blessed($iri) && $iri->isa('RDF::Trine::Node');
+	return blank()
+		if $iri eq '[]';
+	
+	if ($iri =~ /^_:(.*)$/)
+	{
+		my $ident = $1;
+		$ident =~ s/([^0-9A-Za-wyz])/sprintf('x%04X', ord($1))/eg;
+		if ($graph)
+		{
+			$ident = md5_hex("$graph").$ident;
+		}
+		return blank($ident);
+	}
+	
+	return RDF::Trine::iri("$iri");
 }
 
 use namespace::clean;
 
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 sub new
 {
@@ -119,20 +135,26 @@ sub process
 		ROW: while (my $row = $sth->fetchrow_hashref)
 		{
 			my %row = %$row;
+#			use Data::Dumper; Test::More::diag(Dumper($row));
+			
+			# ->{graph}
+			my $graph = undef;
+			$graph = iri( $self->template($tmap->{graph}, %row) )
+				if defined $tmap->{graph};
 			
 			# ->{about}
 			my $subject;
 			if ($tmap->{about})
 			{
-				$subject = iri( $self->template($tmap->{about}, %row) );
+				$subject = $self->template($tmap->{about}, %row);
 			}
-			$subject ||= RDF::Trine::Node::Blank->new;
+			$subject ||= '[]';
 			
 			# ->{typeof}
 			foreach (@{ $tmap->{typeof} })
 			{
-				$_ = iri($_) unless ref $_;
-				$callback->(statement($subject, $rdf->type, $_));
+				$_ = iri($_, $graph) unless ref $_;
+				$callback->(statement(iri($subject, $graph), $rdf->type, $_));
 			}
 
 			# ->{columns}
@@ -144,6 +166,10 @@ sub process
 					my ($predicate, $value);
 					$value = $row{$column} if exists $row{$column};
 					
+					my $lgraph = defined $map->{graph}
+						? iri($self->template($map->{graph}, %row))
+						: $graph;
+					
 					if (defined $map->{parse} and uc $map->{parse} eq 'TURTLE')
 					{
 						next MAP unless length $value;
@@ -153,11 +179,18 @@ sub process
 						$turtle .= "$value\n";
 						eval {
 							$parsers->{ $map->{parse} } = RDF::Trine::Parser->new($map->{parse});
-							$parsers->{ $map->{parse} }->parse_into_model($subject, $turtle, $model);
+							if ($lgraph)
+							{
+								$parsers->{ $map->{parse} }->parse_into_model($subject, $turtle, $model, context=>$lgraph);
+							}
+							else
+							{
+								$parsers->{ $map->{parse} }->parse_into_model($subject, $turtle, $model);
+							}
 						};
 						next MAP;
 					}
-										
+
 					if ($map->{rev} || $map->{rel})
 					{
 						if ($map->{resource})
@@ -165,7 +198,7 @@ sub process
 							$value = $self->template($map->{resource}, %row, '_' => $value);
 						}
 						$predicate = $map->{rev} || $map->{rel};
-						$value     = iri($value);
+						$value     = iri($value, $lgraph);
 					}
 					
 					elsif ($map->{property})
@@ -183,23 +216,22 @@ sub process
 						unless (ref $predicate)
 						{
 							$predicate = $self->template($predicate, %row, '_' => $value);							
-							$predicate = iri($predicate) ;
+							$predicate = iri($predicate, $lgraph) ;
 						}
 						
-						my $lsubject = $subject;
+						my $lsubject = iri($subject, $lgraph);
 						if ($map->{about})
 						{
-							$lsubject = iri( $self->template($map->{about}, %row) );
+							$lsubject = iri($self->template($map->{about}, %row), $lgraph);
 						}
 
 						my $st = $map->{rev}
 							? statement($value, $predicate, $lsubject) 
 							: statement($lsubject, $predicate, $value);
 							
-						if ($map->{graph} || $tmap->{graph})
+						if ($lgraph)
 						{
-							my $ctxt = iri( $self->template($map->{graph}||$tmap->{graph}, %row) );
-							$callback->($st, $ctxt);
+							$callback->($st, $lgraph);
 						}
 						else
 						{

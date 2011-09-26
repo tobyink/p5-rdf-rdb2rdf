@@ -14,7 +14,7 @@
             , deptno
             , dname
             , loc
-         from SCOTT.DEPT
+         from DEPT
        """ ];
 
     rr:subjectMap [ rr:column "deptId"; rr:termType rr:BlankNode;
@@ -61,7 +61,7 @@
 <TriplesMap2>
     a rr:TriplesMap;
 
-    rr:logicalTable [ rr:tableName "SCOTT.EMP" ];
+    rr:logicalTable [ rr:tableName "EMP" ];
 
     rr:subjectMap [ rr:template "http://example.com/emp/{empno}";
                     rr:class ex:emp; 

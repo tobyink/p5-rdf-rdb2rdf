@@ -7,7 +7,7 @@
 <TriplesMap1>
      a rr:TriplesMap;
 
-     rr:logicalTable [ rr:tableName "boricles.Student" ];
+     rr:logicalTable [ rr:tableName "Student" ];
 
     rr:subjectMap [ rr:template "http://example.com/Student{ID}{FirstName}{LastName}";
                     rr:class foaf:Person  ];
@@ -21,12 +21,12 @@
     rr:predicateObjectMap
     [ 
       rr:predicateMap [ rr:predicate foaf:firstName ]; 
-      rr:objectMap    [ rr:column "FirstName" ]
+      rr:objectMap    [ rr:column "FirstName" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap
     [ 
       rr:predicateMap [ rr:predicate foaf:lastName ]; 
-      rr:objectMap    [ rr:column "LastName" ]
+      rr:objectMap    [ rr:column "LastName" ; rr:termType rr:Literal ]
     ]
     .
