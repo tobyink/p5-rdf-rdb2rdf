@@ -27,6 +27,7 @@ $here ||= '.';
 
 my $output = sub
 {
+#	print($_[0]."\n");
 	diag($_[0]);
 };
 
@@ -42,7 +43,16 @@ MANIFEST: foreach (@manifests)
 		SKIP: {
 			skip "$1 not working yet", 1
 				if $test->identifier =~ /^(R2RMLTC009|R2RMLTC014b)$/;
+			ok($test->successful, $test->id_and_title);
+		}
+	}
 
+	my %dtests = $manifest->tests('DirectMapping');
+	TEST: while (my ($i, $test) = each %dtests)
+	{
+		SKIP: {
+			skip "$1 not working yet", 1
+				if $test->identifier =~ /^Direct Graph (TC0009|TC0011)$/;
 			ok($test->successful, $test->id_and_title);
 		}
 	}
@@ -106,6 +116,7 @@ sub databases
 			
 			my $filename = $iri->uri eq $ENV{KEEP_DATABASE} ? 'keep.db' : ':memory:';
 			my $dbh = DBI->connect("dbi:SQLite:dbname=${filename}");
+			$dbh->do('PRAGMA foreign_keys = ON;');
 			$dbh->do($_) foreach @script;
 			$self->{databases}{$iri} = $dbh;
 		});
@@ -119,19 +130,19 @@ sub tests
 	my ($self, $type) = @_;
 	$type ||= 'R2RML';
 
-	unless ($self->{tests})
+	unless ($self->{tests}{$type})
 	{
-		$self->{tests} = {};
+		$self->{tests}{$type} = {};
 			
 		$self->model->subjects($RDF->type, $RTEST->$type)->each(sub
 		{
 			my ($iri) = @_;
 			my $class = 'Local::WGTest::'.$type;
-			$self->{tests}{$iri} = $class->new($iri, $self);
+			$self->{tests}{$type}{$iri} = $class->new($iri, $self);
 		});
 	}
 	
-	return %{ $self->{tests} };
+	return %{ $self->{tests}{$type} };
 }
 
 #######################################################################
@@ -140,6 +151,7 @@ package Local::WGTest::R2RML;
 
 use strict;
 use File::Slurp qw[slurp];
+use JSON qw[to_json];
 use RDF::Trine '0.135';
 use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 our ($TEST, $RTEST, $DC);
@@ -153,7 +165,7 @@ BEGIN
 sub new
 {
 	my ($class, $iri, $manifest) = @_;
-	bless {iri=>$iri, manifest=>$manifest};
+	bless {iri=>$iri, manifest=>$manifest}, $class;
 }
 
 sub model    :lvalue { $_[0]->{manifest}->model }
@@ -210,10 +222,11 @@ sub expected_output
 {
 	my ($self) = @_;
 	my ($output) = $self->model->objects($self->iri, $RTEST->output);
+	my $filename = $self->manifest->relative_file($output);
 	
-	my $parser = RDF::Trine::Parser->new('NQuads');
+	my $parser = RDF::Trine::Parser->new($filename =~ /\.nq$/ ? 'NQuads' : 'Turtle');
 	my $model  = RDF::Trine::Model->new;
-	$parser->parse_file_into_model($self->iri->uri, $self->manifest->relative_file($output), $model);
+	$parser->parse_file_into_model($self->iri->uri, $filename, $model);
 	
 	return $model;
 }
@@ -232,11 +245,43 @@ sub successful
 		$self->manifest->output->(sprintf("Failed '%s'. Actual graph was:\n", $self->identifier));
 		my $ser = RDF::Trine::Serializer->new('nquads');
 		$self->manifest->output->($ser->serialize_model_to_string($actual->{model}));
-		$self->manifest->output->("JSON mapping was:\n");
-		$self->manifest->output->($self->mapping->to_json(pretty=>1, canonical=>1));
+		if ($self->mapping->can('to_json'))
+		{
+			$self->manifest->output->("JSON mapping was:\n");
+			$self->manifest->output->($self->mapping->to_json(pretty=>1, canonical=>1));
+		}
+		if ($self->mapping->can('layout'))
+		{
+			$self->manifest->output->("Database layout was:\n");
+			$self->manifest->output->(to_json($self->mapping->layout($self->database), {pretty=>1, canonical=>1}));
+		}
 	}
 	
 	return $pass;
 }
 
 #######################################################################
+
+package Local::WGTest::DirectMapping;
+
+use strict;
+use base qw[ Local::WGTest::R2RML ];
+
+sub mapping
+{
+	return RDF::RDB2RDF::DirectMapping->new(prefix=>'http://example.net/', rdfs=>1);
+}
+
+sub expected_output
+{
+	my ($self) = @_;
+	my ($output) = $self->model->objects($self->iri, $RTEST->output);
+	my $filename = $self->manifest->relative_file($output);
+	
+	my $parser = RDF::Trine::Parser->new($filename =~ /\.nq$/ ? 'NQuads' : 'Turtle');
+	my $model  = RDF::Trine::Model->new;
+	$parser->parse_file_into_model('http://example.net/', $filename, $model);
+	
+	return $model;
+}
+

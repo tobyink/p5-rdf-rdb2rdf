@@ -5,8 +5,41 @@ use common::sense;
 
 use RDF::RDB2RDF::Simple;
 use RDF::RDB2RDF::R2RML;
+use RDF::RDB2RDF::DirectMapping;
 
 our $VERSION = '0.003';
+
+sub new
+{
+	my ($class, $type, @args) = @_;
+	
+	my $map = {
+		simple        => 'Simple',
+		r2rml         => 'R2RML',
+		direct        => 'DirectMapping',
+		directmapping => 'DirectMapping',
+		};
+	
+	$type = $map->{lc $type} if exists $map->{lc $type};
+	$class .= '::'.$type;
+	
+	$class->new(@args);
+}
+
+sub process
+{
+	die "Not implemented.\n";
+}
+
+sub process_turtle
+{
+	my ($self, $dbh, %options) = @_;
+	
+	my $model = $self->process($dbh);
+	return RDF::Trine::Serializer
+		->new('Turtle', %options)
+		->serialize_model_to_string($model);
+}
 
 1;
 
@@ -16,7 +49,7 @@ RDF::RDB2RDF - map relational database to RDF declaratively
 
 =head1 SYNOPSIS
 
- print RDF::RDB2RDF::R2RML->new($r2rml)->process_turtle($dbh);
+ print RDF::RDB2RDF->new(R2RML => $r2rml)->process_turtle($dbh);
 
 =head1 DESCRIPTION
 
@@ -26,7 +59,7 @@ triples. Nothing wrong with that; I've done that in the past, and that's what
 RDF::RDB2RDF does under the hood.
 
 But it's nice to be able to write your mapping declaratively. This distribution
-provides two modules to enable that:
+provides three modules to enable that:
 
 =over
 
@@ -34,11 +67,19 @@ provides two modules to enable that:
 
 =item * L<RDF::RDB2RDF::R2RML> - map relational database to RDF using R2RML
 
+=item * L<RDF::RDB2RDF::DirectMapping> - map relational database to RDF directly
+
 =back
+
+C<RDF::RDB2RDF> itself provides a wrapper for constructing mapper objects,
+and acts as a base class for the three implementations.
 
 =head1 SEE ALSO
 
-L<RDF::Trine>, L<RDF::RDB2RDF::Simple>, L<RDF::RDB2RDF::R2RML>.
+L<RDF::Trine>,
+L<RDF::RDB2RDF::Simple>,
+L<RDF::RDB2RDF::R2RML>,
+L<RDF::RDB2RDF::DirectMapping>.
 
 L<http://perlrdf.org/>.
 

@@ -413,7 +413,7 @@ RDF::RDB2RDF::R2RML - map relational database to RDF using R2RML
 
 =head1 SYNOPSIS
 
- my $mapper = RDF::RDB2RDF::R2RML->new($r2rml);
+ my $mapper = RDF::RDB2RDF->new('R2RML', $r2rml);
  print $mapper->process_turtle($dbh);
 
 =head1 DESCRIPTION
@@ -427,7 +427,9 @@ This is a subclass of RDF::RDB2RDF::Simple. Differences noted below...
 
 =over 
 
-=item * C<< new($r2rml)>>
+=item * C<< RDF::RDB2RDF::R2RML->new($r2rml) >>
+
+=item * C<< RDF::RDB2RDF->new('R2RML', $r2rml) >>
 
 A single parameter is expected, this can either be an R2RML document as a
 Turtle string, or an L<RDF::Trine::Model> containing R2RML data. If a Turtle

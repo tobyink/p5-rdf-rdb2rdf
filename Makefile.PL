@@ -16,14 +16,17 @@ license             'perl';
 
 requires            'common::sense'      => 0;
 requires            'Data::UUID'         => 0;
-requires            'DBI'                => 0;
 test_requires       'DBD::SQLite'        => 0;
+requires            'DBI'                => 0;
+requires            'DBIx::Admin::TableInfo' => 0;
 requires            'JSON'               => 0;
+requires            'MIME::Base64'       => 0;
 requires            'namespace::clean'   => 0;
 requires            'RDF::Trine'         => '0.133';
 requires            'Scalar::Util'       => 0;
 requires            'Storable'           => 0;
 test_requires       'Test::More'         => '0.61';
+requires            'URI::Escape'        => 0;
 
 resources(
 	'homepage'   => "https://metacpan.org/release/$dist",

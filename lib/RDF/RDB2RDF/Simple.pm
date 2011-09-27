@@ -36,6 +36,7 @@ sub iri
 }
 
 use namespace::clean;
+use base qw[RDF::RDB2RDF];
 
 our $VERSION = '0.003';
 
@@ -259,10 +260,8 @@ sub process_turtle
 		$rv .= $json;
 	}
 
-	my $model = $self->process($dbh);
-	$rv .= RDF::Trine::Serializer
-		->new('Turtle', namespaces => { $self->namespaces })
-		->serialize_model_to_string($model);
+	$rv .= $self->SUPER::process_turtle($dbh, namespaces => {$self->namespaces});
+	$rv;
 }
 
 sub to_hashref
@@ -338,7 +337,7 @@ RDF::RDB2RDF::Simple - map relational database to RDF easily
 
 =head1 SYNOPSIS
 
- my $mapper = RDF::RDB2RDF::Simple->new(%mappings, -namespaces => \%ns);
+ my $mapper = RDF::RDB2RDF->new('Simple', %mappings, -namespaces => \%ns);
  print $mapper->process_turtle($dbh);
 
 =head1 DESCRIPTION
@@ -350,7 +349,9 @@ an RDF graph.
 
 =over 
 
-=item * C<< new(%mappings [, -namespaces=>\%ns])>>
+=item * C<< RDF::RDB2RDF::Simple->new(%mappings [, -namespaces=>\%ns]) >>
+
+=item * C<< RDF::RDB2RDF->new('Simple', %mappings [, -namespaces=>\%ns]) >>
 
 The constructor takes a hash of mappings. (See MAPPINGS below.) You may also
 pass a reference to a set of namespaces. This can be a hashref, or an
