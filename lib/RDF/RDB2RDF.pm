@@ -6,6 +6,7 @@ use common::sense;
 use RDF::RDB2RDF::Simple;
 use RDF::RDB2RDF::R2RML;
 use RDF::RDB2RDF::DirectMapping;
+use RDF::RDB2RDF::DirectMapping::Store;
 
 our $VERSION = '0.003';
 
@@ -74,12 +75,19 @@ provides three modules to enable that:
 C<RDF::RDB2RDF> itself provides a wrapper for constructing mapper objects,
 and acts as a base class for the three implementations.
 
+There is also a module L<RDF::RDB2RDF::DirectMapping::Store> which uses 
+the same mapping as L<RDF::RDB2RDF::DirectMapping> but provides the same 
+interface as L<RDF::Trine::Store>.
+
 =head1 SEE ALSO
 
-L<RDF::Trine>,
+L<RDF::Trine>.
+
 L<RDF::RDB2RDF::Simple>,
 L<RDF::RDB2RDF::R2RML>,
 L<RDF::RDB2RDF::DirectMapping>.
+
+L<RDF::RDB2RDF::DirectMapping::Store>.
 
 L<http://perlrdf.org/>.
 

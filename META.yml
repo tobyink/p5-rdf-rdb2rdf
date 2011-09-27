@@ -28,12 +28,16 @@ no_index:
     - inc
     - t
 requires:
+  Carp: 0
   DBI: 0
+  DBIx::Admin::TableInfo: 0
   Data::UUID: 0
   JSON: 0
+  MIME::Base64: 0
   RDF::Trine: 0.133
   Scalar::Util: 0
   Storable: 0
+  URI::Escape: 0
   common::sense: 0
   namespace::clean: 0
   perl: 5.8.0
@@ -43,4 +47,3 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: http://goddamn.co.uk/svn-web/perlmods/browse/RDF-RDB2RDF/
 version: 0.003
-
