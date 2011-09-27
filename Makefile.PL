@@ -14,6 +14,7 @@ readme_from         $fn;
 author              'Toby Inkster <tobyink@cpan.org>';
 license             'perl';
 
+requires            'Carp'               => 0;
 requires            'common::sense'      => 0;
 requires            'Data::UUID'         => 0;
 test_requires       'DBD::SQLite'        => 0;

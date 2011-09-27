@@ -107,125 +107,165 @@ sub layout
 sub process
 {
 	my ($self, $dbh, $model) = @_;
+	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};	
-	
 	my $schema;
 	($dbh, $schema) = ref($dbh) eq 'ARRAY' ? @$dbh : ($dbh, undef);
 
 	my $layout = $self->layout($dbh, $schema);
-	
 	foreach my $table (keys %$layout)
 	{
-		if ($self->rdfs)
-		{
-			$callback->(statement(iri($self->prefix.$table), $RDF->type, $OWL->Class));
-			$callback->(statement(iri($self->prefix.$table), $RDFS->label, literal($table)));
-
-			foreach my $column (@{ $layout->{$table}{columns} })
-			{
-				my $predicate = iri($self->prefix.$table.'#'.$column->{column});
-				my $datatype;
-				if ($column->{type} =~ /^(int|smallint|bigint)/i)
-				{
-					$datatype = $XSD->integer;
-				}
-				elsif ($column->{type} =~ /^(decimal|numeric)/i)
-				{
-					$datatype = $XSD->decimal;
-				}
-				elsif ($column->{type} =~ /^(float|real|double)/i)
-				{
-					$datatype = $XSD->float;
-				}
-				elsif ($column->{type} =~ /^(binary)/i)
-				{
-					$datatype = $XSD->base64Binary;
-				}
-				$callback->(statement($predicate, $RDF->type, $OWL->DatatypeProperty));
-				$callback->(statement($predicate, $RDFS->label, literal($column->{column})));
-				$callback->(statement($predicate, $RDFS->domain, iri($self->prefix.$table)));
-				$callback->(statement($predicate, $RDFS->range, $datatype)) if $datatype;
-			}
-			
-			foreach my $ref (values %{ $layout->{$table}{refs} })
-			{
-				my $predicate = iri($self->make_ref_uri($table, $ref));
-				$callback->(statement($predicate, $RDF->type, $OWL->ObjectProperty));
-				$callback->(statement($predicate, $RDFS->domain, iri($self->prefix.$table)));
-				$callback->(statement($predicate, $RDFS->range, iri($self->prefix.$ref->{target_table})));
-			}
-		}
-		
-		my $sql = $schema
-			? sprintf('SELECT * FROM "%s"."%s"', $schema, $table)
-			: sprintf('SELECT * FROM "%s"', $table);
-		my $sth = $dbh->prepare($sql);
-		$sth->execute;
-		
-		while (my $row = $sth->fetchrow_hashref)
-		{
-			my ($pkey_uri) =
-				map  { $self->make_key_uri($table, $_->{columns}, $row); }
-				grep { $_->{primary}; }
-				values %{ $layout->{$table}{keys} };
-			my @key_uris =
-				map  { $self->make_key_uri($table, $_->{columns}, $row); }
-				grep { !$_->{primary}; }
-				values %{ $layout->{$table}{keys} };
-			
-			my $subject = $pkey_uri ? iri($pkey_uri) : blank();
-			
-			# rdf:type
-			$callback->(statement($subject, $RDF->type, iri($self->prefix.$table)));
-			
-			# owl:sameAs
-			$callback->(statement($subject, $OWL->sameAs, iri($_)))
-				foreach @key_uris;
-			
-			# p-o for columns
-			foreach my $column (@{ $layout->{$table}{columns} })
-			{
-				next unless defined $row->{ $column->{column} };
-				
-				my $predicate = iri($self->prefix.$table.'#'.$column->{column});
-				my $value     = $row->{ $column->{column} };
-				my $datatype;
-				
-				if ($column->{type} =~ /^(int|smallint|bigint)/i)
-				{
-					$datatype = $XSD->integer;
-				}
-				elsif ($column->{type} =~ /^(decimal|numeric)/i)
-				{
-					$datatype = $XSD->decimal;
-				}
-				elsif ($column->{type} =~ /^(float|real|double)/i)
-				{
-					$datatype = $XSD->float;
-				}
-				elsif ($column->{type} =~ /^(binary)/i)
-				{
-					$datatype = $XSD->base64Binary;
-					$value    = MIME::Base64::encode_base64($value);
-				}
-				# need to handle BOOLEAN, DATE, TIME and TIMESTAMP.
-				
-				my $object = literal($value, undef, $datatype);
-				$callback->(statement($subject, $predicate, $object));
-			}
-			
-			# foreign keys
-			foreach my $ref (values %{ $layout->{$table}{refs} })
-			{
-				my $predicate = iri($self->make_ref_uri($table, $ref));
-				my $object    = iri($self->make_ref_dest_uri($table, $ref, $row));
-				$callback->(statement($subject, $predicate, $object));
-			}
-		}
+		$self->handle_table([$dbh, $schema], $callback, $table);
 	}
 	
 	return $model;
+}
+
+sub handle_table
+{
+	my ($self, $dbh, $model, $table, $where) = @_;
+	
+	$model = RDF::Trine::Model->temporary_model unless defined $model;
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};		
+	my $schema;
+	($dbh, $schema) = ref($dbh) eq 'ARRAY' ? @$dbh : ($dbh, undef);
+	
+	my $layout = $self->layout($dbh, $schema);
+	
+	$self->handle_table_rdfs([$dbh, $schema], $callback, $table)
+		unless $where;
+	
+	my $sql = $schema
+		? sprintf('SELECT * FROM "%s"."%s"', $schema, $table)
+		: sprintf('SELECT * FROM "%s"', $table);
+	
+	my @values;
+	if ($where)
+	{
+		my @w;
+		while (my ($k,$v) = each %$where)
+		{
+			push @w, sprintf('%s = ?', $k);
+			push @values, $v;
+		}
+		$sql .= ' WHERE ' . (join ' AND ', @w);
+	}
+	my $sth = $dbh->prepare($sql);
+	$sth->execute(@values);
+		
+	while (my $row = $sth->fetchrow_hashref)
+	{
+		my ($pkey_uri) =
+			map  { $self->make_key_uri($table, $_->{columns}, $row); }
+			grep { $_->{primary}; }
+			values %{ $layout->{$table}{keys} };
+		my @key_uris =
+			map  { $self->make_key_uri($table, $_->{columns}, $row); }
+			grep { !$_->{primary}; }
+			values %{ $layout->{$table}{keys} };
+		
+		my $subject = $pkey_uri ? iri($pkey_uri) : blank();
+		
+		# rdf:type
+		$callback->(statement($subject, $RDF->type, iri($self->prefix.$table)));
+		
+		# owl:sameAs
+		$callback->(statement($subject, $OWL->sameAs, iri($_)))
+			foreach @key_uris;
+		
+		# p-o for columns
+		foreach my $column (@{ $layout->{$table}{columns} })
+		{
+			next unless defined $row->{ $column->{column} };
+			
+			my $predicate = iri($self->prefix.$table.'#'.$column->{column});
+			my $value     = $row->{ $column->{column} };
+			my $datatype;
+			
+			if ($column->{type} =~ /^(int|smallint|bigint)/i)
+			{
+				$datatype = $XSD->integer;
+			}
+			elsif ($column->{type} =~ /^(decimal|numeric)/i)
+			{
+				$datatype = $XSD->decimal;
+			}
+			elsif ($column->{type} =~ /^(float|real|double)/i)
+			{
+				$datatype = $XSD->float;
+			}
+			elsif ($column->{type} =~ /^(binary)/i)
+			{
+				$datatype = $XSD->base64Binary;
+				$value    = MIME::Base64::encode_base64($value);
+			}
+			# need to handle BOOLEAN, DATE, TIME and TIMESTAMP.
+			
+			my $object = literal($value, undef, $datatype);
+			$callback->(statement($subject, $predicate, $object));
+		}
+		
+		# foreign keys
+		foreach my $ref (values %{ $layout->{$table}{refs} })
+		{
+			my $predicate = iri($self->make_ref_uri($table, $ref));
+			my $object    = iri($self->make_ref_dest_uri($table, $ref, $row));
+			$callback->(statement($subject, $predicate, $object));
+		}
+	}
+}
+
+sub handle_table_rdfs
+{
+	my ($self, $dbh, $model, $table) = @_;
+	
+	$model = RDF::Trine::Model->temporary_model unless defined $model;
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};		
+	my $schema;
+	($dbh, $schema) = ref($dbh) eq 'ARRAY' ? @$dbh : ($dbh, undef);
+
+	my $layout = $self->layout($dbh, $schema);
+
+	if ($self->rdfs)
+	{
+		$callback->(statement(iri($self->prefix.$table), $RDF->type, $OWL->Class));
+		$callback->(statement(iri($self->prefix.$table), $RDFS->label, literal($table)));
+
+		foreach my $column (@{ $layout->{$table}{columns} })
+		{
+			my $predicate = iri($self->prefix.$table.'#'.$column->{column});
+			my $datatype;
+			if ($column->{type} =~ /^(int|smallint|bigint)/i)
+			{
+				$datatype = $XSD->integer;
+			}
+			elsif ($column->{type} =~ /^(decimal|numeric)/i)
+			{
+				$datatype = $XSD->decimal;
+			}
+			elsif ($column->{type} =~ /^(float|real|double)/i)
+			{
+				$datatype = $XSD->float;
+			}
+			elsif ($column->{type} =~ /^(binary)/i)
+			{
+				$datatype = $XSD->base64Binary;
+			}
+			$callback->(statement($predicate, $RDF->type, $OWL->DatatypeProperty));
+			$callback->(statement($predicate, $RDFS->label, literal($column->{column})));
+			$callback->(statement($predicate, $RDFS->domain, iri($self->prefix.$table)));
+			$callback->(statement($predicate, $RDFS->range, $datatype)) if $datatype;
+		}
+		
+		foreach my $ref (values %{ $layout->{$table}{refs} })
+		{
+			my $predicate = iri($self->make_ref_uri($table, $ref));
+			$callback->(statement($predicate, $RDF->type, $OWL->ObjectProperty));
+			$callback->(statement($predicate, $RDFS->domain, iri($self->prefix.$table)));
+			$callback->(statement($predicate, $RDFS->range, iri($self->prefix.$ref->{target_table})));
+		}
+	}
 }
 
 sub process_turtle
@@ -290,7 +330,7 @@ RDF::RDB2RDF::DirectMapping - map relational database to RDF directly
 This module makes it stupidly easy to dump a relational SQL database as
 an RDF graph, but at the cost of flexibility. Other than providing a base
 prefix for class, property and instance URIs, all mapping is done automatically,
-with no other configuration at all.
+with very little other configuration at all.
 
 This class offers support for the W3C Direct Mapping, based on the 20 Sept 2011
 working draft.
@@ -299,13 +339,16 @@ working draft.
 
 =over 
 
-=item * C<< RDF::RDB2RDF::DirectMapping->new([prefix => $prefix_uri]) >>
+=item * C<< RDF::RDB2RDF::DirectMapping->new([prefix => $prefix_uri] [, %opts]) >>
 
-=item * C<< RDF::RDB2RDF->new('DirectMapping' [, prefix => $prefix_uri]) >>
+=item * C<< RDF::RDB2RDF->new('DirectMapping' [, prefix => $prefix_uri] [, %opts]) >>
 
 =back
 
 The prefix defaults to the empty string - i.e. relative URIs.
+
+One extra option is supported: C<rdfs> which controls whether extra Tbox
+statements are included in the mapping.
 
 =head2 Methods
 

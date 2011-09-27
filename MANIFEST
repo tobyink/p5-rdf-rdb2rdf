@@ -12,6 +12,8 @@ TODO
 lib/RDF/RDB2RDF.pm
 lib/RDF/RDB2RDF/R2RML.pm
 lib/RDF/RDB2RDF/Simple.pm
+lib/RDF/RDB2RDF/DirectMapping.pm
+lib/RDF/RDB2RDF/DirectMapping/Store.pm
 
 inc/Module/AutoInstall.pm
 inc/Module/Install/AutoInstall.pm
