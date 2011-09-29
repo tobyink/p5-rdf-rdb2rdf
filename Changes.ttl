@@ -13,7 +13,7 @@
 
 <>
 
-	dc:title         "Changes" ;
+	dc:title         "Changes"@en ;
 	dc:description   "Revision history for Perl extension RDF-RDB2RDF."@en ;
 	dc:subject       my:project ;
 	dc:creator       toby:i .
@@ -36,8 +36,8 @@ my:v_0-002
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.002.tar.gz> ;
 	dcs:changeset [
 		dcs:versus my:v_0-001 ;
-		dcs:item   [ rdfs:label "Allow 'process' method to take a callback." ; a dcs:Addition ] ;
-		dcs:item   [ rdfs:label "Support 20 Sept 2011 Working Draft of R2RML" ; a dcs:Update ]
+		dcs:item   [ rdfs:label "Allow 'process' method to take a callback."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "Support 20 Sept 2011 Working Draft of R2RML"@en ; a dcs:Update ]
 		] .
 
 my:v_0-003
@@ -48,11 +48,25 @@ my:v_0-003
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.003.tar.gz> ;
 	dcs:changeset [
 		dcs:versus my:v_0-002 ;
-		dcs:item   [ rdfs:label "Include more test cases, inspired by RDB2RDF Working Group's tests." ; a dcs:Packaging ] ;
-		dcs:item   [ rdfs:label "Include RDF::RDB2RDF::DirectMapping class." ; a dcs:Addition ] ;
-		dcs:item   [ rdfs:label "Include RDF::RDB2RDF::DirectMapping::Store class." ; a dcs:Addition ] ;
-		dcs:item   [ rdfs:label "Fix blank node scoping in R2RML mapping." ; a dcs:Bugfix ] ;
-		dcs:item   [ rdfs:label "Various." ; a dcs:Bugfix ]
+		dcs:item   [ rdfs:label "Include more test cases, inspired by RDB2RDF Working Group's tests."@en ; a dcs:Packaging ] ;
+		dcs:item   [ rdfs:label "Include RDF::RDB2RDF::DirectMapping class."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "Include RDF::RDB2RDF::DirectMapping::Store class."@en ; a dcs:Addition ] ;
+		dcs:item   [ rdfs:label "Fix blank node scoping in R2RML mapping."@en ; a dcs:Bugfix ] ;
+		dcs:item   [ rdfs:label "Various."@en ; a dcs:Bugfix ]
+		] .
+
+my:v_0-004
+
+	a               :Version ;
+	dc:issued       "2011-09-27"^^xsd:date ; ???
+	:revision       "0.004"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.004.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-003 ;
+		dcs:item   [ rdfs:label "Further optimise RDF::RDB2RDF::DirectMapping::Store::get_statements allowing it to narrow down the list of columns to select from the database when fewer than '*' are needed."  ] ;
+		dcs:item   [ rdfs:label "Optimise RDF::RDB2RDF::DirectMapping::Store::get_pattern in cases when all statements with the pattern share a common subject."@en  ] ;
+		dcs:item   [ rdfs:label "Provide warn_sql option for RDF::RDB2RDF::DirectMapping."  ] ;
+		dcs:item   [ rdfs:label "Document handle_table and handle_table_rdfs methods for RDF::RDB2RDF::DirectMapping." ; a dcs:Documentation ]
 		] .
 
 #############################################################
@@ -74,7 +88,7 @@ my:project
 	:created        "2011-09-13"^^xsd:date ;
 	:license        <http://dev.perl.org/licenses/> ;
 	rdfs:seeAlso    <http://answers.semanticweb.com/questions/11245/#11652> , <http://buzzword.org.uk/2011/sqlite-to-rdf/> ;
-	:release        my:v_0-001 , my:v_0-002 , my:v_0-003 .
+	:release        my:v_0-001 , my:v_0-002 , my:v_0-003 , my:v_0-004 .
 
 #############################################################
 

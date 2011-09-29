@@ -3,6 +3,7 @@ package RDF::RDB2RDF::DirectMapping;
 use 5.008;
 use common::sense;
 
+use Carp qw[carp croak];
 use DBI;
 use DBIx::Admin::TableInfo;
 use MIME::Base64 qw[];
@@ -38,6 +39,8 @@ sub layout
 
 	unless ($self->{layout}{refaddr($dbh).'|'.$schema})
 	{
+		carp sprintf('READ SCHEMA "%s"', $schema||'%') if $self->{warn_sql};
+		
 		my $rv     = {};
 		my $info   = DBIx::Admin::TableInfo->new(dbh => $dbh, schema => $schema)->info;	
 		
@@ -124,21 +127,33 @@ sub process
 
 sub handle_table
 {
-	my ($self, $dbh, $model, $table, $where) = @_;
+	my ($self, $dbh, $model, $table, $where, $cols) = @_;
 	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};		
 	my $schema;
 	($dbh, $schema) = ref($dbh) eq 'ARRAY' ? @$dbh : ($dbh, undef);
+	$cols = [$cols] if (defined $cols and !ref $cols and length $cols);
 	
 	my $layout = $self->layout($dbh, $schema);
 	
+	if (ref $cols eq 'ARRAY')
+	{
+		my ($pkey) = grep { $_->{primary} } values %{ $layout->{$table}{keys} };
+		my %cols   = map { $_ => 1 } (@{ $pkey->{columns} }, @$cols);
+		$cols      = join ',', map { sprintf('"%s"', $_); } sort keys %cols;
+	}
+	else
+	{
+		$cols = '*';
+	}
+
 	$self->handle_table_rdfs([$dbh, $schema], $callback, $table)
-		unless $where;
-	
+		if ($cols eq '*' and !defined $where);	
+
 	my $sql = $schema
-		? sprintf('SELECT * FROM "%s"."%s"', $schema, $table)
-		: sprintf('SELECT * FROM "%s"', $table);
+		? sprintf('SELECT %s FROM "%s"."%s"', $cols, $schema, $table)
+		: sprintf('SELECT %s FROM "%s"', $cols, $table);
 	
 	my @values;
 	if ($where)
@@ -146,11 +161,13 @@ sub handle_table
 		my @w;
 		while (my ($k,$v) = each %$where)
 		{
-			push @w, sprintf('%s = ?', $k);
+			push @w, sprintf('"%s" = ?', $k);
 			push @values, $v;
 		}
 		$sql .= ' WHERE ' . (join ' AND ', @w);
 	}
+
+	carp($sql) if $self->{warn_sql};
 	my $sth = $dbh->prepare($sql);
 	$sth->execute(@values);
 		
@@ -159,20 +176,22 @@ sub handle_table
 		my ($pkey_uri) =
 			map  { $self->make_key_uri($table, $_->{columns}, $row); }
 			grep { $_->{primary}; }
-			values %{ $layout->{$table}{keys} };
-		my @key_uris =
-			map  { $self->make_key_uri($table, $_->{columns}, $row); }
-			grep { !$_->{primary}; }
-			values %{ $layout->{$table}{keys} };
-		
+			values %{ $layout->{$table}{keys} };		
 		my $subject = $pkey_uri ? iri($pkey_uri) : blank();
 		
 		# rdf:type
 		$callback->(statement($subject, $RDF->type, iri($self->prefix.$table)));
 		
 		# owl:sameAs
-		$callback->(statement($subject, $OWL->sameAs, iri($_)))
-			foreach @key_uris;
+		if ($cols eq '*')
+		{
+			my @key_uris =
+				map  { $self->make_key_uri($table, $_->{columns}, $row); }
+				grep { !$_->{primary}; }
+				values %{ $layout->{$table}{keys} };
+			$callback->(statement($subject, $OWL->sameAs, iri($_)))
+				foreach @key_uris;
+		}
 		
 		# p-o for columns
 		foreach my $column (@{ $layout->{$table}{columns} })
@@ -347,8 +366,9 @@ working draft.
 
 The prefix defaults to the empty string - i.e. relative URIs.
 
-One extra option is supported: C<rdfs> which controls whether extra Tbox
-statements are included in the mapping.
+Two extra options are supported: C<rdfs> which controls whether extra Tbox
+statements are included in the mapping; C<warn_sql> carps statements to
+STDERR whenever the database is queried.
 
 =head2 Methods
 
@@ -378,11 +398,36 @@ As per C<process>, but returns a string in Turtle format.
 
 Returns a string.
 
+=item * C<< handle_table($source, $destination, $table, [\%where], [\@cols]) >>
+
+As per C<process> but must always be passed an explicit destination (doesn't
+return anything useful), and only processes a single table.
+
+If %where is provided, selects only certain rows from the table. Hash keys
+are column names, hash values are column values.
+
+If @cols is provided, selects only particular columns. (The primary key columns
+will always be selected.)
+
+This method allows you to generate predictable subsets of the mapping output.
+It's used fairly extensively by L<RDF::RDB2RDF::DirectMapping::Store>.
+
+=item * C<< handle_table_sql($source, $destination, $table) >>
+
+As per C<handle_table> but only generates the RDFS/OWL schema data. Note that
+C<handle_table> already includes this data (unless %where or @cols was passed
+to it).
+
+If the C<rdfs> option passed to the constructor was not true, then there will
+be no RDFS/OWL schema data generated.
+
 =back
 
 =head1 SEE ALSO
 
 L<RDF::Trine>, L<RDF::RDB2RDF>.
+
+L<RDF::RDB2RDF::DirectMapping::Store>.
 
 L<http://perlrdf.org/>.
 

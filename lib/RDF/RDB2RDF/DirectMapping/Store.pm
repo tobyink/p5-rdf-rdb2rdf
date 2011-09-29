@@ -44,6 +44,74 @@ sub dbh     :lvalue { $_[0]->{dbh} }
 sub schema  :lvalue { $_[0]->{schema} }
 sub mapping :lvalue { $_[0]->{mapping} }
 
+sub get_pattern
+{
+	my $self = shift;
+	my ($pattern, $context) = @_;
+	
+	my $NULL = RDF::Trine::Iterator::Bindings->new();
+	return $NULL if blessed($context) && !$context->is_variable;
+	
+	if (scalar $pattern->triples > 1)
+	{
+		my %subjects = map { $_->subject->as_string => $_->subject } $pattern->triples;
+		
+		# optimise cases where all subjects are the same
+		if (scalar keys %subjects==1)
+		{
+			my $layout = $self->mapping->layout($self->dbh, $self->schema);
+			my ($subject) = values %subjects;
+			my ($table, $where) = (undef, {});
+				
+			if ($subject->is_resource)
+			{
+				my ($s_prefix, $s_table, $s_divider, $s_bit) = $self->split_uri($subject);
+				
+				if (defined $s_prefix and defined $s_table and $s_divider eq '/' and defined $s_bit)
+				{
+					$table = $s_table;
+					$where = $self->handle_bit($table, $s_bit);
+				}
+			}
+			else
+			{
+				foreach my $st ($pattern->triples)
+				{
+					return $NULL if $st->object->is_literal and $st->object->has_language;
+					
+					next unless $st->predicate->is_resource;
+					my ($p_prefix, $p_table, $p_divider, $p_bit) = $self->split_uri($st->predicate);
+
+					if (defined $p_prefix and defined $p_table and $p_divider eq '#' and defined $p_bit)
+					{
+						$table = $p_table unless defined $table;
+						return $NULL unless $p_table eq $table;
+						
+						my ($column) =
+							grep { $p_bit eq $_->{column} }
+							@{$layout->{$table}{columns}};
+						return $NULL unless $column;
+						
+						if ($st->object->is_literal)
+						{
+							$where->{ $column->{column} } = $st->object->literal_value;
+						}
+					}
+				}
+			}
+			
+			#use Data::Dumper;
+			#warn "Can optimise using....\n".Dumper($table,$where);
+			
+			my $model = RDF::Trine::Model->temporary_model;
+			$self->mapping->handle_table([$self->dbh, $self->schema], $model, $table, $where);
+			return $model->get_pattern(@_);
+		}
+	}
+	
+	return $self->SUPER::get_pattern(@_);
+}
+
 sub get_statements
 {
 	my ($self, $s, $p, $o, $g) = @_;
@@ -73,7 +141,7 @@ sub get_statements
 	
 	my $table = undef;
 	my $where = {};
-	
+	my $columns = undef;
 	
 	if ($self->mapping->rdfs)
 	{
@@ -145,6 +213,7 @@ sub get_statements
 				grep { $p_bit eq $_->{column} }
 				@{$layout->{$table}{columns}};
 			return $NULL unless $column;
+			$columns = [$column->{column}];
 			
 			if (blessed($o))
 			{
@@ -160,6 +229,16 @@ sub get_statements
 		my ($o_prefix, $o_table, $o_divider) = $self->split_uri($o);
 		return $NULL unless $o_prefix;
 		return $NULL if $o_divider;
+		
+		$table = $o_table;
+		$columns = [];
+	}
+	elsif (blessed($p) and $p->equal($OWL->sameAs))
+	{
+		my ($o_prefix, $o_table, $o_divider) = $self->split_uri($o);
+		return $NULL unless $o_prefix;
+		return $NULL unless $o_divider eq '/';
+		return $NULL if defined $s_table && $o_table ne $s_table;
 		
 		$table = $o_table;
 	}
@@ -199,7 +278,7 @@ sub get_statements
 	{
 		#use Data::Dumper;
 		#warn ("Saved Time!\n".Dumper($table , $where));
-		$self->mapping->handle_table([$self->dbh, $self->schema], $callback, $table, $where);
+		$self->mapping->handle_table([$self->dbh, $self->schema], $callback, $table, $where, $columns);
 	}
 	else
 	{
