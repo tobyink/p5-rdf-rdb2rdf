@@ -11,7 +11,7 @@ use URI::Escape qw[uri_escape uri_unescape];
 
 use base qw[RDF::Trine::Store];
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 sub new
 {

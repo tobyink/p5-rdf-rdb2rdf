@@ -46,4 +46,5 @@ resources:
   homepage: https://metacpan.org/release/RDF-RDB2RDF
   license: http://dev.perl.org/licenses/
   repository: http://goddamn.co.uk/svn-web/perlmods/browse/RDF-RDB2RDF/
-version: 0.003
+version: 0.004
+

@@ -14,7 +14,7 @@ use URI::Escape qw[];
 
 use base qw[RDF::RDB2RDF];
 
-our $VERSION = '0.003';
+our $VERSION = '0.004';
 
 sub new
 {
