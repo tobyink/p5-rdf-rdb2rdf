@@ -74,6 +74,11 @@ sub _r2rml_TriplesMapClass
 {
 	my ($self, $r2rml, $tmc) = @_;
 	my $mapping = {};
+		
+	if ( $self->{tmc}{$tmc} )
+	{
+		return $self->{tmc}{$tmc};
+	}
 	
 	my ($tablename, $sqlquery);
 	foreach ($r2rml->objects_for_predicate_list($tmc, $rr->SQLQuery, $rr->sqlQuery))
@@ -145,6 +150,8 @@ sub _r2rml_TriplesMapClass
 	}
 	
 	return unless $tablename;
+	$self->{tmc}{$tmc} = $mapping;
+	$mapping->{from} = $tablename unless defined $mapping->{sql};
 	
 	foreach ($r2rml->objects($tmc, $rr->subjectMap))
 	{
@@ -168,9 +175,10 @@ sub _r2rml_TriplesMapClass
 	while (defined $self->{mappings}{$key})
 	{
 		$key = sprintf('+t%s', md5_hex($key));
-		$mapping->{from} = $tablename;
 	}
+	
 	$self->{mappings}{$key} = $mapping;
+	
 	return $mapping;
 }
 
@@ -303,6 +311,13 @@ sub _r2rml_PredicateObjectMapClass
 			} 
 		$r2rml->objects_for_predicate_list($pomc, $rr->object);
 
+	foreach ($r2rml->objects($pomc, $rr->refObjectMap))
+	{
+		next if $_->is_literal;
+		my $obj = $self->_r2rml_RefObjectMapClass($r2rml, $_);
+		push @objects, $obj if defined $obj;
+	}
+
 	foreach my $obj (@objects)
 	{
 		foreach my $p (@predicates)
@@ -403,6 +418,42 @@ sub _r2rml_ObjectMapClass
 	$map->{kind}     = ($termtype =~ /literal/i) ? 'property' : 'rel';
 
 	return $map;
+}
+
+sub _r2rml_RefObjectMapClass
+{
+	my ($self, $r2rml, $romc) = @_;
+		
+	my $parent;
+	PARENT: foreach my $ptm ($r2rml->objects($romc, $rr->parentTriplesMap))
+	{
+		next PARENT if $ptm->is_literal;
+		$parent = $self->_r2rml_TriplesMapClass($r2rml, $ptm);
+		last PARENT if $parent;
+	}
+	return unless $parent;
+	
+	my $joins = [];
+	JOIN: foreach my $jc ($r2rml->objects($romc, $rr->joinCondition))
+	{
+		my ($p) = grep { $_->is_literal }
+			$r2rml->objects($jc, $rr->parent);
+		my ($c) = grep { $_->is_literal }
+			$r2rml->objects($jc, $rr->child);
+		
+		if ($p && $c)
+		{
+			push @$joins, { parent => $p->literal_value, child => $c->literal_value };
+		}
+	}
+	
+	return {
+		column   => '_',
+		join     => $parent->{sql} || $parent->{from},
+		on       => $joins,
+		resource => $parent->{about},
+		method   => $parent->{sql} ? 'subquery' : 'table',
+		};
 }
 
 1;

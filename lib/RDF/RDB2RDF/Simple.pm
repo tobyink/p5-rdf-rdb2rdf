@@ -3,6 +3,7 @@ package RDF::RDB2RDF::Simple;
 use 5.008;
 use common::sense;
 
+use Carp qw[carp croak];
 use Data::UUID;
 use Digest::MD5 qw[md5_hex];
 use DBI;
@@ -111,141 +112,255 @@ sub template
 sub process
 {
 	my ($self, $dbh, $model) = @_;
-	$model = RDF::Trine::Model->temporary_model unless defined $model;
+	$model = RDF::Trine::Model->temporary_model unless defined $model;	
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
 	
-	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};	
-	my $parsers  = {};
-	my %NS       = $self->namespaces;
 	my $mappings = $self->mappings;
-	
-	TABLE: while (my ($table, $tmap) = each %$mappings)
+	TABLE: foreach my $table (keys %$mappings)
 	{
-		# ->{from}
-		my $from = $tmap->{from} || $table;
-
-		# ->{select}
-		my $select = $tmap->{select} || '*';
-		
-		# ->{sql}
-		my $sql    = "SELECT $select FROM $from";
-		$sql = $tmap->{sql} if $tmap->{sql} =~ /^\s*SELECT/i;
-		
-		my $sth    = $dbh->prepare($sql);
-		$sth->execute;
-		
-		ROW: while (my $row = $sth->fetchrow_hashref)
-		{
-			my %row = %$row;
-#			use Data::Dumper; Test::More::diag(Dumper($row));
-			
-			# ->{graph}
-			my $graph = undef;
-			$graph = iri( $self->template($tmap->{graph}, %row) )
-				if defined $tmap->{graph};
-			
-			# ->{about}
-			my $subject;
-			if ($tmap->{about})
-			{
-				$subject = $self->template($tmap->{about}, %row);
-			}
-			$subject ||= '[]';
-			
-			# ->{typeof}
-			foreach (@{ $tmap->{typeof} })
-			{
-				$_ = iri($_, $graph) unless ref $_;
-				$callback->(statement(iri($subject, $graph), $rdf->type, $_));
-			}
-
-			# ->{columns}
-			my %columns = %{ $tmap->{columns} };
-			COLUMN: while (my ($column, $list) = each %columns)
-			{
-				MAP: foreach my $map (@$list)
-				{
-					my ($predicate, $value);
-					$value = $row{$column} if exists $row{$column};
-					
-					my $lgraph = defined $map->{graph}
-						? iri($self->template($map->{graph}, %row))
-						: $graph;
-					
-					if (defined $map->{parse} and uc $map->{parse} eq 'TURTLE')
-					{
-						next MAP unless length $value;
-						
-						my $turtle = join '', map { sprintf("\@prefix %s: <%s>.\n", $_, $NS{$_}) } keys %NS;
-						$turtle .= sprintf("\@base <%s>.\n", $subject->uri);
-						$turtle .= "$value\n";
-						eval {
-							$parsers->{ $map->{parse} } = RDF::Trine::Parser->new($map->{parse});
-							if ($lgraph)
-							{
-								$parsers->{ $map->{parse} }->parse_into_model($subject, $turtle, $model, context=>$lgraph);
-							}
-							else
-							{
-								$parsers->{ $map->{parse} }->parse_into_model($subject, $turtle, $model);
-							}
-						};
-						next MAP;
-					}
-
-					if ($map->{rev} || $map->{rel})
-					{
-						if ($map->{resource})
-						{
-							$value = $self->template($map->{resource}, %row, '_' => $value);
-						}
-						$predicate = $map->{rev} || $map->{rel};
-						$value     = iri($value, $lgraph);
-					}
-					
-					elsif ($map->{property})
-					{
-						if ($map->{content})
-						{
-							$value = $self->template($map->{content}, %row, '_' => $value);
-						}
-						$predicate = $map->{property};
-						$value     = literal($value, $map->{lang}, $map->{datatype});
-					}
-					
-					if (defined $predicate and defined $value)
-					{
-						unless (ref $predicate)
-						{
-							$predicate = $self->template($predicate, %row, '_' => $value);							
-							$predicate = iri($predicate, $lgraph) ;
-						}
-						
-						my $lsubject = iri($subject, $lgraph);
-						if ($map->{about})
-						{
-							$lsubject = iri($self->template($map->{about}, %row), $lgraph);
-						}
-
-						my $st = $map->{rev}
-							? statement($value, $predicate, $lsubject) 
-							: statement($lsubject, $predicate, $value);
-							
-						if ($lgraph)
-						{
-							$callback->($st, $lgraph);
-						}
-						else
-						{
-							$callback->($st);
-						}
-					}
-				}
-			}
-		}
+		$self->handle_table($dbh, $callback, $table);
 	}
 
 	return $model;
 }
+
+sub handle_table
+{
+	my ($self, $dbh, $model, $table) = @_;
+	$model = RDF::Trine::Model->temporary_model unless defined $model;	
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
+	
+	my $mappings = $self->mappings;
+	my $tmap     = $mappings->{$table};
+	
+	# ->{from}
+	my $from = $tmap->{from} || $table;
+
+	# ->{select}
+	my $select = $tmap->{select} || '*';
+	
+	# ->{sql}
+	my $sql    = "SELECT $select FROM $from";
+	$sql = $tmap->{sql} if $tmap->{sql} =~ /^\s*SELECT/i;
+	
+	### Re-jig mapping structure.
+	{
+		$tmap->{-maps}  = [];
+		$tmap->{-jmaps} = [];
+		
+		my %c = %{$tmap->{columns}};
+		while (my ($col, $list) = each %c)
+		{
+			push @{ $tmap->{-maps} },
+				map  { {%$_, column => $col}; }
+				grep { !defined $_->{join} }
+				@$list;
+			push @{ $tmap->{-jmaps} },
+				grep { defined $_->{join} }
+				@$list;
+		}
+	}
+	
+	my $sth    = $dbh->prepare($sql);
+	$sth->execute;
+	
+	my $row_count = 0;
+	ROW: while (my $row = $sth->fetchrow_hashref)
+	{
+		$row_count++;
+		$self->handle_row($dbh, $callback, $table, $row, $row_count);
+	}
+	
+	JMAP: foreach my $map (@{ $tmap->{-jmaps} })
+	{
+		my $method = lc $map->{method};
+		$method ||= 'subquery' if $map->{join} =~ /^\s*SELECT/i;
+		$method ||= 'table'    if $map->{join} =~ /^[A-Za-z0-9_]+$/i;
+		croak sprintf("Cannot join to '' without method.", $map->{join})
+			unless $method eq 'subquery' || $method eq 'table';
+		
+		my $evil_sql = sprintf('SELECT * FROM %s AS "r2r_join_parent", %s AS "r2r_join_child"',
+			sprintf(($method eq 'subquery' ? '(%s)' : '"%s"'), $map->{join}),
+			($tmap->{sql} or $tmap->{select}) ? "($sql)" : $from,
+			);
+		
+		if (@{ $map->{on} })
+		{
+			$evil_sql .= ' WHERE ' .
+				join ' AND ',
+				map { sprintf('"r2r_join_parent"."%s"="r2r_join_child"."%s"', $_->{parent}, $_->{child}) }
+				@{ $map->{on} };
+		}
+		
+		my $evil_sth = $dbh->prepare($evil_sql);
+		$sth->execute;
+		
+		my $evil_row_count = 0;
+		ROW: while (my $evil_row = $evil_sth->fetchrow_hashref)
+		{
+			$evil_row_count++;
+			$self->handle_jmap($dbh, $callback, $table, $map, $evil_row, $evil_row_count);
+		}
+	}
+	
+	delete $tmap->{-maps};
+	delete $tmap->{-jmaps};
+	return $callback;
+}
+
+sub handle_row
+{
+	my ($self, $dbh, $model, $table, $row, $row_count) = @_;
+	$model = RDF::Trine::Model->temporary_model unless defined $model;	
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
+	
+	my $mappings = $self->mappings;
+	my $tmap     = $mappings->{$table};	
+	
+	# ->{graph}
+	my $graph = undef;
+	$graph = iri( $self->template($tmap->{graph}, %$row) )
+		if defined $tmap->{graph};
+	
+	# ->{about}
+	my $subject;
+	if ($tmap->{about})
+	{
+		$subject = $self->template($tmap->{about}, %$row);
+	}
+	$subject ||= '[]';
+	
+	# ->{typeof}
+	foreach (@{ $tmap->{typeof} })
+	{
+		$_ = iri($_, $graph) unless ref $_;
+		$callback->(statement(iri($subject, $graph), $rdf->type, $_));
+	}
+
+	foreach (@{ $tmap->{-maps} })
+	{
+		# use Data::Dumper; warn Dumper($_);
+		$self->handle_map($dbh, $model, $table, $row, $row_count, $_, $graph, $subject);
+	}			
+}
+
+sub handle_jmap
+{
+	my ($self, $dbh, $model, $table, $jmap, $row, $row_count) = @_;
+	$model = RDF::Trine::Model->temporary_model unless defined $model;	
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
+	
+	my $mappings = $self->mappings;
+	my $tmap     = $mappings->{$table};	
+	
+	# ->{graph}
+	my $graph = undef;
+	$graph = iri( $self->template($tmap->{graph}, %$row) )
+		if defined $tmap->{graph};
+	
+	# ->{about}
+	my $subject;
+	if ($tmap->{about})
+	{
+		$subject = $self->template($tmap->{about}, %$row);
+	}
+	$subject ||= '[]';
+	
+	$self->handle_map($dbh, $model, $table, $row, $row_count, $jmap, $graph, $subject);
+}
+
+{ 
+my $parsers = {};
+sub handle_map
+{
+	my ($self, $dbh, $model, $table, $row, $row_count, $map, $graph, $subject) = @_;
+	
+	$model = RDF::Trine::Model->temporary_model unless defined $model;	
+	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
+	
+	my $mappings = $self->mappings;
+	my $tmap     = $mappings->{$table};	
+	my %row      = %$row;
+	my $column   = $map->{column};
+	
+	my ($predicate, $value);
+	$value = $row{$column} if exists $row{$column};
+	
+	my $lgraph = defined $map->{graph}
+		? iri($self->template($map->{graph}, %row))
+		: $graph;
+	
+	if (defined $map->{parse} and uc $map->{parse} eq 'TURTLE')
+	{
+		return unless length $value;
+		
+		my %NS = $self->namespaces;
+		my $turtle = join '', map { sprintf("\@prefix %s: <%s>.\n", $_, $NS{$_}) } keys %NS;
+		$turtle .= sprintf("\@base <%s>.\n", $subject->uri);
+		$turtle .= "$value\n";
+		eval {
+			$parsers->{ $map->{parse} } = RDF::Trine::Parser->new($map->{parse});
+			if ($lgraph)
+			{
+				$parsers->{ $map->{parse} }->parse($subject, $turtle, sub { $callback->($_[0], $lgraph); });
+			}
+			else
+			{
+				$parsers->{ $map->{parse} }->parse($subject, $turtle, $callback);
+			}
+		};
+		return;
+	}
+
+	if ($map->{rev} || $map->{rel})
+	{
+		if ($map->{resource})
+		{
+			$value = $self->template($map->{resource}, %row, '_' => $value);
+		}
+		$predicate = $map->{rev} || $map->{rel};
+		$value     = iri($value, $lgraph);
+	}
+	
+	elsif ($map->{property})
+	{
+		if ($map->{content})
+		{
+			$value = $self->template($map->{content}, %row, '_' => $value);
+		}
+		$predicate = $map->{property};
+		$value     = literal($value, $map->{lang}, $map->{datatype});
+	}
+	
+	if (defined $predicate and defined $value)
+	{
+		unless (ref $predicate)
+		{
+			$predicate = $self->template($predicate, %row, '_' => $value);							
+			$predicate = iri($predicate, $lgraph) ;
+		}
+		
+		my $lsubject = iri($subject, $lgraph);
+		if ($map->{about})
+		{
+			$lsubject = iri($self->template($map->{about}, %row), $lgraph);
+		}
+
+		my $st = $map->{rev}
+			? statement($value, $predicate, $lsubject) 
+			: statement($lsubject, $predicate, $value);
+			
+		if ($lgraph)
+		{
+			$callback->($st, $lgraph);
+		}
+		else
+		{
+			$callback->($st);
+		}
+	}
+} # /sub handle_map
+} # /scope for $parsers
 
 sub process_turtle
 {

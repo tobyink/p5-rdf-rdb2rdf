@@ -32,19 +32,19 @@
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate dept:name ]; 
-      rr:objectMap    [ rr:column "dname" ]
+      rr:objectMap    [ rr:column "dname" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate dept:location ]; 
-      rr:objectMap    [ rr:column "loc" ]
+      rr:objectMap    [ rr:column "loc" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate dept:COMPANY ]; 
-      rr:objectMap    [ rr:object "EXAMPLE Corporation" ]
+      rr:objectMap    [ rr:object "EXAMPLE Corporation" ; rr:termType rr:Literal ]
     ]
 .
 
@@ -94,32 +94,32 @@
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate emp:empno ]; 
-      rr:objectMap    [ rr:column "empno" ]
+      rr:objectMap    [ rr:column "empno" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate emp:name ]; 
-      rr:objectMap    [ rr:column "ename" ]; 
+      rr:objectMap    [ rr:column "ename" ; rr:termType rr:Literal ]; 
       rr:graphMap     [ rr:graph emp:empNameGraph ];
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate emp:job ]; 
-      rr:objectMap    [ rr:column "job" ]
+      rr:objectMap    [ rr:column "job" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate emp:deptNum ]; 
-      rr:objectMap    [ rr:column "deptno" ]
+      rr:objectMap    [ rr:column "deptno" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap 
     [ 
       rr:predicateMap [ rr:predicate emp:etype ]; 
-      rr:objectMap    [ rr:column "etype" ]
+      rr:objectMap    [ rr:column "etype" ; rr:termType rr:Literal ]
     ];
 
     rr:predicateObjectMap [

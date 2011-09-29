@@ -28,9 +28,9 @@
       rr:graphMap [ rr:graph <http://example.com/graph/students> ];
     ];
 
-    rr:refPredicateObjectMap
+    rr:predicateObjectMap
     [ 
-      rr:refPredicateMap [ rr:predicate <http://example.com/ontology/practises> ]; 
+      rr:predicateMap [ rr:predicate <http://example.com/ontology/practises> ]; 
       rr:refObjectMap    [ 
            rr:parentTriplesMap <TriplesMap2>;
            rr:joinCondition [
@@ -43,7 +43,7 @@
     .
 
 <TriplesMap2>
-    a rr:TriplesMapClass;
+    a rr:TriplesMap;
         
 		
 	rr:logicalTable [ rr:tableName  "Sport" ];
