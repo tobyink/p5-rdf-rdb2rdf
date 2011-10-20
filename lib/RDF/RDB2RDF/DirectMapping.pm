@@ -1,6 +1,6 @@
 package RDF::RDB2RDF::DirectMapping;
 
-use 5.008;
+use 5.010;
 use common::sense;
 
 use Carp qw[carp croak];

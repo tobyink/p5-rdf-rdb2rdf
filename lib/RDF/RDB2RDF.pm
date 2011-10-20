@@ -1,6 +1,6 @@
 package RDF::RDB2RDF;
 
-use 5.008;
+use 5.010;
 use common::sense;
 
 use RDF::RDB2RDF::Simple;
@@ -20,10 +20,11 @@ sub new
 		direct        => 'DirectMapping',
 		directmapping => 'DirectMapping',
 		};
-	
+		
+	$type =~ s/[^A-Za-z0-9]//g;
 	$type = $map->{lc $type} if exists $map->{lc $type};
-	$class .= '::'.$type;
 	
+	$class .= '::'.$type;
 	$class->new(@args);
 }
 

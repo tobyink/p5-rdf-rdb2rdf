@@ -1,6 +1,6 @@
 package RDF::RDB2RDF::R2RML;
 
-use 5.008;
+use 5.010;
 use common::sense;
 
 use Digest::MD5 qw[md5_hex];
@@ -506,7 +506,7 @@ Limitations
 =over
 
 =item * rr:RefObjectMap, rr:parentTriplesMap, rr:joinCondition,
-rr:JoinCondition, rr:child, rr:parent are not yet supported.
+rr:JoinCondition, rr:child, rr:parent are only partially working.
 
 =item * rr:defaultGraph is not understood.
 
