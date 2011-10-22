@@ -1,5 +1,6 @@
 use Test::More;
 use strict;
+use 5.010;
 
 BEGIN { use_ok('RDF::RDB2RDF') };
 
@@ -120,7 +121,7 @@ sub databases
 			$script = slurp($self->relative_file($script));
 			my @script = split /\;\s*$/m, $script;
 			
-			my $filename = $iri->uri eq $ENV{KEEP_DATABASE} ? 'keep.db' : ':memory:';
+			my $filename = ($iri->uri eq ($ENV{KEEP_DATABASE}//'xxx')) ? 'keep.db' : ':memory:';
 			my $dbh = DBI->connect("dbi:SQLite:dbname=${filename}");
 			$dbh->do('PRAGMA foreign_keys = ON;');
 			$dbh->do($_) foreach @script;

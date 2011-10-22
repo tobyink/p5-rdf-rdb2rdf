@@ -45,7 +45,7 @@ my:v_0-003
 my:project :release my:v_0-004 .
 my:v_0-004
 	a               :Version ;
-	dc:issued       "2011-09-27"^^xsd:date ; 
+	dc:issued       "2011-10-20"^^xsd:date ; 
 	:revision       "0.004"^^xsd:string ;
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.004.tar.gz> ;
 	dcs:changeset [
@@ -53,6 +53,8 @@ my:v_0-004
 		dcs:item   [ rdfs:label "Further optimise RDF::RDB2RDF::DirectMapping::Store::get_statements allowing it to narrow down the list of columns to select from the database when fewer than '*' are needed."@en  ] ;
 		dcs:item   [ rdfs:label "Optimise RDF::RDB2RDF::DirectMapping::Store::get_pattern in cases when all statements with the pattern share a common subject."@en  ] ;
 		dcs:item   [ rdfs:label "Provide warn_sql option for RDF::RDB2RDF::DirectMapping."@en  ] ;
-		dcs:item   [ rdfs:label "Document handle_table and handle_table_rdfs methods for RDF::RDB2RDF::DirectMapping."@en ; a dcs:Documentation ]
+		dcs:item   [ rdfs:label "Document handle_table and handle_table_rdfs methods for RDF::RDB2RDF::DirectMapping."@en ; a dcs:Documentation ] ;
+		dcs:item   [ rdfs:label "Module::Package::RDF"; a dcs:Packaging ];
+		dcs:item   [ rdfs:label "use 5.010" ; a dcs:Update ]
 		] .
 
