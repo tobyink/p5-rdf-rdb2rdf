@@ -12,7 +12,7 @@ use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[refaddr blessed];
 use URI::Escape qw[];
 
-use base qw[RDF::RDB2RDF];
+use parent qw[RDF::RDB2RDF];
 
 our $VERSION = '0.004';
 

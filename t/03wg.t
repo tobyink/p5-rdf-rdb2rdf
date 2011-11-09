@@ -1,6 +1,8 @@
-use Test::More;
-use strict;
 use 5.010;
+use strict;
+use autodie;
+
+use Test::More;
 
 BEGIN { use_ok('RDF::RDB2RDF') };
 
@@ -78,8 +80,7 @@ BEGIN
 
 sub slurp
 {
-	open my($fh), '<', @_
-		or die "Could not open file @_";
+	open my($fh), sprintf('<:encoding(%s)', ($_[1] // 'UTF-8')), $_[0];
 	local $/ = <$fh>;
 }
 
@@ -118,7 +119,9 @@ sub databases
 		{
 			my ($iri)    = @_;
 			my ($script) = $self->model->objects($iri, $RTEST->sqlScriptFile);
-			$script = slurp($self->relative_file($script));
+			my $encoding;
+			$encoding =~ 'UTF-16' if $self->filename =~ /D010/;
+			$script = slurp($self->relative_file($script), $encoding);
 			my @script = split /\;\s*$/m, $script;
 			
 			my $filename = ($iri->uri eq ($ENV{KEEP_DATABASE}//'xxx')) ? 'keep.db' : ':memory:';
@@ -170,8 +173,7 @@ BEGIN
 
 sub slurp
 {
-	open my($fh), '<', @_
-		or die "Could not open file @_";
+	open my($fh), sprintf('<:encoding(%s)', ($_[1] // 'UTF-8')), $_[0];
 	local $/ = <$fh>;
 }
 

@@ -10,6 +10,7 @@
 		"DBD::SQLite" ,
 		"Test::More 0.61" ;
 	:requires 
+		"parent" ,
 		"Carp" ,
 		"common::sense" ,
 		"Data::UUID" ,
