@@ -1,6 +1,6 @@
 use 5.008;
 use strict;
-use Test::More tests => 14;
+use Test::More tests => 15;
 
 BEGIN { use_ok( 'RDF::RDB2RDF::R2RML' ); }
 
@@ -33,6 +33,12 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 		rr:predicate rdfs:label; 
 		rr:predicateMap [ rr:constant dc:title ]; 
 		rr:objectMap    [ rr:column "title"; rr:language "en" ]
+	] ;
+
+	rr:predicateObjectMap
+	[
+		rr:predicate dc:identifier ;
+		rr:objectMap [ rr:column "book_id" ; rr:termtype "literal" ]
 	]
 .
 
@@ -166,6 +172,14 @@ is($model->count_statements(
 
 is($model->count_statements(
 		iri('http://example.com/id/book/3'),
+		iri('http://purl.org/dc/terms/identifier'),
+		literal(3, undef, 'http://www.w3.org/2001/XMLSchema#integer')
+		), 1,
+	'SQL datatypes are picked up correctly.'
+	);
+
+is($model->count_statements(
+		iri('http://example.com/id/book/3'),
 		iri('http://purl.org/dc/terms/creator'),
 		iri('http://example.com/id/author/2'),
 		), 1,
@@ -197,4 +211,4 @@ is($model->count_statements(
 	);
 
 
-## print $rdb2rdf->process_turtle($dbh);
+# print $rdb2rdf->process_turtle($dbh);

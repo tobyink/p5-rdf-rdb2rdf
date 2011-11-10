@@ -12,7 +12,7 @@ use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[refaddr blessed];
 use URI::Escape qw[];
 
-use parent qw[RDF::RDB2RDF];
+use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
 
 our $VERSION = '0.004';
 
@@ -199,29 +199,10 @@ sub handle_table
 			next unless defined $row->{ $column->{column} };
 			
 			my $predicate = iri($self->prefix.$table.'#'.$column->{column});
-			my $value     = $row->{ $column->{column} };
-			my $datatype;
-			
-			if ($column->{type} =~ /^(int|smallint|bigint)/i)
-			{
-				$datatype = $XSD->integer;
-			}
-			elsif ($column->{type} =~ /^(decimal|numeric)/i)
-			{
-				$datatype = $XSD->decimal;
-			}
-			elsif ($column->{type} =~ /^(float|real|double)/i)
-			{
-				$datatype = $XSD->float;
-			}
-			elsif ($column->{type} =~ /^(binary)/i)
-			{
-				$datatype = $XSD->base64Binary;
-				$value    = MIME::Base64::encode_base64($value);
-			}
-			# need to handle BOOLEAN, DATE, TIME and TIMESTAMP.
-			
-			my $object = literal($value, undef, $datatype);
+			my $object    = $self->datatyped_literal(
+				$row->{ $column->{column} },
+				$column->{type},
+				);
 			$callback->(statement($subject, $predicate, $object));
 		}
 		
@@ -254,23 +235,9 @@ sub handle_table_rdfs
 		foreach my $column (@{ $layout->{$table}{columns} })
 		{
 			my $predicate = iri($self->prefix.$table.'#'.$column->{column});
-			my $datatype;
-			if ($column->{type} =~ /^(int|smallint|bigint)/i)
-			{
-				$datatype = $XSD->integer;
-			}
-			elsif ($column->{type} =~ /^(decimal|numeric)/i)
-			{
-				$datatype = $XSD->decimal;
-			}
-			elsif ($column->{type} =~ /^(float|real|double)/i)
-			{
-				$datatype = $XSD->float;
-			}
-			elsif ($column->{type} =~ /^(binary)/i)
-			{
-				$datatype = $XSD->base64Binary;
-			}
+			my $dummy     = $self->datatyped_literal('DUMMY', $column->{type});
+			my $datatype  = $dummy->has_datatype ? iri($dummy->literal_datatype) : $RDFS->Literal;
+			
 			$callback->(statement($predicate, $RDF->type, $OWL->DatatypeProperty));
 			$callback->(statement($predicate, $RDFS->label, literal($column->{column})));
 			$callback->(statement($predicate, $RDFS->domain, iri($self->prefix.$table)));

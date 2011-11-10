@@ -38,7 +38,7 @@ sub iri
 }
 
 use namespace::clean;
-use parent qw[RDF::RDB2RDF];
+use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
 
 our $VERSION = '0.004';
 
@@ -149,6 +149,18 @@ sub process
 	return $model;
 }
 
+sub _get_types
+{
+	my ($self, $sth) = @_;
+	
+	my %types;
+	@types{ @{$sth->{NAME}} } = map
+		{ /^\d+$/ ? (scalar $sth->dbh->type_info($_)->{TYPE_NAME}) : $_ }
+		@{$sth->{TYPE}};
+	
+	return \%types;
+}
+
 sub handle_table
 {
 	my ($self, $dbh, $model, $table) = @_;
@@ -186,14 +198,15 @@ sub handle_table
 		}
 	}
 	
-	my $sth    = $dbh->prepare($sql);
+	my $sth = $dbh->prepare($sql);
 	$sth->execute;
+	my $types = $self->_get_types($sth);
 	
 	my $row_count = 0;
 	ROW: while (my $row = $sth->fetchrow_hashref)
 	{
 		$row_count++;
-		$self->handle_row($dbh, $callback, $table, $row, $row_count);
+		$self->handle_row($dbh, $callback, $table, $row, $types, $row_count);
 	}
 	
 	JMAP: foreach my $map (@{ $tmap->{-jmaps} })
@@ -219,12 +232,13 @@ sub handle_table
 		
 		my $evil_sth = $dbh->prepare($evil_sql);
 		$sth->execute;
+		my $types = $self->_get_types($sth);
 		
 		my $evil_row_count = 0;
 		ROW: while (my $evil_row = $evil_sth->fetchrow_hashref)
 		{
 			$evil_row_count++;
-			$self->handle_jmap($dbh, $callback, $table, $map, $evil_row, $evil_row_count);
+			$self->handle_jmap($dbh, $callback, $table, $map, $evil_row, $types, $evil_row_count);
 		}
 	}
 	
@@ -235,7 +249,7 @@ sub handle_table
 
 sub handle_row
 {
-	my ($self, $dbh, $model, $table, $row, $row_count) = @_;
+	my ($self, $dbh, $model, $table, $row, $types, $row_count) = @_;
 	$model = RDF::Trine::Model->temporary_model unless defined $model;	
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
 	
@@ -265,18 +279,18 @@ sub handle_row
 	foreach (@{ $tmap->{-maps} })
 	{
 		# use Data::Dumper; warn Dumper($_);
-		$self->handle_map($dbh, $model, $table, $row, $row_count, $_, $graph, $subject);
+		$self->handle_map($dbh, $model, $table, $row, $types, $row_count, $_, $graph, $subject);
 	}			
 }
 
 sub handle_jmap
 {
-	my ($self, $dbh, $model, $table, $jmap, $row, $row_count) = @_;
+	my ($self, $dbh, $model, $table, $jmap, $row, $types, $row_count) = @_;
 	$model = RDF::Trine::Model->temporary_model unless defined $model;	
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
 	
 	my $mappings = $self->mappings;
-	my $tmap     = $mappings->{$table};	
+	my $tmap     = $mappings->{$table};
 	
 	# ->{graph}
 	my $graph = undef;
@@ -291,14 +305,14 @@ sub handle_jmap
 	}
 	$subject ||= '[]';
 	
-	$self->handle_map($dbh, $model, $table, $row, $row_count, $jmap, $graph, $subject);
+	$self->handle_map($dbh, $model, $table, $row, $types, $row_count, $jmap, $graph, $subject);
 }
 
 { 
 my $parsers = {};
 sub handle_map
 {
-	my ($self, $dbh, $model, $table, $row, $row_count, $map, $graph, $subject) = @_;
+	my ($self, $dbh, $model, $table, $row, $types, $row_count, $map, $graph, $subject) = @_;
 	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;	
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
@@ -339,22 +353,43 @@ sub handle_map
 
 	if ($map->{rev} || $map->{rel})
 	{
+		$predicate = $map->{rev} || $map->{rel};
+		
 		if ($map->{resource})
 		{
 			$value = $self->template_irisafe($map->{resource}, %row, '_' => $value);
 		}
-		$predicate = $map->{rev} || $map->{rel};
 		$value     = iri($value, $lgraph);
 	}
 	
 	elsif ($map->{property})
 	{
+		$predicate = $map->{property};
+		
 		if ($map->{content})
 		{
 			$value = $self->template($map->{content}, %row, '_' => $value);
 		}
-		$predicate = $map->{property};
-		$value     = literal($value, $map->{lang}, $map->{datatype});
+		
+		if ($map->{lang})
+		{
+			$value = literal($value, $map->{lang});
+		}
+		else
+		{
+			if ($map->{datatype})
+			{
+				$value = literal($value->literal_value, undef, $map->{datatype});
+			}
+			elsif (!defined $map->{content})
+			{
+				$value = $self->datatyped_literal($value, $types->{$column});
+			}
+			else
+			{
+				$value = literal($value->literal_value);
+			}
+		}
 	}
 	
 	if (defined $predicate and defined $value)
