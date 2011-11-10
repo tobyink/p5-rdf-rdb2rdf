@@ -12,6 +12,7 @@ use overload qw[];
 use RDF::Trine qw[statement blank literal];
 use RDF::Trine::Namespace qw[rdf rdfs owl xsd];
 use Scalar::Util qw[blessed];
+use URI::Escape qw[uri_escape];
 
 sub iri
 {
@@ -101,6 +102,30 @@ sub template
 	{
 		my $placeholder = sprintf('{%s}', $key);
 		my $replacement = $data{$key};
+		$template =~ s!\Q$placeholder!$replacement!g;
+	}
+	
+	$template =~ s!\\([\\{}])!\1!g;
+	
+	return $template;
+}
+
+sub template_irisafe
+{
+	my ($self, $template, %data) = @_;
+	
+	if (blessed($template) and $template->isa('RDF::Trine::Node'))
+	{
+		return $template;
+	}
+	
+	$self->{uuid} = Data::UUID->new unless $self->{uuid};
+	$data{'+uuid'} = $self->{uuid}->create_str;
+	
+	foreach my $key (sort keys %data)
+	{
+		my $placeholder = sprintf('{%s}', $key);
+		my $replacement = uri_escape($data{$key});
 		$template =~ s!\Q$placeholder!$replacement!g;
 	}
 	
@@ -219,14 +244,14 @@ sub handle_row
 	
 	# ->{graph}
 	my $graph = undef;
-	$graph = iri( $self->template($tmap->{graph}, %$row) )
+	$graph = iri( $self->template_irisafe($tmap->{graph}, %$row) )
 		if defined $tmap->{graph};
 	
 	# ->{about}
 	my $subject;
 	if ($tmap->{about})
 	{
-		$subject = $self->template($tmap->{about}, %$row);
+		$subject = $self->template_irisafe($tmap->{about}, %$row);
 	}
 	$subject ||= '[]';
 	
@@ -255,14 +280,14 @@ sub handle_jmap
 	
 	# ->{graph}
 	my $graph = undef;
-	$graph = iri( $self->template($tmap->{graph}, %$row) )
+	$graph = iri( $self->template_irisafe($tmap->{graph}, %$row) )
 		if defined $tmap->{graph};
 	
 	# ->{about}
 	my $subject;
 	if ($tmap->{about})
 	{
-		$subject = $self->template($tmap->{about}, %$row);
+		$subject = $self->template_irisafe($tmap->{about}, %$row);
 	}
 	$subject ||= '[]';
 	
@@ -287,7 +312,7 @@ sub handle_map
 	$value = $row{$column} if exists $row{$column};
 	
 	my $lgraph = defined $map->{graph}
-		? iri($self->template($map->{graph}, %row))
+		? iri($self->template_irisafe($map->{graph}, %row))
 		: $graph;
 	
 	if (defined $map->{parse} and uc $map->{parse} eq 'TURTLE')
@@ -316,7 +341,7 @@ sub handle_map
 	{
 		if ($map->{resource})
 		{
-			$value = $self->template($map->{resource}, %row, '_' => $value);
+			$value = $self->template_irisafe($map->{resource}, %row, '_' => $value);
 		}
 		$predicate = $map->{rev} || $map->{rel};
 		$value     = iri($value, $lgraph);
@@ -336,14 +361,14 @@ sub handle_map
 	{
 		unless (ref $predicate)
 		{
-			$predicate = $self->template($predicate, %row, '_' => $value);							
+			$predicate = $self->template_irisafe($predicate, %row, '_' => $value);							
 			$predicate = iri($predicate, $lgraph) ;
 		}
 		
 		my $lsubject = iri($subject, $lgraph);
 		if ($map->{about})
 		{
-			$lsubject = iri($self->template($map->{about}, %row), $lgraph);
+			$lsubject = iri($self->template_irisafe($map->{about}, %row), $lgraph);
 		}
 
 		my $st = $map->{rev}
