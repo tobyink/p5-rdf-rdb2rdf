@@ -14,12 +14,17 @@ use URI::Escape qw[];
 
 use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 sub new
 {
 	my ($class, %args) = @_;
-	$args{prefix} = '' unless defined $args{prefix};
+	
+	$args{prefix}        = '' unless defined $args{prefix};
+	$args{rdfs}          = 0  unless defined $args{rdfs};
+	$args{warn_sql}      = 0  unless defined $args{warn_sql};
+	$args{ignore_tables} = [] unless defined $args{ignore_tables};
+	
 	bless {%args}, $class;
 }
 
@@ -30,8 +35,10 @@ sub uri_escape
 	return $str;
 }
 
-sub prefix :lvalue { $_[0]->{prefix} }
-sub rdfs   :lvalue { $_[0]->{rdfs} }
+sub prefix        :lvalue { $_[0]->{prefix} }
+sub rdfs          :lvalue { $_[0]->{rdfs} }
+sub ignore_tables :lvalue { $_[0]->{ignore_tables} }
+sub warn_sql      :lvalue { $_[0]->{warn_sql} }
 
 sub layout
 {
@@ -39,7 +46,7 @@ sub layout
 
 	unless ($self->{layout}{refaddr($dbh).'|'.$schema})
 	{
-		carp sprintf('READ SCHEMA "%s"', $schema||'%') if $self->{warn_sql};
+		carp sprintf('READ SCHEMA "%s"', $schema||'%') if $self->warn_sql;
 		
 		my $rv     = {};
 		my $info   = DBIx::Admin::TableInfo->new(dbh => $dbh, schema => $schema)->info;	
@@ -128,6 +135,7 @@ sub process
 sub handle_table
 {
 	my ($self, $dbh, $model, $table, $where, $cols) = @_;
+	return if $table ~~ $self->ignore_tables;
 	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};		
@@ -167,7 +175,7 @@ sub handle_table
 		$sql .= ' WHERE ' . (join ' AND ', @w);
 	}
 
-	carp($sql) if $self->{warn_sql};
+	carp($sql) if $self->warn_sql;
 	my $sth = $dbh->prepare($sql);
 	$sth->execute(@values);
 		
@@ -219,6 +227,7 @@ sub handle_table
 sub handle_table_rdfs
 {
 	my ($self, $dbh, $model, $table) = @_;
+	return if $table ~~ $self->ignore_tables;
 	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};		
@@ -333,9 +342,12 @@ working draft.
 
 The prefix defaults to the empty string - i.e. relative URIs.
 
-Two extra options are supported: C<rdfs> which controls whether extra Tbox
+Three extra options are supported: C<rdfs> which controls whether extra Tbox
 statements are included in the mapping; C<warn_sql> carps statements to
-STDERR whenever the database is queried.
+STDERR whenever the database is queried (useful for debugging);
+C<ignore_tables> specifies tables to ignore (smart match is used, so the
+value of ignore_tables can be a string, regexp, coderef, or an arrayref
+of all of the above).
 
 =head2 Methods
 

@@ -37,10 +37,18 @@ sub iri
 	return RDF::Trine::iri("$iri");
 }
 
+# make a template from a literal string
+sub mktemplate 
+{
+	my ($self, $string) = @_;
+	$string =~ s!([\\{}])!\\\1!g;
+	return $string;
+}
+
 use namespace::clean;
 use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
 
-our $VERSION = '0.004';
+our $VERSION = '0.005';
 
 sub new
 {
@@ -76,14 +84,6 @@ sub namespaces
 		) unless %NS;
 	
 	return %NS;
-}
-
-# make a template from a literal string
-sub mktemplate 
-{
-	my ($self, $string) = @_;
-	$string =~ s!([\\{}])!\\\1!g;
-	return $string;
 }
 
 sub template
