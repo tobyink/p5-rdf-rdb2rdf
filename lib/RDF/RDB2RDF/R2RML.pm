@@ -510,15 +510,13 @@ rr:JoinCondition, rr:child, rr:parent are only partially working.
 
 =item * rr:defaultGraph is not understood.
 
-=item * Datatype conversions probably not done correctly.
-
 =back
 
 =head1 SEE ALSO
 
 L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::Simple>.
 
-L<http://perlrdf.org/>.
+L<http://www.perlrdf.org/>.
 
 L<http://www.w3.org/TR/2011/WD-r2rml-20110920/>.
 
@@ -532,3 +530,10 @@ Copyright 2011 Toby Inkster
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
+
+=head1 DISCLAIMER OF WARRANTIES
+
+THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+

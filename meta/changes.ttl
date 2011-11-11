@@ -58,3 +58,16 @@ my:v_0-004
 		dcs:item   [ rdfs:label "use 5.010" ; a dcs:Update ]
 		] .
 
+my:project :release my:v_0-005 .
+my:v_0-005
+	a               :Version ;
+	dc:issued       "2011-11-10"^^xsd:date ; 
+	:revision       "0.005"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.005.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-004 ;
+		dcs:item   [ rdfs:label "Template substitutions that will result in URIs now correctly uri_encode substituted values." ] ;
+		dcs:item   [ rdfs:label "Handle SQL datatypes better." ] ;
+		dcs:item   [ rdfs:label "Provide ignore_tables option for DirectMapping." ; a dcs:Addition ]
+		] .
+

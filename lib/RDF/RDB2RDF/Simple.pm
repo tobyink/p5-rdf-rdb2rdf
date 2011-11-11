@@ -379,7 +379,7 @@ sub handle_map
 		{
 			if ($map->{datatype})
 			{
-				$value = literal($value->literal_value, undef, $map->{datatype});
+				$value = literal($value, undef, $map->{datatype});
 			}
 			elsif (!defined $map->{content})
 			{
@@ -387,7 +387,7 @@ sub handle_map
 			}
 			else
 			{
-				$value = literal($value->literal_value);
+				$value = literal($value);
 			}
 		}
 	}
@@ -744,7 +744,7 @@ interpolated as templates. L<RDF::Trine::Node>s are not interpolated.
 
 L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::R2RML>.
 
-L<http://perlrdf.org/>.
+L<http://www.perlrdf.org/>.
 
 =head1 AUTHOR
 
@@ -756,3 +756,10 @@ Copyright 2011 Toby Inkster
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
+
+=head1 DISCLAIMER OF WARRANTIES
+
+THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
