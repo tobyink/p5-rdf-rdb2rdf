@@ -12,7 +12,7 @@ use URI::Escape qw[uri_escape uri_unescape];
 
 use parent qw[RDF::Trine::Store];
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 sub new
 {

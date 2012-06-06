@@ -10,7 +10,7 @@ use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[refaddr blessed];
 use URI::Escape qw[uri_escape];
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 sub datatyped_literal
 {

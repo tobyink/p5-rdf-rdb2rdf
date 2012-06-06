@@ -14,7 +14,7 @@ use URI::Escape qw[];
 
 use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 sub new
 {

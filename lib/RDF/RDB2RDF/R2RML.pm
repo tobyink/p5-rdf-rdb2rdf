@@ -15,7 +15,7 @@ our $rr = RDF::Trine::Namespace->new('http://www.w3.org/ns/r2rml#');
 
 use parent qw[RDF::RDB2RDF::Simple];
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 sub new
 {

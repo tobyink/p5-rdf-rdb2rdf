@@ -71,3 +71,15 @@ my:v_0-005
 		dcs:item   [ rdfs:label "Provide ignore_tables option for DirectMapping." ; a dcs:Addition ]
 		] .
 
+my:project :release my:v_0-006 .
+my:v_0-006
+	a               :Version ;
+	dc:issued       "2012-06-12"^^xsd:date ; 
+	:revision       "0.006"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.006.tar.gz> ;
+	dcs:changeset [
+		dcs:versus my:v_0-005 ;
+		dcs:item   [ rdfs:label "RDF::RDB2RDF::DirectMapping::Store supports new_with_config." ; a dcs:Addition ]
+		dcs:item   [ rdfs:label "RDF::TrineX::Store::DirectMapping is now an alias for RDF::RDB2RDF::DirectMapping::Store." ; a dcs:Addition ]
+		] .
+

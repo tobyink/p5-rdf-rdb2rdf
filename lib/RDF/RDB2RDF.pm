@@ -8,7 +8,7 @@ use RDF::RDB2RDF::R2RML;
 use RDF::RDB2RDF::DirectMapping;
 use RDF::RDB2RDF::DirectMapping::Store;
 
-our $VERSION = '0.005';
+our $VERSION = '0.006';
 
 sub new
 {
