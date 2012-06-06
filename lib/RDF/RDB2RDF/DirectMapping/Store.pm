@@ -374,17 +374,52 @@ sub count_statements
 
 sub add_statement
 {
+	my ($self, $st, $ctxt) = @_;
+	if ($ctxt or $st->can('context') && $st->context)
+	{
+		carp "this store does not accept quads; treating as a triple"
+	}
+	
+	my @already = $self->get_statements(
+		$st->subject,
+		$st->predicate,
+		$st->object,
+	);
+	return if @already;
+	
 	croak "add_statement not implemented yet.";
+	my $plan = q<
+		
+	>;
 }
 
 sub remove_statement
 {
+	my ($self, $st, $ctxt) = @_;
+	if ($ctxt or $st->can('context') && $st->context)
+	{
+		carp "this store does not accept quads; treating as a triple"
+	}
+	
+	my @already = $self->get_statements(
+		$st->subject,
+		$st->predicate,
+		$st->object,
+	);
+	return unless @already;
+	
 	croak "remove_statement not implemented yet.";
 }
 
+# eventually this can be optimized
 sub remove_statements
 {
-	croak "remove_statements not implemented yet.";
+	my $self = shift;
+	my $iter = $self->get_statements(@_);
+	while (my $st = $iter->next)
+	{
+		$self->remove_statement($st);
+	}
 }
 
 1;
