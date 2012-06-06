@@ -4,6 +4,7 @@ use 5.010;
 use common::sense;
 
 use Carp qw[carp croak];
+use DBI;
 use RDF::Trine;
 use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[blessed];
@@ -38,6 +39,25 @@ sub new
 		schema   => $schema,
 		mapping  => $mapping,
 		}, $class;
+}
+
+sub _new_with_config
+{
+	my ($class, $config) = @_;
+	
+	my $dbh = DBI->connect(
+		($config->{dsn} // do { croak "Need dsn!" }),
+		($config->{username} // undef),
+		($config->{password} // undef),
+	);
+	$dbh = [
+		$dbh,
+		$config->{schema},
+	] if exists $config->{schema};
+	my $mapping = RDF::RDB2RDF::DirectMapping->new(
+		%$config,
+	);
+	return $class->new($dbh, $mapping);
 }
 
 sub dbh     :lvalue { $_[0]->{dbh} }
