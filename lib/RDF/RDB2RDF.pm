@@ -43,7 +43,13 @@ sub process_turtle
 		->serialize_model_to_string($model);
 }
 
+{
+	package RDF::TrineX::Store::DirectMapping;
+	our @ISA = 'RDF::RDB2RDF::DirectMapping::Store';
+}
+
 1;
+__END__
 
 =head1 NAME
 
