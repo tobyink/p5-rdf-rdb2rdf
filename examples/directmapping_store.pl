@@ -5,7 +5,6 @@ use lib "lib";
 use RDF::Trine qw[iri statement literal variable];
 use RDF::RDB2RDF::DirectMapping;
 use RDF::RDB2RDF::DirectMapping::Store;
-use RDF::TrineShortcuts;
 
 my $dbh    = DBI->connect('dbi:Pg:dbname=mytest3');
 my $mapper = RDF::RDB2RDF->new('DirectMapping', prefix=>'http://id.example.net/', rdfs=>1, warn_sql=>1);

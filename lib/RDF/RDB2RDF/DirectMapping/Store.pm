@@ -10,7 +10,10 @@ use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[blessed];
 use URI::Escape qw[uri_escape uri_unescape];
 
-use parent qw[RDF::Trine::Store];
+use parent qw[
+	RDF::Trine::Store
+	RDF::RDB2RDF::DirectMapping::Store::Mixin::SuperGetPattern
+];
 
 our $VERSION = '0.006';
 
@@ -90,7 +93,7 @@ sub get_pattern
 				if (defined $s_prefix and defined $s_table and $s_divider eq '/' and defined $s_bit)
 				{
 					$table = $s_table;
-					$where = $self->handle_bit($table, $s_bit);
+					$where = $self->_handle_bit($table, $s_bit);
 				}
 			}
 			else
@@ -129,7 +132,7 @@ sub get_pattern
 		}
 	}
 	
-	return $self->SUPER::get_pattern(@_);
+	return $self->_SUPER_get_pattern(@_);
 }
 
 sub get_statements
@@ -277,7 +280,7 @@ sub get_statements
 			unless $s_divider eq '/';
 
 		# Needs to be some conditions to identify the individual.
-		my $conditions = $self->handle_bit($table, $s_bit);
+		my $conditions = $self->_handle_bit($table, $s_bit);
 		return $NULL unless $conditions;
 
 		# Add conditions to $where
@@ -308,7 +311,7 @@ sub get_statements
 	return RDF::Trine::Iterator::Graph->new(\@results);
 }
 
-sub handle_bit
+sub _handle_bit
 {
 	my ($self, $table, $bit) = @_;
 	
@@ -380,17 +383,89 @@ sub add_statement
 		carp "this store does not accept quads; treating as a triple"
 	}
 	
-	my @already = $self->get_statements(
+	my $already = $self->get_statements(
 		$st->subject,
 		$st->predicate,
 		$st->object,
 	);
-	return if @already;
-	
-	croak "add_statement not implemented yet.";
-	my $plan = q<
+	return if $already->next;
+
+	croak "cannot add_statement ".$st->sse." (contains bnode)"
+		if grep { $_->is_blank } (
+			$st->subject,
+			$st->predicate,
+			$st->object,
+		);
+
+	my ($s_prefix, $s_table, $s_divider, $s_bit) = $self->split_uri($st->subject);
+	my ($p_prefix, $p_table, $p_divider, $p_bit) = $self->split_uri($st->predicate);
+
+	croak "cannot add_statement ".$st->sse." (subject and predicate not from this relational database)"
+		unless defined $s_prefix && defined $p_prefix && $s_prefix eq $p_prefix;
 		
-	>;
+	croak "cannot add_statement ".$st->sse." (subject and predicate not from matching tables)"
+		unless defined $s_table && defined $p_table && $s_table eq $p_table;
+	
+	croak "cannot add_statement ".$st->sse." (subject not a 'slash URI')"
+		unless defined $s_divider && $s_divider eq '/';
+
+	croak "cannot add_statement ".$st->sse." (predicate not a 'hash URI')"
+		unless defined $p_divider && $p_divider eq '#';
+
+	if ($st->object->is_literal)
+	{
+		croak "cannot add_statement ".$st->sse." (predicate has non-literal range)"
+			if defined $p_bit && $p_bit =~ /^ref-/;
+		
+		my $table  = $p_table;
+		my $index  = $self->_handle_bit($s_table, $s_bit);
+		my $column = $p_bit;
+		my $value  = $st->object->literal_value;
+		my $layout = $self->mapping->layout($self->dbh, $self->schema);
+		
+		croak "cannot add_statement ".$st->sse." (table $table has no column $column)"
+			unless grep { $_->{column} eq $column } @{ $layout->{$table}{columns} };
+		
+		my $sth = $self->dbh->prepare(sprintf(
+			'SELECT 1 FROM %s WHERE %s',
+			$table,
+			join(q[ AND ] => map { "$_=?" } sort keys %$index)
+		));
+		$sth->execute(map { $index->{$_} } sort keys %$index);
+
+		if ($sth->fetchrow_array)
+		{
+			my $sth = $self->dbh->prepare(sprintf(
+				'UPDATE %s SET %s=? WHERE %s',
+				$table,
+				$column,
+				join(q[ AND ] => map { "$_=?" } sort keys %$index)
+			));
+			$sth->execute($value, map { $index->{$_} } sort keys %$index)
+				or croak "could not UPDATE database";
+			return;
+		}
+		else
+		{
+			my $sth = $self->dbh->prepare(sprintf(
+				'INSERT INTO %s (%s, %s) VALUES (?, %s)',
+				$table,
+				$column,
+				join(q[, ] => sort keys %$index),
+				join(q[, ] => map { ;'?' } keys %$index),
+			));
+			$sth->execute($value, map { $index->{$_} } sort keys %$index)
+				or croak "could not INSERT into database";
+			return;
+		}		
+	}
+	else
+	{
+		croak "cannot add_statement ".$st->sse." (predicate has literal range)"
+			if defined $p_bit && $p_bit !~ /^ref-/;
+		
+		croak "cannot add_statement(IRI, IRI, IRI) - not supported yet";
+	}	
 }
 
 sub remove_statement
@@ -401,20 +476,68 @@ sub remove_statement
 		carp "this store does not accept quads; treating as a triple"
 	}
 	
-	my @already = $self->get_statements(
+	my $already = $self->get_statements(
 		$st->subject,
 		$st->predicate,
 		$st->object,
 	);
-	return unless @already;
-	
-	croak "remove_statement not implemented yet.";
+	return unless $already->next;
+
+	my ($s_prefix, $s_table, $s_divider, $s_bit) = $self->split_uri($st->subject);
+	my ($p_prefix, $p_table, $p_divider, $p_bit) = $self->split_uri($st->predicate);
+
+	croak "cannot remove_statement ".$st->sse." (subject and predicate not from this relational database)"
+		unless defined $s_prefix && defined $p_prefix && $s_prefix eq $p_prefix;
+
+	if ($st->object->is_literal)
+	{
+		my $table  = $p_table;
+		my $index  = $self->_handle_bit($s_table, $s_bit);
+		my $column = $p_bit;
+		my $value  = $st->object->literal_value;
+		my $layout = $self->mapping->layout($self->dbh, $self->schema);
+		
+		my $sth = $self->dbh->prepare(sprintf(
+			'UPDATE %s SET %s=NULL WHERE %s',
+			$table,
+			$column,
+			join(q[ AND ] => map { "$_=?" } sort keys %$index)
+		));
+		$sth->execute(map { $index->{$_} } sort keys %$index)
+			or croak "could not UPDATE database";
+		return;
+	}
+	else
+	{
+		croak "cannot remove_statement(IRI, IRI, IRI) - not supported yet";
+	}	
 }
 
-# eventually this can be optimized
 sub remove_statements
 {
 	my $self = shift;
+	my ($s, $p, $o) = @_;
+	
+	# catch the special case of 
+	# $store->remove_statements($s, undef, undef)
+	# and use it to delete an entire row from the table
+	if ($s and !$p and !$o and $s->is_resource)
+	{
+		my ($s_prefix, $s_table, $s_divider, $s_bit) = $self->split_uri($s);		
+		my $table  = $s_table;
+		my $index  = $self->_handle_bit($s_table, $s_bit);
+		my $layout = $self->mapping->layout($self->dbh, $self->schema);
+		
+		my $sth = $self->dbh->prepare(sprintf(
+			'DELETE FROM %s WHERE %s',
+			$table,
+			join(q[ AND ] => map { "$_=?" } sort keys %$index)
+		));
+		$sth->execute(map { $index->{$_} } sort keys %$index)
+			or croak "could not DELETE FROM database";
+		return;
+	}
+	
 	my $iter = $self->get_statements(@_);
 	while (my $st = $iter->next)
 	{
