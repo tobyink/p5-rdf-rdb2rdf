@@ -763,6 +763,19 @@ to a false-but-defined value to prevent this happening.
 
  $store->add_statement($st, $ctxt, { overwrite => 0 });
 
+Literal datatypes are essentially ignored when adding a
+statement because the mapping uses SQL datatypes to decide on
+RDF datatypes. Languages tags for plain literals will
+give a warning (which can be handled with C<on_carp>) but
+will otherwise be ignored. When removing a statement, the
+datatype will not be ignored, because before the statement
+is removed, the store checks that the exact statement exists
+in the store.
+
+C<remove_statement> fails if it would alter part of the primary
+key for a table, but C<add_statement> can alter part of the
+primary key.
+
 In many RDF stores, the C<remove_statements> method is a logical
 shortcut for calling C<get_statement> and then looping through
 the results, removing each one from the store. (Though probably
