@@ -592,6 +592,14 @@ sub remove_statement
 		my $value  = $st->object->literal_value;
 		my $layout = $self->mapping->layout($self->dbh, $self->schema);
 		
+		if (exists $index->{$column})
+		{
+			return $self->_croak(
+				remove => $st,
+				"column $column is part of table primary key",
+				);
+		}
+		
 		my $sth = $self->dbh->prepare(sprintf(
 			'UPDATE %s SET %s=NULL WHERE %s=? AND %s',
 			$table,
