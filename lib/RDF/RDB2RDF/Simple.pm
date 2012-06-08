@@ -14,37 +14,6 @@ use RDF::Trine::Namespace qw[rdf rdfs owl xsd];
 use Scalar::Util qw[blessed];
 use URI::Escape qw[uri_escape];
 
-sub iri
-{
-	my ($iri, $graph) = @_;
-	
-	return $iri
-		if blessed($iri) && $iri->isa('RDF::Trine::Node');
-	return blank()
-		if $iri eq '[]';
-	
-	if ($iri =~ /^_:(.*)$/)
-	{
-		my $ident = $1;
-		$ident =~ s/([^0-9A-Za-wyz])/sprintf('x%04X', ord($1))/eg;
-		if ($graph)
-		{
-			$ident = md5_hex("$graph").$ident;
-		}
-		return blank($ident);
-	}
-	
-	return RDF::Trine::iri("$iri");
-}
-
-# make a template from a literal string
-sub mktemplate 
-{
-	my ($self, $string) = @_;
-	$string =~ s!([\\{}])!\\\1!g;
-	return $string;
-}
-
 use namespace::clean;
 use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
 
@@ -53,13 +22,18 @@ our $VERSION = '0.006';
 sub new
 {
 	my ($class, %mappings) = @_;
-	my $ns = delete $mappings{-namespaces};
+	my $ns   = delete($mappings{-namespaces}) // +{};
+	my $base = delete($mappings{-base})       // 'http://example.com/base/';
 	while (my ($k, $v) = each %$ns)
 	{
 		$ns->{$k} = RDF::Trine::Namespace->new($v)
 			unless (blessed($v) and $v->isa('RDF::Trine::Namespace'));
 	}
-	bless {mappings => \%mappings, namespaces=>$ns}, $class; 
+	bless {
+		mappings   => \%mappings,
+		namespaces => $ns,
+		base       => $base,
+	}, $class; 
 }
 
 sub mappings
@@ -100,9 +74,12 @@ sub template
 	
 	foreach my $key (sort keys %data)
 	{
-		my $placeholder = sprintf('{%s}', $key);
 		my $replacement = $data{$key};
-		$template =~ s!\Q$placeholder!$replacement!g;
+		
+		foreach my $placeholder (sprintf('{%s}', $key), sprintf('{"%s"}', $key))
+		{
+			$template =~ s!\Q$placeholder!$replacement!g;
+		}
 	}
 	
 	$template =~ s!\\([\\{}])!\1!g;
@@ -124,9 +101,16 @@ sub template_irisafe
 	
 	foreach my $key (sort keys %data)
 	{
-		my $placeholder = sprintf('{%s}', $key);
 		my $replacement = uri_escape($data{$key});
-		$template =~ s!\Q$placeholder!$replacement!g;
+		
+		foreach my $placeholder (sprintf('{%s}', $key), sprintf('{"%s"}', $key))
+		{
+#			if ($placeholder eq $template) {
+#				$template = $data{$key};
+#				last;
+#			}
+			$template =~ s!\Q$placeholder!$replacement!g;
+		}
 	}
 	
 	$template =~ s!\\([\\{}])!\1!g;
@@ -134,11 +118,36 @@ sub template_irisafe
 	return $template;
 }
 
+sub iri
+{
+	my ($self, $iri, $graph) = @_;
+	
+	return $iri
+		if blessed($iri) && $iri->isa('RDF::Trine::Node');
+	return blank()
+		if $iri eq '[]';
+	
+	if ($iri =~ /^_:(.*)$/)
+	{
+		my $ident = $1;
+		$ident =~ s/([^0-9A-Za-wyz])/sprintf('x%04X', ord($1))/eg;
+		if ($graph)
+		{
+			$ident = md5_hex("$graph").$ident;
+		}
+		return blank($ident);
+	}
+	
+	return RDF::Trine::Node::Resource->new("$iri", $self->{base});
+}
+
 sub process
 {
 	my ($self, $dbh, $model) = @_;
 	$model = RDF::Trine::Model->temporary_model unless defined $model;	
-	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
+	my $callback = (ref $model eq 'CODE')
+		? $model
+		: sub { my $st = shift; $model->add_statement($st) if $st->rdf_compatible };
 	
 	my $mappings = $self->mappings;
 	TABLE: foreach my $table (keys %$mappings)
@@ -149,6 +158,14 @@ sub process
 	return $model;
 }
 
+# make a template from a literal string
+sub mktemplate 
+{
+	my ($self, $string) = @_;
+	$string =~ s!([\\{}])!\\\1!g;
+	return $string;
+}
+
 sub _get_types
 {
 	my ($self, $sth) = @_;
@@ -157,6 +174,9 @@ sub _get_types
 	@types{ @{$sth->{NAME}} } = map
 		{ /^\d+$/ ? (scalar $sth->dbh->type_info($_)->{TYPE_NAME}) : $_ }
 		@{$sth->{TYPE}};
+	
+#	use Data::Dumper;
+#	warn Dumper \%types;
 	
 	return \%types;
 }
@@ -178,7 +198,7 @@ sub handle_table
 	
 	# ->{sql}
 	my $sql    = "SELECT $select FROM $from";
-	$sql = $tmap->{sql} if $tmap->{sql} =~ /^\s*SELECT/i;
+	$sql = $tmap->{sql} if $tmap->{sql};# =~ /^\s*SELECT/i;
 	
 	### Re-jig mapping structure.
 	{
@@ -198,7 +218,7 @@ sub handle_table
 		}
 	}
 	
-	my $sth = $dbh->prepare($sql);
+	my $sth = $dbh->prepare($sql) or return;
 	$sth->execute;
 	my $types = $self->_get_types($sth);
 	
@@ -258,22 +278,26 @@ sub handle_row
 	
 	# ->{graph}
 	my $graph = undef;
-	$graph = iri( $self->template_irisafe($tmap->{graph}, %$row) )
+	$graph = $self->iri( $self->template_irisafe($tmap->{graph}, %$row) )
 		if defined $tmap->{graph};
 	
 	# ->{about}
 	my $subject;
-	if ($tmap->{about})
+	if ($tmap->{about} and $tmap->{_about_is_template})
 	{
 		$subject = $self->template_irisafe($tmap->{about}, %$row);
 	}
-	$subject ||= '[]';
+	elsif ($tmap->{about} and $tmap->{about} =~ m< ^ {\"? ([^}]+?) \"?} $ >x)
+	{
+		$subject = $row->{$1};
+	}
+	$subject //= ($tmap->{about} // '[]');
 	
 	# ->{typeof}
 	foreach (@{ $tmap->{typeof} })
 	{
-		$_ = iri($_, $graph) unless ref $_;
-		$callback->(statement(iri($subject, $graph), $rdf->type, $_));
+		$_ = $self->iri($_, $graph) unless ref $_;
+		$callback->(statement($self->iri($subject, $graph), $rdf->type, $_));
 	}
 
 	foreach (@{ $tmap->{-maps} })
@@ -294,7 +318,7 @@ sub handle_jmap
 	
 	# ->{graph}
 	my $graph = undef;
-	$graph = iri( $self->template_irisafe($tmap->{graph}, %$row) )
+	$graph = $self->iri( $self->template_irisafe($tmap->{graph}, %$row) )
 		if defined $tmap->{graph};
 	
 	# ->{about}
@@ -323,10 +347,10 @@ sub handle_map
 	my $column   = $map->{column};
 	
 	my ($predicate, $value);
-	$value = $row{$column} if exists $row{$column};
+	$value = $row{$column} if defined $row{$column};
 	
 	my $lgraph = defined $map->{graph}
-		? iri($self->template_irisafe($map->{graph}, %row))
+		? $self->iri($self->template_irisafe($map->{graph}, %row))
 		: $graph;
 	
 	if (defined $map->{parse} and uc $map->{parse} eq 'TURTLE')
@@ -359,7 +383,7 @@ sub handle_map
 		{
 			$value = $self->template_irisafe($map->{resource}, %row, '_' => $value);
 		}
-		$value     = iri($value, $lgraph);
+		$value = $self->iri($value, $lgraph);
 	}
 	
 	elsif ($map->{property})
@@ -397,13 +421,13 @@ sub handle_map
 		unless (ref $predicate)
 		{
 			$predicate = $self->template_irisafe($predicate, %row, '_' => $value);							
-			$predicate = iri($predicate, $lgraph) ;
+			$predicate = $self->iri($predicate, $lgraph) ;
 		}
 		
-		my $lsubject = iri($subject, $lgraph);
+		my $lsubject = $self->iri($subject, $lgraph);
 		if ($map->{about})
 		{
-			$lsubject = iri($self->template_irisafe($map->{about}, %row), $lgraph);
+			$lsubject = $self->iri($self->template_irisafe($map->{about}, %row), $lgraph);
 		}
 
 		my $st = $map->{rev}

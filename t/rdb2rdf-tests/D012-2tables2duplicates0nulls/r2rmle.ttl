@@ -3,7 +3,7 @@
 @prefix ex: <http://example.com/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@base <http://mappingpedia.org/rdb2rdf/r2rml/tc/> .
+@base <http://example.com/base/> .
 
 <TriplesMap1>
     a rr:TriplesMap;
@@ -14,7 +14,7 @@
     
     rr:predicateObjectMap [
     	rr:predicate rdf:type;
-    	rr:objectMap <IOUs>;
+    	rr:objectMap [ rr:constant <IOUs> ];
     ];
 		
     rr:predicateObjectMap
@@ -45,7 +45,7 @@
     
     rr:predicateObjectMap [
     	rr:predicate rdf:type;
-    	rr:objectMap <Lives>;
+    	rr:objectMap [ rr:constant <Lives> ];
     ];
 	
     rr:predicateObjectMap

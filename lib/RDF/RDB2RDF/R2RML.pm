@@ -9,10 +9,9 @@ use RDF::Trine::Namespace qw[rdf rdfs owl xsd];
 use Scalar::Util qw[blessed];
 use Storable qw[dclone];
 
-use namespace::clean;
-
 our $rr = RDF::Trine::Namespace->new('http://www.w3.org/ns/r2rml#');
 
+use namespace::clean;
 use parent qw[RDF::RDB2RDF::Simple];
 
 our $VERSION = '0.006';
@@ -235,11 +234,13 @@ sub _r2rml_SubjectMapClass
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($smc, $rr->column);
 		$mapping->{about} = sprintf('{%s}', $col->literal_value) if $col;
+		$mapping->{_about_is_column} = 1 if $col;
 	}
 	unless ($mapping->{about})
 	{
 		my ($tmpl) = grep { $_->is_literal } $r2rml->objects($smc, $rr->template);
 		$mapping->{about} = $tmpl->literal_value if $tmpl;
+		$mapping->{_about_is_template} = 1 if $tmpl;
 	}
 	
 	# termtype
@@ -357,19 +358,19 @@ sub _r2rml_ObjectMapClass
 	
 	my ($datatype, $language, $termtype, $column);
 	my ($o) = map {
-			if ($_->is_resource)   { $termtype = 'IRI'; $_->uri; }
+			if ($_->is_resource)   { $termtype = 'IRI'; $_->value; }
 			elsif ($_->is_blank)   { $termtype = 'BlankNode'; $_->as_ntriples; }
 			elsif ($_->is_literal) { $datatype = $_->literal_datatype; $language = $_->literal_value_language; $termtype = 'Literal'; $_->literal_value; }
 			else                   { $_->as_ntriples; }
 		}
 		$r2rml->objects_for_predicate_list($omc, $rr->constant, $rr->object);
-	unless ($o)
+	unless (defined $o)
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($omc, $rr->column);
 		$o        = sprintf('{%s}', $col->literal_value) if $col;
 		$column   = $col->literal_value if $col;
 	}
-	unless ($o)
+	unless (defined $o)
 	{
 		my ($tmpl) = grep { $_->is_literal } $r2rml->objects($omc, $rr->template);
 		$o = $tmpl->literal_value if $tmpl;
@@ -395,7 +396,7 @@ sub _r2rml_ObjectMapClass
 		$r2rml->objects_for_predicate_list($omc, $rr->termType, $rr->termtype)
 		unless $termtype;
 	
-	$termtype ||= 'Literal' if $datatype||$language;
+	$termtype ||= 'Literal' if $datatype || $language || defined $column;
 	$termtype ||= 'IRI';
 	
 	$o = sprintf('_:%s', $o)
@@ -405,6 +406,7 @@ sub _r2rml_ObjectMapClass
 	
 	if ($column)
 	{
+		$column = $1 if $column =~ m{^"(.+)"$};
 		$map->{column} = $column;
 	}
 	else

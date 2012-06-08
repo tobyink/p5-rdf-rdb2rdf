@@ -59,9 +59,13 @@ sub layout
 			
 			foreach my $column (sort {$a->{ORDINAL_POSITION} <=> $b->{ORDINAL_POSITION}} values %{ $info->{$table}{columns} })
 			{
+				my $type = ($column->{TYPE_NAME} =~ /^char$/i and defined $column->{COLUMN_SIZE})
+					? sprintf('%s(%d)', $column->{TYPE_NAME}, $column->{COLUMN_SIZE})
+					: $column->{TYPE_NAME};
+				
 				push @{ $rv->{$table}{columns} }, {
 					column => $column->{COLUMN_NAME},
-					type   => $column->{TYPE_NAME},
+					type   => $type,
 					order  => $column->{ORDINAL_POSITION}
 					};
 			}
@@ -269,14 +273,21 @@ sub process_turtle
 	return $self->SUPER::process_turtle(@args, base_uri=>$self->prefix);
 }
 
+sub _uri_escape
+{
+	my $s = uri_escape(shift);
+	$s =~ s/\+/%20/g;
+	$s;
+}
+
 sub make_ref_uri
 {
 	my ($self, $table, $ref) = @_;
 	
 	return $self->prefix .
-		$table . "#ref-" .
+		$table . "#ref=" .
 		(join '.', map
-			{ uri_escape($_); }
+			{ _uri_escape($_); }
 			@{$ref->{columns}});
 }
 
@@ -293,7 +304,7 @@ sub make_ref_dest_uri
 	return $self->prefix .
 		$ref->{target_table} . "/" .
 		(join '.', map
-			{ sprintf('%s-%s', uri_escape($_), uri_escape($data->{$map->{$_}})); }
+			{ sprintf('%s-%s', _uri_escape($_), _uri_escape($data->{$map->{$_}})); }
 			@{$ref->{target_columns}});
 }
 
@@ -303,8 +314,8 @@ sub make_key_uri
 	
 	return $self->prefix .
 		$table . "/" .
-		(join '.', map
-			{ sprintf('%s-%s', uri_escape($_), uri_escape($data->{$_})); }
+		(join ';', map
+			{ sprintf('%s=%s', _uri_escape($_), _uri_escape($data->{$_})); }
 			@$columns);
 }
 

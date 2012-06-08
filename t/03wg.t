@@ -6,33 +6,41 @@ use Test::More;
 
 BEGIN { use_ok('RDF::RDB2RDF') };
 
-my @manifests = qw(
-	D000-1table0rows         
-	D001-1table1row          
-	D002-1table2columns1row  
-	D003-1table3columns1row  
-	D003-1table3columns1row  
-	D004-1table2columnsprojection         
-	D005-2duplicates0nulls                	
-	D006-1table1primarykey1column1row     
-	D007-1table1primarykey2columns1row    
-	D008-1table1compositeprimarykey3columns1row
-	D009-2tables1primarykey1foreingkey         
-	D010-I18NnoSpecialChars                    
-	D011-M2MRelations                          
-	D012-2tables2duplicates0nulls
-	D013-1table3columns2rows1nullvalue
-	D014-3tablesExample               
-	);
 my $here = $0;
 $here =~ s/03wg.t$//;
 $here ||= '.';
+
+my @manifests = 
+	sort
+	map { s{^.+rdb2rdf-tests/}{}; $_ }
+	<$here/rdb2rdf-tests/D*>;
 
 my $output = sub
 {
 #	print($_[0]."\n");
 	diag($_[0]);
 };
+
+my %excuses = (
+	R2RMLTC0008b => qq [RefObjectMap not fully implemented (yet).],
+	R2RMLTC0009a => qq [RefObjectMap not fully implemented (yet).],
+	R2RMLTC0009b => qq [RefObjectMap not fully implemented (yet).],
+	R2RMLTC0009d => qq [SQLite appears to datatype COUNT() columns as VARCHAR. WTF?],
+	R2RMLTC0010c => qq [I'll puzzle this one out later!],
+	R2RMLTC0014b => qq [RefObjectMap not fully implemented (yet).],
+	R2RMLTC0014c => qq [RefObjectMap not fully implemented (yet).],
+	R2RMLTC0016e => qq [I'll puzzle this one out later!],
+	DirectGraphTC0009 => qq [SQLite driver missing feature - https://rt.cpan.org/Ticket/Display.html?id=50779],
+	DirectGraphTC0010 => qq [SQLite driver bug - https://rt.cpan.org/Ticket/Display.html?id=77724],
+	DirectGraphTC0011 => qq [SQLite driver missing feature - https://rt.cpan.org/Ticket/Display.html?id=50779],
+	DirectGraphTC0014 => qq [SQLite driver missing feature - https://rt.cpan.org/Ticket/Display.html?id=50779],
+	DirectGraphTC0017 => qq [I'll puzzle this one out later!],
+	DirectGraphTC0021 => qq [SQLite doesn't like create.sql.],
+	DirectGraphTC0022 => qq [SQLite doesn't like create.sql.],
+	DirectGraphTC0023 => qq [SQLite doesn't like create.sql.],
+	DirectGraphTC0024 => qq [SQLite doesn't like create.sql.],
+	DirectGraphTC0025 => qq [SQLite doesn't like create.sql.],
+);
 
 MANIFEST: foreach (@manifests)
 {
@@ -41,22 +49,28 @@ MANIFEST: foreach (@manifests)
 	$manifest->output = $output;
 	
 	my %tests = $manifest->tests;
-	TEST: while (my ($i, $test) = each %tests)
+	TEST: foreach my $i (sort keys %tests)
 	{
 		SKIP: {
-			skip "$1 not working yet", 1
-				if $test->identifier =~ /^(R2RMLTC009|R2RMLTC014b)$/;
-			ok($test->successful, $test->id_and_title);
+			my $test = $tests{$i};
+			
+			skip sprintf("%s: %s", $test->identifier, $excuses{$test->identifier}), 1
+				if exists $excuses{$test->identifier};
+			
+			ok($test->successful, $test->id_and_title) or die;
 		}
 	}
 
 	my %dtests = $manifest->tests('DirectMapping');
-	TEST: while (my ($i, $test) = each %dtests)
+	TEST: foreach my $i (sort keys %dtests)
 	{
 		SKIP: {
-			skip "$1 not working yet", 1
-				if $test->identifier =~ /^Direct Graph (TC0009|TC0011)$/;
-			ok($test->successful, $test->id_and_title);
+			my $test = $dtests{$i};
+			
+			skip sprintf("%s: %s", $test->identifier, $excuses{$test->identifier}), 1
+				if exists $excuses{$test->identifier};
+			
+			ok($test->successful, $test->id_and_title) or die;
 		}
 	}
 }
@@ -128,7 +142,10 @@ sub databases
 			my $filename = ($iri->uri eq ($ENV{KEEP_DATABASE}//'xxx')) ? 'keep.db' : ':memory:';
 			my $dbh = DBI->connect("dbi:SQLite:dbname=${filename}");
 			$dbh->do('PRAGMA foreign_keys = ON;');
-			$dbh->do($_) foreach @script;
+			foreach (@script)
+			{
+				$dbh->do($_);
+			}
 			$self->{databases}{$iri} = $dbh;
 		});
 	}
@@ -285,7 +302,7 @@ use base qw[ Local::WGTest::R2RML ];
 
 sub mapping
 {
-	return RDF::RDB2RDF::DirectMapping->new(prefix=>'http://example.net/', rdfs=>1);
+	return RDF::RDB2RDF::DirectMapping->new(prefix=>'http://example.com/base/', rdfs=>1);
 }
 
 sub expected_output
@@ -296,7 +313,7 @@ sub expected_output
 	
 	my $parser = RDF::Trine::Parser->new($filename =~ /\.nq$/ ? 'NQuads' : 'Turtle');
 	my $model  = RDF::Trine::Model->new;
-	$parser->parse_file_into_model('http://example.net/', $filename, $model);
+	$parser->parse_file_into_model('http://example.com/base/', $filename, $model);
 	
 	return $model;
 }

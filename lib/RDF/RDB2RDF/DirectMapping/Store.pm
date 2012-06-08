@@ -230,8 +230,8 @@ sub get_statements
 		return $NULL
 			unless $p_divider eq '#';
 			
-		# TODO: better handling for "ref-".
-		if ($p_bit =~ /^ref-/)
+		# TODO: better handling for "ref=".
+		if ($p_bit =~ /^ref=/)
 		{
 			return $NULL if blessed($o) && $o->is_literal;
 		}
@@ -325,8 +325,8 @@ sub _handle_bit
 	my ($pkey) = grep { $_->{primary} } values %{$layout->{$table}{keys}};
 	
 	my $regex   =
-		join '\.',
-		map { sprintf('%s-(.*)', quotemeta(uri_escape($_))) }
+		join '\;',
+		map { sprintf('%s=(.*)', quotemeta(_uri_escape($_))) }
 		@{$pkey->{columns}};
 	
 #	warn "'$bit' =~ /$regex/";
@@ -342,6 +342,13 @@ sub _handle_bit
 	}
 	
 	return;
+}
+
+sub _uri_escape
+{
+	my $s = uri_escape(shift);
+	$s =~ s/\+/%20/g;
+	$s;
 }
 
 sub split_uri
@@ -461,7 +468,7 @@ sub add_statement
 			"predicate has non-literal range, but object is literal",
 			)
 			if defined $p_bit
-			&& $p_bit =~ /^ref-/;
+			&& $p_bit =~ /^ref=/;
 		
 		return $self->_carp(
 			add => $st,
@@ -533,7 +540,7 @@ sub add_statement
 			"predicate has literal range, but non-literal value",
 			)
 			if defined $p_bit
-			&& $p_bit !~ /^ref-/;
+			&& $p_bit !~ /^ref=/;
 		
 		return $self->_croak(
 			add => $st,
