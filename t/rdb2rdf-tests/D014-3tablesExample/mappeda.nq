@@ -1,5 +1,0 @@
-_:Department10 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/ns#dept> <http://example.com/ns#DeptGraph> .
-_:Department10 <http://example.com/dept#deptno> "10"^^<http://www.w3.org/2001/XMLSchema#positiveInteger> <http://example.com/ns#DeptGraph> .
-_:Department10 <http://example.com/dept#name> "APPSERVER" <http://example.com/ns#DeptGraph> .
-_:Department10 <http://example.com/dept#location> "NEW YORK" <http://example.com/ns#DeptGraph> .
-_:Department10 <http://example.com/dept#COMPANY> "EXAMPLE Corporation" <http://example.com/ns#DeptGraph> .

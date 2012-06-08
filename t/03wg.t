@@ -80,6 +80,7 @@ BEGIN
 
 sub slurp
 {
+	no warnings;
 	open my($fh), sprintf('<:encoding(%s)', ($_[1] // 'UTF-8')), $_[0];
 	local $/ = <$fh>;
 }

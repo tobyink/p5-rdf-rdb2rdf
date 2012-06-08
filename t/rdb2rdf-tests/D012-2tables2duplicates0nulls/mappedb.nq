@@ -1,6 +1,4 @@
-_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7fef <http://example.com/city> "London" .
-_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7fef <http://xmlns.com/foaf/0.1/name> "Bob Smith" .
-_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7fef <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/IOU> .
-_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7fee <http://example.com/city> "Madrid" .
-_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7fee <http://xmlns.com/foaf/0.1/name> "Sue Jones" .
-_:AX2dX38ec05dcX3aX131488bea58X3aXX2dX7fee <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.com/IOU> .
+_:Bob_Smith <http://example.com/city> "London" .
+_:Bob_Smith <http://xmlns.com/foaf/0.1/name> "Bob Smith" .
+_:Sue_Jones <http://example.com/city> "Madrid" .
+_:Sue_Jones <http://xmlns.com/foaf/0.1/name> "Sue Jones" .

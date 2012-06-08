@@ -1,3 +1,0 @@
-_:a a <Student> .
-_:a <Student#ID> 10 .
-_:a <Student#Name> "Venus" .

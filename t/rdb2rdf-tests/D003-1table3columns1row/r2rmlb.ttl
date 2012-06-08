@@ -9,26 +9,17 @@
 
      rr:logicalTable [ 
                      rr:sqlQuery """
-                     SELECT ID,
-                            (FirstName || ' ' || LastName) AS Name,
-                            FirstName,
-                            LastName
-                     FROM Student
+                     SELECT "ID",
+                            ("FirstName" || ' ' || "LastName") AS Name
+                     FROM "Student"
                      """
                      ];
 
-    rr:subjectMap [ rr:template "http://example.com/Student{ID}{FirstName}{LastName}"; 
-                    rr:class foaf:Person ];
-	
-    rr:predicateObjectMap
-    [ 
-      rr:predicateMap [ rr:predicate ex:id ]; 
-      rr:objectMap    [ rr:column "ID"; rr:datatype xsd:integer ]
-    ];
+    rr:subjectMap [ rr:template "http://example.com/Student/{\"ID\"}"; ];
 
     rr:predicateObjectMap
     [ 
-      rr:predicateMap [ rr:predicate foaf:name ]; 
-      rr:objectMap    [ rr:column "Name" ; rr:termType rr:Literal ]
+      rr:predicate		foaf:name ; 
+      rr:objectMap		[ rr:column "Name" ]
     ]
     .

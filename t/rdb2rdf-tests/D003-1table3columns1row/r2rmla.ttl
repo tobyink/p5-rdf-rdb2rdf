@@ -7,26 +7,22 @@
 <TriplesMap1>
      a rr:TriplesMap;
 
-     rr:logicalTable [ rr:tableName "Student" ];
+	rr:logicalTable [ 
+						rr:sqlQuery """
+							SELECT 	"ID",
+									"FirstName",
+									"LastName"
+							FROM "Student"
+                       """;
+						rr:sqlVersion rr:SQL1979 				   
+                       ];
 
-    rr:subjectMap [ rr:template "http://example.com/Student{ID}{FirstName}{LastName}";
+    rr:subjectMap [ rr:template "http://example.com/Student/{\"ID\"}/{\"FirstName\"}-{\"LastName\"}";
                     rr:class foaf:Person  ];
 	
     rr:predicateObjectMap
     [ 
-      rr:predicateMap [ rr:predicate ex:id ]; 
-      rr:objectMap    [ rr:column "ID"; rr:datatype xsd:integer ]
+      rr:predicate		ex:id ; 
+      rr:objectMap		[ rr:column "\"ID\""; ]
     ];
-
-    rr:predicateObjectMap
-    [ 
-      rr:predicateMap [ rr:predicate foaf:firstName ]; 
-      rr:objectMap    [ rr:column "FirstName" ; rr:termType rr:Literal ]
-    ];
-
-    rr:predicateObjectMap
-    [ 
-      rr:predicateMap [ rr:predicate foaf:lastName ]; 
-      rr:objectMap    [ rr:column "LastName" ; rr:termType rr:Literal ]
-    ]
-    .
+     .
