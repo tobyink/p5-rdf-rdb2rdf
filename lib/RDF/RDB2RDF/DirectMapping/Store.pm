@@ -463,6 +463,12 @@ sub add_statement
 			if defined $p_bit
 			&& $p_bit =~ /^ref-/;
 		
+		return $self->_carp(
+			add => $st,
+			"literal language ignored",
+			)
+			if $st->object->has_language;
+		
 		my $table  = $p_table;
 		my $index  = $self->_handle_bit($s_table, $s_bit);
 		my $column = $p_bit;
@@ -587,12 +593,13 @@ sub remove_statement
 		my $layout = $self->mapping->layout($self->dbh, $self->schema);
 		
 		my $sth = $self->dbh->prepare(sprintf(
-			'UPDATE %s SET %s=NULL WHERE %s',
+			'UPDATE %s SET %s=NULL WHERE %s=? AND %s',
 			$table,
+			$column,
 			$column,
 			join(q[ AND ] => map { "$_=?" } sort keys %$index)
 		));
-		$sth->execute(map { $index->{$_} } sort keys %$index)
+		$sth->execute($value, map { $index->{$_} } sort keys %$index)
 			or $self->_croak(remove => $st, "could not UPDATE database");
 		return;
 	}
@@ -702,6 +709,53 @@ based on a database handle and a  L<RDF::RDB2RDF::DirectMapping>
 map.
 
 Some queries are super-optimised; others are somewhat slower.
+
+=head2 A Read-Write Adventure!
+
+As of 0.006, there is experimental support for C<add_statement>,
+C<remove_statement> and C<remove_statements>.
+
+Because data is stored in the database in a relational manner
+rather than as triples, some statements cannot be added to the
+database because they don't fit within the database's existing
+set of relations (i.e. tables). These will croak, but you can
+customise the failure (e.g. ignore it) using a callback:
+
+ my %opts = (
+   on_croak => sub {
+     my ($store, $action, $st, $reason) = @_;
+     my $dbh     = $store->dbh;
+     my $mapping = $store->mapping;
+     # do stuff here
+   },
+ );
+ $store->add_statement($st, $ctxt, \%opts);
+
+The on_croak option can alternatively be passed to the constructor.
+
+Generally speaking, if the C<add_statement> or C<remove_statement>
+methods fail, the database has probably been left unchanged. (But
+there are no guarantees - the database may have, say, a trigger
+set up which fires on SELECT.)
+
+Certain statements will also generate a warning. These warnings
+can be silenced by setting an C<on_carp> callback similarly.
+
+Again because of the relational nature of the storage, many
+statements will be mutually exclusive. That is, adding one
+statement may automatically negate an existing statement (i.e.
+cause it to be removed). You may set the C<overwrite> option
+to a false-but-defined value to prevent this happening.
+
+ $store->add_statement($st, $ctxt, { overwrite => 0 });
+
+In many RDF stores, the C<remove_statements> method is a logical
+shortcut for calling C<get_statement> and then looping through
+the results, removing each one from the store. (Though probably
+optimized.)
+
+In this store though, C<remove_statements> may succeed when
+individual calls to C<remove_statement> would have succeeded.
 
 =head1 SEE ALSO
 
