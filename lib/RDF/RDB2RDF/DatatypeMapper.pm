@@ -27,7 +27,7 @@ sub datatyped_literal
 		when (/^(decimal|numeric)/i)
 			{ return literal($value, undef, $XSD->decimal->uri); }
 		when (/^(float|real|double)/i)
-			{ return literal($value, undef, $XSD->float->uri); }
+			{ return literal($value, undef, $XSD->double->uri); }
 		when (/^(binary)/i)
 		{
 			$value    = MIME::Base64::encode_base64($value);
