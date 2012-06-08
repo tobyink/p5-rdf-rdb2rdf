@@ -469,7 +469,7 @@ sub add_statement
 			)
 			if $st->object->has_language;
 		
-		my $table  = $p_table;
+		my $table  = $self->schema ? sprintf('%s.%s', $self->schema, $p_table) : $p_table ;
 		my $index  = $self->_handle_bit($s_table, $s_bit);
 		my $column = $p_bit;
 		my $value  = $st->object->literal_value;
@@ -586,7 +586,7 @@ sub remove_statement
 	
 	if ($st->object->is_literal)
 	{
-		my $table  = $p_table;
+		my $table  = $self->schema ? sprintf('%s.%s', $self->schema, $p_table) : $p_table ;
 		my $index  = $self->_handle_bit($s_table, $s_bit);
 		my $column = $p_bit;
 		my $value  = $st->object->literal_value;
@@ -624,12 +624,6 @@ sub remove_statements
 	{
 		my ($s_prefix, $s_table, $s_divider, $s_bit) = $self->split_uri($s);
 		
-		return $self->_croak(
-			add => $st,
-			"subject not contained within this database according to mapping",
-			)
-			unless defined $s_prefix;
-		
 		# for error messages
 		my $st = sub {
 			RDF::Trine::Statement->new(
@@ -640,12 +634,18 @@ sub remove_statements
 		};
 		
 		return $self->_croak(
+			remove => $st,
+			"subject not contained within this database according to mapping",
+			)
+			unless defined $s_prefix;
+		
+		return $self->_croak(
 			remove => $st->(),
 			"table $s_table is ignored by mapping",
 			)
 			if $s_table ~~ $self->mapping->ignore_tables;
 		
-		my $table  = $s_table;
+		my $table  = $self->schema ? sprintf('%s.%s', $self->schema, $s_table) : $s_table ;
 		my $index  = $self->_handle_bit($s_table, $s_bit);
 		my $layout = $self->mapping->layout($self->dbh, $self->schema);
 		
