@@ -624,6 +624,12 @@ sub remove_statements
 	{
 		my ($s_prefix, $s_table, $s_divider, $s_bit) = $self->split_uri($s);
 		
+		return $self->_croak(
+			add => $st,
+			"subject not contained within this database according to mapping",
+			)
+			unless defined $s_prefix;
+		
 		# for error messages
 		my $st = sub {
 			RDF::Trine::Statement->new(
