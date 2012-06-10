@@ -79,7 +79,10 @@ my:v_0-006
 	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.006.tar.gz> ;
 	dcs:changeset [
 		dcs:versus my:v_0-005 ;
-		dcs:item   [ rdfs:label "RDF::RDB2RDF::DirectMapping::Store supports new_with_config." ; a dcs:Addition ]
+		dcs:item   [ rdfs:label "Reduce dependencies (parent.pm, common::sense, DBIx::Admin::TableInfo, etc)."@en ; a dcs:Packaging ] ;
+		dcs:item   [ rdfs:label "RDB2RDF Working Group tests are now 'xt'."@en ; a dcs:Packaging ] ;
+		dcs:item   [ rdfs:label "A number of small changes to fix compliance issues with R2RML and Direct Mapping test suites." ] ;
+		dcs:item   [ rdfs:label "RDF::RDB2RDF::DirectMapping::Store supports new_with_config." ; a dcs:Addition ] ;
 		dcs:item   [ rdfs:label "RDF::TrineX::Store::DirectMapping is now an alias for RDF::RDB2RDF::DirectMapping::Store." ; a dcs:Addition ]
-		] .
+	] .
 
