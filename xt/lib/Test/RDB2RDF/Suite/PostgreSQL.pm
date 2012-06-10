@@ -13,7 +13,7 @@ sub excuses
 	$excuses{R2RMLTC0003b} =
 	$excuses{R2RMLTC0009d} = 
 	$excuses{R2RMLTC0011a} = 
-		qq [Column case sensitivity.];
+		[cantTell => qq [Column case sensitivity.]];
 		
 	$excuses{R2RMLTC0016a} =
 	$excuses{R2RMLTC0016b} =
@@ -21,7 +21,7 @@ sub excuses
 	$excuses{R2RMLTC0016d} =
 	$excuses{R2RMLTC0016e} =
 	$excuses{DirectGraphTC0016} =
-		qq [PostgreSQL doesn't support VARBINARY.];
+		[failed => qq [PostgreSQL doesn't support VARBINARY datatype.]];
 
 	return %excuses;
 }

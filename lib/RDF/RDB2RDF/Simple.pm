@@ -164,12 +164,15 @@ sub _get_types
 	my ($self, $sth, $dbh) = @_;
 	
 	my %types;
-	@types{ @{$sth->{NAME}} } = map
-		{ /^\d+$/ ? (scalar $dbh->type_info($_)->{TYPE_NAME}) : $_ }
-		@{$sth->{TYPE}};
-	
-#	use Data::Dumper;
-#	warn Dumper \%types;
+	eval {
+		@types{ @{$sth->{NAME}} } =
+			map {
+				/^\d+$/
+					? scalar($dbh->type_info($_)->{TYPE_NAME})
+					: $_
+			}
+			@{ $sth->{TYPE} };
+	};
 	
 	return \%types;
 }
@@ -216,11 +219,8 @@ sub handle_table
 	my $types = $self->_get_types($sth, $dbh);
 	
 	my $row_count = 0;
-#	print "========================\n$sql\n";
 	ROW: while (my $row = $sth->fetchrow_hashref)
 	{
-#		use Data::Dumper;
-#		print Dumper($row, $sth->{NAME});
 		$row_count++;
 		$self->handle_row($dbh, $callback, $table, $row, $types, $row_count);
 	}
@@ -289,7 +289,6 @@ sub handle_row
 
 	foreach (@{ $tmap->{-maps} })
 	{
-		# use Data::Dumper; warn Dumper($_);
 		$self->handle_map($dbh, $model, $table, $row, $types, $row_count, $_, $graph, $subject);
 	}			
 }
