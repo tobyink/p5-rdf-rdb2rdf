@@ -77,31 +77,21 @@ sub run_tap
 		my $manifest = Test::RDB2RDF::Manifest->new($filename, $self);
 		$manifest->output = $self->output;
 		
-		my %tests = $manifest->tests;
-		TEST: foreach my $i (sort keys %tests)
+		foreach my $collection (qw< R2RML DirectMapping >)
 		{
-			SKIP: {
-				my $test = $tests{$i}; $count++;
-				
-				skip sprintf("%s: %s", $test->identifier, $excuses{$test->identifier}[1]), 1
-					if exists $excuses{$test->identifier};
-				
-				ok($test->successful, $test->id_and_title);
+			my %tests = $manifest->tests($collection);
+			TEST: foreach my $i (sort keys %tests)
+			{
+				SKIP: {
+					my $test = $tests{$i}; $count++;
+					
+					skip sprintf("%s: %s", $test->identifier, $excuses{$test->identifier}[1]), 1
+						if exists $excuses{$test->identifier};
+					
+					ok($test->successful, $test->id_and_title) or die;
+				}
 			}
-		}
-
-		my %dtests = $manifest->tests('DirectMapping');
-		TEST: foreach my $i (sort keys %dtests)
-		{
-			SKIP: {
-				my $test = $dtests{$i}; $count++;
-				
-				skip sprintf("%s: %s", $test->identifier, $excuses{$test->identifier}[1]), 1
-					if exists $excuses{$test->identifier};
-				
-				ok($test->successful, $test->id_and_title);
-			}
-		}
+		}		
 	}
 	
 	return $count;

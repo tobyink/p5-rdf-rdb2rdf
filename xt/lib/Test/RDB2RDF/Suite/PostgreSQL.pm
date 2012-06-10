@@ -9,12 +9,6 @@ sub excuses
 {
 	my %excuses = shift->SUPER::excuses;
 
-	$excuses{R2RMLTC0003a} =
-	$excuses{R2RMLTC0003b} =
-	$excuses{R2RMLTC0009d} = 
-	$excuses{R2RMLTC0011a} = 
-		[cantTell => qq [Column case sensitivity.]];
-		
 	$excuses{R2RMLTC0016a} =
 	$excuses{R2RMLTC0016b} =
 	$excuses{R2RMLTC0016c} =

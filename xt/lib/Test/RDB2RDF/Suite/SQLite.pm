@@ -10,7 +10,7 @@ sub excuses
 	my %excuses = shift->SUPER::excuses;
 
 	$excuses{R2RMLTC0009d} =
-		[failed => qq [SQLite appears to datatype COUNT() columns as VARCHAR. WTF?]];
+		[failed => qq [SQLite appears to datatype COUNT() columns as VARCHAR. Huh?]];
 		
 	$excuses{DirectGraphTC0009} =
 	$excuses{DirectGraphTC0011} =

@@ -20,8 +20,8 @@ sub datatyped_literal
 	given ($sql_datatype)
 	{
 		when (undef)
-			{ return undef; }
-		when (/^(?:bp)?char\((\d+)\)/i) # fixed width char strings.
+			{ return literal("$value"); }
+		when (/^(?:bp)?char\(?(\d+)\)?/i) # fixed width char strings.
 			{ return literal(sprintf("%-$1s", "$value")); }
 		when (/^(?:char|bpchar|varchar|string|text|note|memo)/i)
 			{ return literal("$value"); }

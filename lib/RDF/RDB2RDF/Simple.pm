@@ -164,7 +164,17 @@ sub _get_types
 	my ($self, $sth, $dbh) = @_;
 	
 	my %types;
-	eval {
+	if (exists $sth->{pg_type})
+	{
+		# For PostgreSQL, this appears to give better results.
+		# Particularly in the case of columns which don't exist
+		# in the table itself. (e.g. aggregation, casting,
+		# functions, etc)
+		@types{ @{$sth->{NAME}} } =
+			@{ $sth->{pg_type} };
+	}
+	else
+	{eval{
 		@types{ @{$sth->{NAME}} } =
 			map {
 				/^\d+$/
@@ -172,7 +182,7 @@ sub _get_types
 					: $_
 			}
 			@{ $sth->{TYPE} };
-	};
+	}}
 	
 	return \%types;
 }
@@ -345,38 +355,39 @@ sub handle_map
 	my %row      = %$row;
 	my $column   = $map->{column};
 	
-	my ($predicate, $value);
+	my ($predicate, $value, $loose);
 	if ($column =~ /^"(.+)"$/)
 		{ $column = $1; $value = $row{$column} }
 	elsif (exists $row{$column})
-		{ $value = $row{$column} }
+		{ $loose = 1; $value = $row{$column} }
 	elsif (exists $row{lc $column})
-		{ $value = $row{lc $column} }
+		{ $loose = 1; $value = $row{lc $column} }
 	
 	my $lgraph = defined $map->{graph}
 		? $self->iri($self->template_irisafe($map->{graph}, %row))
 		: $graph;
+		
+	use Data::Dumper;
 	
 	if (defined $map->{parse} and uc $map->{parse} eq 'TURTLE')
 	{
 		return unless length $value;
 		
 		my %NS = $self->namespaces;
-		my $turtle = join '', map { sprintf("\@prefix %s: <%s>.\n", $_, $NS{$_}) } keys %NS;
-		$turtle .= sprintf("\@base <%s>.\n", $subject->uri);
-		$turtle .= "$value\n";
-		eval {
+		my $turtle =
+			join '',
+			(map { sprintf("\@prefix %s: <%s>.\n", $_, $NS{$_}) } keys %NS),
+			sprintf("\@base <%s>.\n", $subject->uri),
+			$value,
+			"\n";
+		return eval {
 			$parsers->{ $map->{parse} } = RDF::Trine::Parser->new($map->{parse});
-			if ($lgraph)
-			{
-				$parsers->{ $map->{parse} }->parse($subject, $turtle, sub { $callback->($_[0], $lgraph); });
-			}
-			else
-			{
-				$parsers->{ $map->{parse} }->parse($subject, $turtle, $callback);
-			}
+			$parsers->{ $map->{parse} }->parse(
+				$subject,
+				$turtle,
+				($lgraph ? sub { $callback->($_[0], $lgraph) } : $callback),
+			);
 		};
-		return;
 	}
 
 	if ($map->{rev} || $map->{rel})
@@ -411,7 +422,9 @@ sub handle_map
 			}
 			elsif (!defined $map->{content})
 			{
-				$value = $self->datatyped_literal($value, $types->{$column});
+				my $type = $types->{$column};
+				$type = $types->{lc $column} if $loose && not exists $types->{$column};
+				$value = $self->datatyped_literal($value, $type);
 			}
 			else
 			{
