@@ -4,6 +4,7 @@ use 5.010;
 use common::sense;
 
 use Carp qw[carp croak];
+use Data::UUID;
 use DBI;
 use MIME::Base64 qw[];
 use RDF::Trine qw[iri blank literal statement];
@@ -23,8 +24,9 @@ sub new
 	$args{rdfs}          = 0  unless defined $args{rdfs};
 	$args{warn_sql}      = 0  unless defined $args{warn_sql};
 	$args{ignore_tables} = [] unless defined $args{ignore_tables};
+	$args{unique}        = Data::UUID->new->create_str;
 	
-	bless {%args}, $class;
+	bless \%args, $class;
 }
 
 sub uri_escape
@@ -49,13 +51,17 @@ sub _unquote_identifier
 sub rowmap (&$)
 {
 	my ($coderef, $iter) = @_;
+	
 	my @results = ();
+	ref($iter) or return @results;
+	
 	local $_;
 	my $i = 0;
 	while ($_ = $iter->fetchrow_hashref)
 	{
 		push @results, $coderef->($coderef, $iter, $_, ++$i);
 	}
+	
 	wantarray ? @results : scalar(@results);
 }
 
@@ -102,8 +108,8 @@ sub layout
 			my $pkey_name;
 			my @pkey_cols = 
 				map {
-					$pkey_name = $_->{PK_NAME};
-					$_->{COLUMN_NAME};
+					$pkey_name = _unquote_identifier($_->{PK_NAME});
+					_unquote_identifier($_->{COLUMN_NAME});
 				}
 				sort { $a->{KEY_SEQ} <=> $b->{KEY_SEQ} }
 				rowmap {
@@ -112,6 +118,7 @@ sub layout
 				$dbh->primary_key_info(undef, $schema, $table, undef);
 			
 			$rv->{$table}{keys}{$pkey_name} = {
+				name    => $pkey_name,
 				columns => \@pkey_cols,
 				primary => 1,
 			} if @pkey_cols;
@@ -127,9 +134,9 @@ sub layout
 				@r = sort { $a->{ORDINAL_POSITION} <=> $b->{ORDINAL_POSITION} } @r;
 				foreach my $f (@r)
 				{
-					push @{ $rv->{$table}{refs}{ $f->{FK_NAME} }{columns} }, $f->{FK_COLUMN_NAME};
-					push @{ $rv->{$table}{refs}{ $f->{FK_NAME} }{target_columns} }, $f->{UK_COLUMN_NAME};
-					$rv->{$table}{refs}{ $f->{FK_NAME} }{target_table} = $f->{UK_TABLE_NAME};
+					push @{ $rv->{$table}{refs}{ $f->{FK_NAME} }{columns} }, _unquote_identifier($f->{FK_COLUMN_NAME});
+					push @{ $rv->{$table}{refs}{ $f->{FK_NAME} }{target_columns} }, _unquote_identifier($f->{UK_COLUMN_NAME});
+					$rv->{$table}{refs}{ $f->{FK_NAME} }{target_table} = _unquote_identifier($f->{UK_TABLE_NAME});
 				}
 			}
 			
@@ -141,13 +148,14 @@ sub layout
 				{
 					next if $result->{FILTER_CONDITION};
 					next if $result->{NON_UNIQUE};
-					next if $rv->{$table}{keys}{ $result->{INDEX_NAME} };
+					next if $rv->{$table}{keys}{ _unquote_identifier($result->{INDEX_NAME}) };
 					push @r, $result;
 				}
 				@r = sort { $a->{ORDINAL_POSITION} <=> $b->{ORDINAL_POSITION} } @r;
 				foreach my $f (@r)
 				{
-					push @{ $rv->{$table}{keys}{ $f->{INDEX_NAME} }{columns} }, $f->{COLUMN_NAME};
+					push @{ $rv->{$table}{keys}{ $f->{INDEX_NAME} }{columns} }, _unquote_identifier($f->{COLUMN_NAME});
+					$rv->{$table}{keys}{ $f->{INDEX_NAME} }{name} = _unquote_identifier($f->{INDEX_NAME});
 				}
 			}
 		}
@@ -232,7 +240,10 @@ sub handle_table
 #		print Dumper($layout, $row, $table);
 		my ($pkey_uri) =
 			map  { $self->make_key_uri($table, $_->{columns}, $row); }
-			grep { $_->{primary}; }
+			sort {
+				$b->{primary} <=> $a->{primary}
+				or $a->{name} cmp $b->{name}
+			}
 			values %{ $layout->{$table}{keys} };		
 		my $subject = $pkey_uri ? iri($pkey_uri) : blank();
 		
@@ -242,12 +253,12 @@ sub handle_table
 		# owl:sameAs
 		if ($cols eq '*')
 		{
-			my @key_uris =
-				map  { $self->make_key_uri($table, $_->{columns}, $row); }
-				grep { !$_->{primary}; }
+			$callback->(statement($subject, $OWL->sameAs, $_))
+				foreach
+				grep { not $subject->equal($_) }
+				map { iri $_ } # don't combine with previous step, as make_key_uri can return empty list
+				map  { $self->make_key_uri($table, $_->{columns}, $row) }
 				values %{ $layout->{$table}{keys} };
-			$callback->(statement($subject, $OWL->sameAs, iri($_)))
-				foreach @key_uris;
 		}
 		
 		# p-o for columns
@@ -267,7 +278,7 @@ sub handle_table
 		foreach my $ref (values %{ $layout->{$table}{refs} })
 		{
 			my $predicate = iri($self->make_ref_uri($table, $ref));
-			my $object    = iri($self->make_ref_dest_uri($table, $ref, $row));
+			my $object    = iri($self->make_ref_dest_uri($table, $ref, $row, [$dbh, $schema]));
 			$callback->(statement($subject, $predicate, $object));
 		}
 	}
@@ -325,18 +336,31 @@ sub _uri_escape
 	$s;
 }
 
+sub make_key_uri
+{
+	my ($self, $table, $columns, $data) = @_;
+	
+	return if grep { !defined $data->{$_} } @$columns;
+	
+	return $self->prefix .
+		$table . "/" .
+		(join ';', map
+			{ sprintf('%s=%s', _uri_escape($_), _uri_escape($data->{$_})); }
+			@$columns);
+}
+
 sub make_ref_uri
 {
 	my ($self, $table, $ref) = @_;
 	
 	return $self->prefix .
-		$table . "#ref=" .
-		(join '.', map
+		$table . "#ref-" .
+		(join ';', map
 			{ _uri_escape($_); }
 			@{$ref->{columns}});
 }
 
-sub make_ref_dest_uri
+sub make_ref_dest_uri_OLD
 {
 	my ($self, $table, $ref, $data) = @_;
 	
@@ -348,20 +372,65 @@ sub make_ref_dest_uri
 	
 	return $self->prefix .
 		$ref->{target_table} . "/" .
-		(join '.', map
-			{ sprintf('%s-%s', _uri_escape($_), _uri_escape($data->{$map->{$_}})); }
+		(join ';', map
+			{ sprintf('%s=%s', _uri_escape($_), _uri_escape($data->{$map->{$_}})); }
 			@{$ref->{target_columns}});
 }
 
-sub make_key_uri
+sub make_ref_dest_uri
 {
-	my ($self, $table, $columns, $data) = @_;
+	my ($self, $table, $ref, $data, $dbh) = @_;
 	
-	return $self->prefix .
-		$table . "/" .
-		(join ';', map
-			{ sprintf('%s=%s', _uri_escape($_), _uri_escape($data->{$_})); }
-			@$columns);
+	my $schema;
+	($dbh, $schema) = @$dbh if ref $dbh eq 'ARRAY';
+	my $layout = $self->layout($dbh, $schema);
+
+	my %cols =
+		map { $_ => 1 }
+		map { @{ $_->{columns} } }
+		values $layout->{ $ref->{target_table} }{keys};	
+	my $cols =
+		join q[, ],
+		map { $dbh->quote_identifier($_) }
+		sort keys %cols;
+	my $sql = $schema
+		? sprintf('SELECT %s FROM %s.%s', $cols, $dbh->quote_identifier($schema), $dbh->quote_identifier($ref->{target_table}))
+		: sprintf('SELECT %s FROM %s', $cols, $dbh->quote_identifier($ref->{target_table}));
+	
+	my @values;
+	my @where;
+	foreach my $i (0 .. @{$ref->{target_columns}}-1)
+	{
+		if (defined $data->{  $ref->{columns}[$i]  })
+		{
+			push @where, sprintf('%s = ?', $dbh->quote_identifier($ref->{target_columns}[$i]));
+			push @values, $data->{  $ref->{columns}[$i]  };
+		}
+		else
+		{
+			push @where, sprintf('%s IS NULL', $dbh->quote_identifier($ref->{target_columns}[$i]));
+		}
+	}
+	$sql .= ' WHERE ' . (join ' AND ', @where);
+
+	carp($sql) if $self->warn_sql;
+	my $sth = $dbh->prepare($sql);
+	$sth->execute(@values);
+
+	if (my $row = $sth->fetchrow_hashref)
+	{
+		my ($pkey_uri) =
+			map  { $self->make_key_uri($ref->{target_table}, $_->{columns}, $row); }
+			sort {
+				$b->{primary} <=> $a->{primary}
+				or $a->{name} cmp $b->{name}
+			}
+			values %{ $layout->{$ref->{target_table}}{keys} };
+		
+		return $pkey_uri if $pkey_uri;
+	}
+
+	$self->make_ref_dest_uri_OLD($table, $ref, $data);
 }
 
 1;

@@ -72,17 +72,14 @@ sub template
 	$self->{uuid} = Data::UUID->new unless $self->{uuid};
 	$data{'+uuid'} = $self->{uuid}->create_str;
 	
-	foreach my $key (sort keys %data)
+	$template =~ s< [{] ([^}]+) [}] >
 	{
-		my $replacement = $data{$key};
-		
-		foreach my $placeholder (sprintf('{%s}', $key), sprintf('{"%s"}', $key))
-		{
-			$template =~ s!\Q$placeholder!$replacement!g;
-		}
-	}
-	
-	$template =~ s!\\([\\{}])!\1!g;
+		my $key = $1;
+		if ($key =~ /^"(.+)"$/)
+			{ $data{$1} // '' }
+		else
+			{ $data{$key} // $data{lc $key} // '' }
+	}gex;
 	
 	return $template;
 }
@@ -99,21 +96,14 @@ sub template_irisafe
 	$self->{uuid} = Data::UUID->new unless $self->{uuid};
 	$data{'+uuid'} = $self->{uuid}->create_str;
 	
-	foreach my $key (sort keys %data)
+	$template =~ s< [{] ([^}]+) [}] >
 	{
-		my $replacement = uri_escape($data{$key});
-		
-		foreach my $placeholder (sprintf('{%s}', $key), sprintf('{"%s"}', $key))
-		{
-#			if ($placeholder eq $template) {
-#				$template = $data{$key};
-#				last;
-#			}
-			$template =~ s!\Q$placeholder!$replacement!g;
-		}
-	}
-	
-	$template =~ s!\\([\\{}])!\1!g;
+		my $key = $1;
+		if ($key =~ /^"(.+)"$/)
+			{ uri_escape($data{$1} // '') }
+		else
+			{ uri_escape($data{$key} // $data{lc $key} // '') }
+	}gex;
 	
 	return $template;
 }
@@ -147,7 +137,7 @@ sub process
 	$model = RDF::Trine::Model->temporary_model unless defined $model;	
 	my $callback = (ref $model eq 'CODE')
 		? $model
-		: sub { my $st = shift; $model->add_statement($st) if $st->rdf_compatible };
+		: sub { $model->add_statement(@_) };
 	
 	my $mappings = $self->mappings;
 	TABLE: foreach my $table (keys %$mappings)
@@ -168,11 +158,11 @@ sub mktemplate
 
 sub _get_types
 {
-	my ($self, $sth) = @_;
+	my ($self, $sth, $dbh) = @_;
 	
 	my %types;
 	@types{ @{$sth->{NAME}} } = map
-		{ /^\d+$/ ? (scalar $sth->dbh->type_info($_)->{TYPE_NAME}) : $_ }
+		{ /^\d+$/ ? (scalar $dbh->type_info($_)->{TYPE_NAME}) : $_ }
 		@{$sth->{TYPE}};
 	
 #	use Data::Dumper;
@@ -220,11 +210,14 @@ sub handle_table
 	
 	my $sth = $dbh->prepare($sql) or return;
 	$sth->execute;
-	my $types = $self->_get_types($sth);
+	my $types = $self->_get_types($sth, $dbh);
 	
 	my $row_count = 0;
+#	print "========================\n$sql\n";
 	ROW: while (my $row = $sth->fetchrow_hashref)
 	{
+#		use Data::Dumper;
+#		print Dumper($row, $sth->{NAME});
 		$row_count++;
 		$self->handle_row($dbh, $callback, $table, $row, $types, $row_count);
 	}
@@ -252,7 +245,7 @@ sub handle_table
 		
 		my $evil_sth = $dbh->prepare($evil_sql);
 		$sth->execute;
-		my $types = $self->_get_types($sth);
+		my $types = $self->_get_types($sth, $dbh);
 		
 		my $evil_row_count = 0;
 		ROW: while (my $evil_row = $evil_sth->fetchrow_hashref)
@@ -282,16 +275,7 @@ sub handle_row
 		if defined $tmap->{graph};
 	
 	# ->{about}
-	my $subject;
-	if ($tmap->{about} and $tmap->{_about_is_template})
-	{
-		$subject = $self->template_irisafe($tmap->{about}, %$row);
-	}
-	elsif ($tmap->{about} and $tmap->{about} =~ m< ^ {\"? ([^}]+?) \"?} $ >x)
-	{
-		$subject = $row->{$1};
-	}
-	$subject //= ($tmap->{about} // '[]');
+	my $subject = $self->_extract_subject_from_row($tmap, $row);
 	
 	# ->{typeof}
 	foreach (@{ $tmap->{typeof} })
@@ -305,6 +289,25 @@ sub handle_row
 		# use Data::Dumper; warn Dumper($_);
 		$self->handle_map($dbh, $model, $table, $row, $types, $row_count, $_, $graph, $subject);
 	}			
+}
+
+sub _extract_subject_from_row
+{
+	my ($self, $tmap, $row) = @_;
+	if ($tmap->{about} and $tmap->{_about_is_template})
+	{
+		return $self->template_irisafe($tmap->{about}, %$row);
+	}
+	elsif ($tmap->{about} and $tmap->{about} =~ m< ^ {\" ([^}]+?) \"} $ >x)
+	{
+		return $row->{$1};
+	}
+	elsif ($tmap->{about} and $tmap->{about} =~ m< ^ { ([^}]+?) } $ >x)
+	{
+		return $row->{$1} if exists $row->{$1};
+		return $row->{lc $1};
+	}
+	return ($tmap->{about} // '[]');
 }
 
 sub handle_jmap
@@ -322,21 +325,15 @@ sub handle_jmap
 		if defined $tmap->{graph};
 	
 	# ->{about}
-	my $subject;
-	if ($tmap->{about})
-	{
-		$subject = $self->template_irisafe($tmap->{about}, %$row);
-	}
-	$subject ||= '[]';
+	my $subject = $self->_extract_subject_from_row($tmap, $row);
 	
 	$self->handle_map($dbh, $model, $table, $row, $types, $row_count, $jmap, $graph, $subject);
 }
 
-{ 
-my $parsers = {};
 sub handle_map
 {
 	my ($self, $dbh, $model, $table, $row, $types, $row_count, $map, $graph, $subject) = @_;
+	state $parsers = {};
 	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;	
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};
@@ -347,7 +344,12 @@ sub handle_map
 	my $column   = $map->{column};
 	
 	my ($predicate, $value);
-	$value = $row{$column} if defined $row{$column};
+	if ($column =~ /^"(.+)"$/)
+		{ $column = $1; $value = $row{$column} }
+	elsif (exists $row{$column})
+		{ $value = $row{$column} }
+	elsif (exists $row{lc $column})
+		{ $value = $row{lc $column} }
 	
 	my $lgraph = defined $map->{graph}
 		? $self->iri($self->template_irisafe($map->{graph}, %row))
@@ -443,8 +445,7 @@ sub handle_map
 			$callback->($st);
 		}
 	}
-} # /sub handle_map
-} # /scope for $parsers
+}
 
 sub process_turtle
 {

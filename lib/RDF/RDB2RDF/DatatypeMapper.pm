@@ -21,9 +21,9 @@ sub datatyped_literal
 	{
 		when (undef)
 			{ return undef; }
-		when (/^char\((\d+)\)/i) # fixed width char strings.
+		when (/^(?:bp)?char\((\d+)\)/i) # fixed width char strings.
 			{ return literal(sprintf("%-$1s", "$value")); }
-		when (/^(?:char|varchar|string|text|note|memo)/i)
+		when (/^(?:char|bpchar|varchar|string|text|note|memo)/i)
 			{ return literal("$value"); }
 		when (/^(?:int|smallint|bigint)/i)
 			{ return literal("$value", undef, $XSD->integer->uri); }
@@ -42,7 +42,7 @@ sub datatyped_literal
 			$m =~ s/^$/0.0/;
 			return literal(sprintf('%sE%d', $m, $e), undef, $XSD->double->uri);
 		}
-		when (/^(?:binary|varbinary)/i)
+		when (/^(?:binary|varbinary|blob|bytea)/i)
 		{
 			$value = uc unpack('H*' => $value);
 			return literal($value, undef, $XSD->hexBinary->uri);

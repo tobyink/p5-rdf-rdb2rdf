@@ -15,7 +15,6 @@
 		"common::sense" ,
 		"Data::UUID" ,
 		"DBI" ,
-		"DBIx::Admin::TableInfo" ,
 		"JSON" ,
 		"MIME::Base64" ,
 		"namespace::clean" ,

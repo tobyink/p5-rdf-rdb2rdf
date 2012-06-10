@@ -406,7 +406,7 @@ sub _r2rml_ObjectMapClass
 	
 	if ($column)
 	{
-		$column = $1 if $column =~ m{^"(.+)"$};
+		#$column = $1 if $column =~ m{^"(.+)"$};
 		$map->{column} = $column;
 	}
 	else
