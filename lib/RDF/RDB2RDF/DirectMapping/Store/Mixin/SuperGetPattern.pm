@@ -2,7 +2,10 @@ package RDF::RDB2RDF::DirectMapping::Store::Mixin::SuperGetPattern;
 
 use 5.010;
 use strict;
-use Scalar::Util qw/blessed reftype/;
+
+use Scalar::Util qw[blessed reftype];
+
+use namespace::clean;
 
 # This was removed from RDF::Trine::Store. :-(
 sub _SUPER_get_pattern

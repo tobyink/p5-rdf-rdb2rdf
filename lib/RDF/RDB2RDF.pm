@@ -1,7 +1,7 @@
 package RDF::RDB2RDF;
 
 use 5.010;
-use common::sense;
+use strict;
 
 use RDF::RDB2RDF::Simple;
 use RDF::RDB2RDF::R2RML;

@@ -1,7 +1,7 @@
 package RDF::RDB2RDF::Simple;
 
 use 5.010;
-use common::sense;
+use strict;
 
 use Carp qw[carp croak];
 use Data::UUID;
@@ -15,7 +15,10 @@ use Scalar::Util qw[blessed];
 use URI::Escape qw[uri_escape];
 
 use namespace::clean;
-use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
+use base qw[
+	RDF::RDB2RDF
+	RDF::RDB2RDF::DatatypeMapper
+];
 
 our $VERSION = '0.006';
 

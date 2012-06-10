@@ -1,15 +1,15 @@
 package RDF::RDB2RDF::DatatypeMapper; # this is a mixin
 
 use 5.010;
-use common::sense;
+use strict;
 
-use DBI;
-use DBIx::Admin::TableInfo;
 use Math::BigFloat;
 use RDF::Trine qw[literal];
 use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[refaddr blessed];
 use URI::Escape qw[uri_escape];
+
+use namespace::clean;
 
 our $VERSION = '0.006';
 

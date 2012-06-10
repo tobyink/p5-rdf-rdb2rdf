@@ -1,7 +1,7 @@
 package RDF::RDB2RDF::DirectMapping::Store;
 
 use 5.010;
-use common::sense;
+use strict;
 
 use Carp qw[];
 use DBI;
@@ -10,7 +10,8 @@ use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[blessed];
 use URI::Escape qw[uri_escape uri_unescape];
 
-use parent qw[
+use namespace::clean;
+use base qw[
 	RDF::Trine::Store
 	RDF::RDB2RDF::DirectMapping::Store::Mixin::SuperGetPattern
 ];

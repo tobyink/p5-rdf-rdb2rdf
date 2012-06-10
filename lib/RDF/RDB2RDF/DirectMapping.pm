@@ -1,7 +1,7 @@
 package RDF::RDB2RDF::DirectMapping;
 
 use 5.010;
-use common::sense;
+use strict;
 
 use Carp qw[carp croak];
 use Data::UUID;
@@ -12,7 +12,11 @@ use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[refaddr blessed];
 use URI::Escape qw[];
 
-use parent qw[RDF::RDB2RDF RDF::RDB2RDF::DatatypeMapper];
+use namespace::clean;
+use base qw[
+	RDF::RDB2RDF
+	RDF::RDB2RDF::DatatypeMapper
+];
 
 our $VERSION = '0.006';
 

@@ -1,7 +1,7 @@
 package RDF::RDB2RDF::R2RML;
 
 use 5.010;
-use common::sense;
+use strict;
 
 use Digest::MD5 qw[md5_hex];
 use RDF::Trine qw[statement blank literal];
@@ -12,7 +12,9 @@ use Storable qw[dclone];
 our $rr = RDF::Trine::Namespace->new('http://www.w3.org/ns/r2rml#');
 
 use namespace::clean;
-use parent qw[RDF::RDB2RDF::Simple];
+use base qw[
+	RDF::RDB2RDF::Simple
+];
 
 our $VERSION = '0.006';
 
