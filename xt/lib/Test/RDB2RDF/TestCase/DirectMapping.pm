@@ -3,6 +3,7 @@ package Test::RDB2RDF::TestCase::DirectMapping;
 use 5.010;
 use strict;
 use base qw[ Test::RDB2RDF::TestCase ];
+use utf8;
 
 use RDF::Trine '0.135';
 use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
@@ -19,7 +20,7 @@ sub mapping
 {
 	return RDF::RDB2RDF::DirectMapping->new(
 		prefix   => 'http://example.com/base/',
-		rdfs     => 1,
+		#rdfs     => 1,
 		#warn_sql => 1,
 	);
 }

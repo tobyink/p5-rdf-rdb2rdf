@@ -2,6 +2,7 @@ package RDF::RDB2RDF::DirectMapping;
 
 use 5.010;
 use strict;
+use utf8;
 
 use Carp qw[carp croak];
 use Data::UUID;
@@ -332,14 +333,11 @@ sub make_key_uri
 	
 	return if grep { !defined $data->{$_} } @$columns;
 	
-	my $u = $self->prefix .
+	return $self->prefix .
 		$table . "/" .
 		(join ';', map
 			{ sprintf('%s=%s', uri_escape_optimistic($_), uri_escape_optimistic($data->{$_})); }
 			@$columns);
-		
-	warn "---> $u";
-	return $u;
 }
 
 sub make_ref_uri

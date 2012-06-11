@@ -97,9 +97,11 @@ sub successful
 	
 	if (defined $self->manifest->output and !$pass)
 	{
+		my $ser = RDF::Trine::Serializer::NTriples::Canonical->new;
 		$self->manifest->output->(sprintf("Failed '%s'. Actual graph was:\n", $self->identifier));
-		my $ser = RDF::Trine::Serializer->new('rdfjson');
 		$self->manifest->output->($ser->serialize_model_to_string($actual->{model}));
+		$self->manifest->output->("Expected graph was:\n");
+		$self->manifest->output->($ser->serialize_model_to_string($expected->{model}));
 		if ($self->mapping->can('to_json'))
 		{
 			$self->manifest->output->("JSON mapping was:\n");
