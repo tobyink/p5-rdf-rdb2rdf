@@ -31,8 +31,8 @@ sub excuses
 		[failed => qq [RefObjectMap not fully implemented (yet).]];
 
 	$excuses{R2RMLTC0010c} =
-		[failed => qq [I'll puzzle this one out later!]];
-
+		[failed => qq [Bug in RDF::Trine::Turtle::Parser], q<https://rt.cpan.org/Ticket/Display.html?id=77747>];
+		
 	$excuses{R2RMLTC0016e} =
 		[failed => qq [I'll puzzle this one out later!]];
 		

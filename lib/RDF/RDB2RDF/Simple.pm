@@ -65,6 +65,9 @@ sub namespaces
 
 sub template
 {
+	my $process = pop @_ if ref($_[-1]) eq 'CODE';
+	$process ||= sub { shift; };
+	
 	my ($self, $template, %data) = @_;
 	
 	if (blessed($template) and $template->isa('RDF::Trine::Node'))
@@ -75,40 +78,30 @@ sub template
 	$self->{uuid} = Data::UUID->new unless $self->{uuid};
 	$data{'+uuid'} = $self->{uuid}->create_str;
 	
-	$template =~ s< [{] ([^}]+) [}] >
+	$template =~ s(
+		(?<!\\) \{               # opening unescaped brace
+		(                        # start capturing
+			(?: \\\} | [^}] )+    # escaped closing braces and non-brace characters
+		)                        # finish capturing
+		\}                       # closing brace
+	)
 	{
-		my $key = $1;
+		(my $key = $1)
+			=~ s/\\\}/\}/g;
 		if ($key =~ /^"(.+)"$/)
-			{ $data{$1} // '' }
+			{ $process->($data{$1} // '') }
 		else
-			{ $data{$key} // $data{lc $key} // '' }
+			{ $process->($data{$key} // $data{lc $key} // '') }
 	}gex;
+	
+	$template =~ s< \\ ( [{}\\] ) >< $1 >xg;
 	
 	return $template;
 }
 
 sub template_irisafe
 {
-	my ($self, $template, %data) = @_;
-	
-	if (blessed($template) and $template->isa('RDF::Trine::Node'))
-	{
-		return $template;
-	}
-	
-	$self->{uuid} = Data::UUID->new unless $self->{uuid};
-	$data{'+uuid'} = $self->{uuid}->create_str;
-	
-	$template =~ s< [{] ([^}]+) [}] >
-	{
-		my $key = $1;
-		if ($key =~ /^"(.+)"$/)
-			{ uri_escape($data{$1} // '') }
-		else
-			{ uri_escape($data{$key} // $data{lc $key} // '') }
-	}gex;
-	
-	return $template;
+	template(@_, \&URI::Escape::uri_escape);
 }
 
 sub iri
