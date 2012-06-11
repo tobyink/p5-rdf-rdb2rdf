@@ -2,6 +2,7 @@ package Test::RDB2RDF::TestCase;
 
 use 5.010;
 use strict;
+use utf8;
 
 use JSON qw[to_json];
 use RDF::Trine '0.135';
@@ -97,11 +98,12 @@ sub successful
 	
 	if (defined $self->manifest->output and !$pass)
 	{
-		my $ser = RDF::Trine::Serializer::NTriples::Canonical->new;
+		my $json = {pretty=>1,canonical=>1};
+		my $ser = RDF::Trine::Serializer::RDFJSON->new;
 		$self->manifest->output->(sprintf("Failed '%s'. Actual graph was:\n", $self->identifier));
-		$self->manifest->output->($ser->serialize_model_to_string($actual->{model}));
+		$self->manifest->output->($ser->serialize_model_to_string($actual->{model}, $json));
 		$self->manifest->output->("Expected graph was:\n");
-		$self->manifest->output->($ser->serialize_model_to_string($expected->{model}));
+		$self->manifest->output->($ser->serialize_model_to_string($expected->{model}, $json));
 		if ($self->mapping->can('to_json'))
 		{
 			$self->manifest->output->("JSON mapping was:\n");

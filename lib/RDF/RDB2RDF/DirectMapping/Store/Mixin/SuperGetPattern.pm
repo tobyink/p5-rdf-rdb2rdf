@@ -2,6 +2,7 @@ package RDF::RDB2RDF::DirectMapping::Store::Mixin::SuperGetPattern;
 
 use 5.010;
 use strict;
+use utf8;
 
 use Scalar::Util qw[blessed reftype];
 

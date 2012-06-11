@@ -2,6 +2,7 @@ package Test::RDB2RDF::Manifest;
 
 use 5.010;
 use strict;
+use utf8;
 
 use RDF::Trine;
 use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
@@ -64,7 +65,6 @@ sub databases
 			my ($iri)    = @_;
 			my ($script) = $self->model->objects($iri, $RTEST->sqlScriptFile);
 			my $encoding;
-			$encoding =~ 'UTF-16' if $self->filename =~ /D010/;
 			$script = slurp($self->relative_file($script), $encoding);
 			my @script = split /\;\s*$/m, $script;
 			

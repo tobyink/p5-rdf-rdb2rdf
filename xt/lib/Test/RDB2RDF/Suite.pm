@@ -2,6 +2,7 @@ package Test::RDB2RDF::Suite;
 
 use 5.010;
 use strict;
+use utf8;
 
 use DateTime;
 use RDF::RDB2RDF;
@@ -36,9 +37,6 @@ sub excuses
 	$excuses{R2RMLTC0016e} =
 		[failed => qq [I'll puzzle this one out later!]];
 		
-	$excuses{DirectGraphTC0017} =
-		[failed => qq [I think RDF-RDB2RDF is close to passing but tricky to figure out as many of RDF-Trine's serialisers seem to have difficulty with IRIs. :-(]];
-
 	$excuses{DirectGraphTC0014} =
 	$excuses{DirectGraphTC0022} =
 	$excuses{DirectGraphTC0025} =

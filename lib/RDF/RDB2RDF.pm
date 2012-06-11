@@ -2,6 +2,7 @@ package RDF::RDB2RDF;
 
 use 5.010;
 use strict;
+use utf8;
 
 use RDF::RDB2RDF::Simple;
 use RDF::RDB2RDF::R2RML;

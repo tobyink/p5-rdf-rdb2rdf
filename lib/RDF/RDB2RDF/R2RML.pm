@@ -2,6 +2,7 @@ package RDF::RDB2RDF::R2RML;
 
 use 5.010;
 use strict;
+use utf8;
 
 use Digest::MD5 qw[md5_hex];
 use RDF::Trine qw[statement blank literal];

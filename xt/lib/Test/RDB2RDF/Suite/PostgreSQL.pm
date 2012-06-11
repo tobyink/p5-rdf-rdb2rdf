@@ -2,6 +2,7 @@ package Test::RDB2RDF::Suite::PostgreSQL;
 
 use 5.010;
 use strict;
+use utf8;
 
 use base qw[Test::RDB2RDF::Suite];
 
@@ -27,6 +28,7 @@ sub blank_db
 	if (not $num)
 	{
 		my $dbh = DBI->connect($self->{dsn}, $self->{username}, $self->{password});
+		$dbh->{pg_enable_utf8} = 1;
 		my $sth = $dbh->table_info(undef, 'public', undef, undef);
 		my @tables;
 		while (my $row = $sth->fetchrow_hashref)

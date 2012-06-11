@@ -2,6 +2,7 @@ package RDF::RDB2RDF::DatatypeMapper; # this is a mixin
 
 use 5.010;
 use strict;
+use utf8;
 
 use Math::BigFloat;
 use RDF::Trine qw[literal];

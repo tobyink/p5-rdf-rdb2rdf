@@ -2,6 +2,7 @@ package URI::Escape::Optimistic;
 
 use strict;
 use utf8;
+
 use URI::Escape;
 use base qw(Exporter);
 our @EXPORT    = qw(uri_escape uri_unescape uri_escape_utf8 uri_escape_optimistic);

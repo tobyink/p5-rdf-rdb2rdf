@@ -2,6 +2,7 @@ package Test::RDB2RDF::TestCase::R2RML;
 
 use 5.010;
 use strict;
+use utf8;
 use base qw[ Test::RDB2RDF::TestCase ];
 
 use RDF::Trine '0.135';

@@ -2,6 +2,7 @@ package RDF::RDB2RDF::DirectMapping::Store;
 
 use 5.010;
 use strict;
+use utf8;
 
 use Carp qw[];
 use DBI;

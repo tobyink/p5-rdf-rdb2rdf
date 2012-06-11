@@ -2,6 +2,7 @@ package RDF::RDB2RDF::Simple;
 
 use 5.010;
 use strict;
+use utf8;
 
 use Carp qw[carp croak];
 use Data::UUID;
