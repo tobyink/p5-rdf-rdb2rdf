@@ -443,7 +443,7 @@ an RDF graph, but at the cost of flexibility. Other than providing a base
 prefix for class, property and instance URIs, all mapping is done automatically,
 with very little other configuration at all.
 
-This class offers support for the W3C Direct Mapping, based on the 20 Sept 2011
+This class offers support for the W3C Direct Mapping, based on the 29 May 2012
 working draft.
 
 =head2 Constructor
@@ -518,6 +518,53 @@ be no RDFS/OWL schema data generated.
 
 =back
 
+=head1 COMPLIANCE AND COMPATIBILITY
+
+This implementation should be mostly compliant with the Direct Mapping
+specification, with the following provisos:
+
+=over
+
+=item * RDF::RDB2RDF::DirectMapping assigns URIs to some nodes that
+would be blank nodes per the specification. That is, it Skolemizes.
+
+=back
+
+Other quirks are database-specific:
+
+=over
+
+=item * SQLite does not support foreign key constraints by default;
+they need to be explicitly enabled. This can be achieved using:
+
+ $dbh->do('PRAGMA foreign_keys = ON;');
+
+But even once foreign keys are enabled, L<DBD::SQLite> does not report
+foreign key constraints, so this module can't generate any triples
+based on that information.
+
+=item * DBD::SQLite does not correctly report primary key columns
+if the name of the column contains whitespace.
+
+=item * PostgreSQL databases are not usually UTF-8 by default. This
+module may not work correctly with non-UTF-8 databases, though using
+an ASCII-compatible subset of other encodings (such as ISO-8859-15)
+should be fine. If using UTF-8, you may need to do:
+
+ $dbh->{pg_enable_utf8} = 1;
+
+=item * Different databases support different SQL datatypes. This module
+attempts to map them to their XSD equivalents, but may not recognise
+some exotic ones.
+
+=item * This module has only been extensively tested on SQLite 3.6.23.1
+and PostgreSQL 8.4.4. I know of no reason it shouldn't work with other
+relational database engines, provided they are supported by DBI, but as
+with all things SQL, I wouldn't be surprised if there were one or two
+problems. Patches welcome.
+
+=back
+
 =head1 SEE ALSO
 
 L<RDF::Trine>, L<RDF::RDB2RDF>.
@@ -526,7 +573,7 @@ L<RDF::RDB2RDF::DirectMapping::Store>.
 
 L<http://www.perlrdf.org/>.
 
-L<http://www.w3.org/TR/2011/WD-rdb-direct-mapping-20110920/>.
+L<http://www.w3.org/TR/2012/WD-rdb-direct-mapping-20120529/>.
 
 =head1 AUTHOR
 
@@ -534,7 +581,7 @@ Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2011 Toby Inkster
+Copyright 2011-2012 Toby Inkster.
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

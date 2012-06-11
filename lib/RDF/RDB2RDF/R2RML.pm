@@ -22,7 +22,7 @@ our $VERSION = '0.006';
 sub new
 {
 	my ($class, $r2rml) = @_;
-	my $self           = $class->SUPER::new();
+	my $self = $class->SUPER::new();
 	$self->_r2rml($r2rml);
 	return $self;
 }
@@ -474,7 +474,7 @@ RDF::RDB2RDF::R2RML - map relational database to RDF using R2RML
 
 =head1 DESCRIPTION
 
-This class offers support for W3C R2RML, based on the 20 Sept 2011 working
+This class offers support for W3C R2RML, based on the 29 May 2012 working
 draft. See the BUGS section below for a list on unimplemented areas.
 
 This is a subclass of RDF::RDB2RDF::Simple. Differences noted below...
@@ -504,9 +504,11 @@ C<< no_r2rml => 1 >> can disable that feature.
 
 =back
 
-=head1 BUGS
 
-Limitations
+=head1 COMPLIANCE AND COMPATIBILITY
+
+This implementation should be mostly compliant with the Direct Mapping
+specification, with the following provisos:
 
 =over
 
@@ -517,13 +519,34 @@ rr:JoinCondition, rr:child, rr:parent are only partially working.
 
 =back
 
+Other quirks are database-specific:
+
+=over
+
+=item * This module expects DBI to return utf8 character strings. Depending
+on your database engine, you might need to play games with DBI and
+your database server to get this working. If you're using 7-bit safe
+ASCII, then this probably doesn't concern you.
+
+=item * Different databases support different SQL datatypes. This module
+attempts to map them to their XSD equivalents, but may not recognise
+some exotic ones.
+
+=item * This module has only been extensively tested on SQLite 3.6.23.1
+and PostgreSQL 8.4.4. I know of no reason it shouldn't work with other
+relational database engines, provided they are supported by DBI, but as
+with all things SQL, I wouldn't be surprised if there were one or two
+problems. Patches welcome.
+
+=back
+
 =head1 SEE ALSO
 
 L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::Simple>.
 
 L<http://www.perlrdf.org/>.
 
-L<http://www.w3.org/TR/2011/WD-r2rml-20110920/>.
+L<http://www.w3.org/TR/2012/WD-r2rml-20120529/>.
 
 =head1 AUTHOR
 
@@ -531,7 +554,7 @@ Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2011 Toby Inkster
+Copyright 2011-2012 Toby Inkster
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
