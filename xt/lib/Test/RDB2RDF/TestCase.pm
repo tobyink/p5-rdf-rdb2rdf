@@ -98,7 +98,7 @@ sub successful
 	if (defined $self->manifest->output and !$pass)
 	{
 		$self->manifest->output->(sprintf("Failed '%s'. Actual graph was:\n", $self->identifier));
-		my $ser = RDF::Trine::Serializer->new('nquads');
+		my $ser = RDF::Trine::Serializer->new('rdfjson');
 		$self->manifest->output->($ser->serialize_model_to_string($actual->{model}));
 		if ($self->mapping->can('to_json'))
 		{

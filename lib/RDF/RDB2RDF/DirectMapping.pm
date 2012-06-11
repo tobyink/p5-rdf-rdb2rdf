@@ -10,7 +10,7 @@ use MIME::Base64 qw[];
 use RDF::Trine qw[iri blank literal statement];
 use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[refaddr blessed];
-use URI::Escape qw[];
+use URI::Escape::Optimistic qw[uri_escape_optimistic];
 
 use namespace::clean;
 use base qw[
@@ -31,13 +31,6 @@ sub new
 	$args{unique}        = Data::UUID->new->create_str;
 	
 	bless \%args, $class;
-}
-
-sub uri_escape
-{
-	my $str = URI::Escape::uri_escape(@_);
-	$str =~ s/\%20/+/g;
-	return $str;
 }
 
 sub prefix        :lvalue { $_[0]->{prefix} }
@@ -333,24 +326,20 @@ sub process_turtle
 	return $self->SUPER::process_turtle(@args, base_uri=>$self->prefix);
 }
 
-sub _uri_escape
-{
-	my $s = uri_escape(shift);
-	$s =~ s/\+/%20/g;
-	$s;
-}
-
 sub make_key_uri
 {
 	my ($self, $table, $columns, $data) = @_;
 	
 	return if grep { !defined $data->{$_} } @$columns;
 	
-	return $self->prefix .
+	my $u = $self->prefix .
 		$table . "/" .
 		(join ';', map
-			{ sprintf('%s=%s', _uri_escape($_), _uri_escape($data->{$_})); }
+			{ sprintf('%s=%s', uri_escape_optimistic($_), uri_escape_optimistic($data->{$_})); }
 			@$columns);
+		
+	warn "---> $u";
+	return $u;
 }
 
 sub make_ref_uri
@@ -360,7 +349,7 @@ sub make_ref_uri
 	return $self->prefix .
 		$table . "#ref-" .
 		(join ';', map
-			{ _uri_escape($_); }
+			{ uri_escape_optimistic($_); }
 			@{$ref->{columns}});
 }
 
@@ -377,7 +366,7 @@ sub make_ref_dest_uri_OLD
 	return $self->prefix .
 		$ref->{target_table} . "/" .
 		(join ';', map
-			{ sprintf('%s=%s', _uri_escape($_), _uri_escape($data->{$map->{$_}})); }
+			{ sprintf('%s=%s', uri_escape_optimistic($_), uri_escape_optimistic($data->{$map->{$_}})); }
 			@{$ref->{target_columns}});
 }
 

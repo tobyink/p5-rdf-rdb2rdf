@@ -12,7 +12,7 @@ use overload qw[];
 use RDF::Trine qw[statement blank literal];
 use RDF::Trine::Namespace qw[rdf rdfs owl xsd];
 use Scalar::Util qw[blessed];
-use URI::Escape qw[uri_escape];
+use URI::Escape::Optimistic qw[uri_escape_optimistic];
 
 use namespace::clean;
 use base qw[
@@ -101,7 +101,7 @@ sub template
 
 sub template_irisafe
 {
-	template(@_, \&URI::Escape::uri_escape);
+	template(@_, \&URI::Escape::Optimistic::uri_escape_optimistic);
 }
 
 sub iri

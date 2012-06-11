@@ -37,7 +37,7 @@ sub excuses
 		[failed => qq [I'll puzzle this one out later!]];
 		
 	$excuses{DirectGraphTC0017} =
-		[failed => qq [I'll puzzle this one out later! (Evil Unicode one)]];
+		[failed => qq [I think RDF-RDB2RDF is close to passing but tricky to figure out as many of RDF-Trine's serialisers seem to have difficulty with IRIs. :-(]];
 
 	$excuses{DirectGraphTC0014} =
 	$excuses{DirectGraphTC0022} =
