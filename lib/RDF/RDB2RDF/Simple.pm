@@ -66,10 +66,8 @@ sub namespaces
 
 sub template
 {
-	my $process = pop @_ if ref($_[-1]) eq 'CODE';
-	$process ||= sub { shift; };
-	
-	my ($self, $template, %data) = @_;
+	my ($self, $template, $data, $types, $process) = @_;
+	$process = sub { +shift } unless ref $process eq 'CODE';
 	
 	if (blessed($template) and $template->isa('RDF::Trine::Node'))
 	{
@@ -77,7 +75,7 @@ sub template
 	}
 	
 	$self->{uuid} = Data::UUID->new unless $self->{uuid};
-	$data{'+uuid'} = $self->{uuid}->create_str;
+	$data->{'+uuid'} = $self->{uuid}->create_str;
 	
 	$template =~ s(
 		(?<!\\) \{               # opening unescaped brace
@@ -89,10 +87,19 @@ sub template
 	{
 		(my $key = $1)
 			=~ s/\\\}/\}/g;
+		my ($value, $type);
 		if ($key =~ /^"(.+)"$/)
-			{ $process->($data{$1} // '') }
+		{
+			$value = ($data->{$1}  // '');
+			$type  = ($types->{$1} // 'varchar');
+		}
 		else
-			{ $process->($data{$key} // $data{lc $key} // '') }
+		{
+			$value = ($data->{$key}  // $data->{lc $key}  // '');
+			$type  = ($types->{$key} // $types->{lc $key} // '');
+		}
+		
+		$process->( $self->datatyped_literal($value, $type)->literal_value );
 	}gex;
 	
 	$template =~ s< \\ ( [{}\\] ) >< $1 >xg;
@@ -278,11 +285,11 @@ sub handle_row
 	
 	# ->{graph}
 	my $graph = undef;
-	$graph = $self->iri( $self->template_irisafe($tmap->{graph}, %$row) )
+	$graph = $self->iri( $self->template_irisafe($tmap->{graph}, $row, $types) )
 		if defined $tmap->{graph};
 	
 	# ->{about}
-	my $subject = $self->_extract_subject_from_row($tmap, $row);
+	my $subject = $self->_extract_subject_from_row($tmap, $row, $types);
 	
 	# ->{typeof}
 	foreach (@{ $tmap->{typeof} })
@@ -299,10 +306,10 @@ sub handle_row
 
 sub _extract_subject_from_row
 {
-	my ($self, $tmap, $row) = @_;
+	my ($self, $tmap, $row, $types) = @_;
 	if ($tmap->{about} and $tmap->{_about_is_template})
 	{
-		return $self->template_irisafe($tmap->{about}, %$row);
+		return $self->template_irisafe($tmap->{about}, $row, $types);
 	}
 	elsif ($tmap->{about} and $tmap->{about} =~ m< ^ {\" ([^}]+?) \"} $ >x)
 	{
@@ -327,11 +334,11 @@ sub handle_jmap
 	
 	# ->{graph}
 	my $graph = undef;
-	$graph = $self->iri( $self->template_irisafe($tmap->{graph}, %$row) )
+	$graph = $self->iri( $self->template_irisafe($tmap->{graph}, $row, $types) )
 		if defined $tmap->{graph};
 	
 	# ->{about}
-	my $subject = $self->_extract_subject_from_row($tmap, $row);
+	my $subject = $self->_extract_subject_from_row($tmap, $row, $types);
 	
 	$self->handle_map($dbh, $model, $table, $row, $types, $row_count, $jmap, $graph, $subject);
 }
@@ -358,11 +365,9 @@ sub handle_map
 		{ $loose = 1; $value = $row{lc $column} }
 	
 	my $lgraph = defined $map->{graph}
-		? $self->iri($self->template_irisafe($map->{graph}, %row))
+		? $self->iri($self->template_irisafe($map->{graph}, $row, $types))
 		: $graph;
 		
-	use Data::Dumper;
-	
 	if (defined $map->{parse} and uc $map->{parse} eq 'TURTLE')
 	{
 		return unless length $value;
@@ -390,7 +395,7 @@ sub handle_map
 		
 		if ($map->{resource})
 		{
-			$value = $self->template_irisafe($map->{resource}, %row, '_' => $value);
+			$value = $self->template_irisafe($map->{resource}, +{ %row, '_' => $value }, $types);
 		}
 		$value = $self->iri($value, $lgraph);
 	}
@@ -401,7 +406,7 @@ sub handle_map
 		
 		if ($map->{content})
 		{
-			$value = $self->template($map->{content}, %row, '_' => $value);
+			$value = $self->template($map->{content}, +{ %row, '_' => $value }, $types);
 		}
 		
 		if ($map->{lang})
@@ -431,14 +436,14 @@ sub handle_map
 	{
 		unless (ref $predicate)
 		{
-			$predicate = $self->template_irisafe($predicate, %row, '_' => $value);							
+			$predicate = $self->template_irisafe($predicate, +{ %row, '_' => $value }, $types);
 			$predicate = $self->iri($predicate, $lgraph) ;
 		}
 		
 		my $lsubject = $self->iri($subject, $lgraph);
 		if ($map->{about})
 		{
-			$lsubject = $self->iri($self->template_irisafe($map->{about}, %row), $lgraph);
+			$lsubject = $self->iri($self->template_irisafe($map->{about}, $row, $types), $lgraph);
 		}
 
 		my $st = $map->{rev}

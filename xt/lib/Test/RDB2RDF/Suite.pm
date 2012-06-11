@@ -34,9 +34,6 @@ sub excuses
 	$excuses{R2RMLTC0010c} =
 		[failed => qq [Bug in RDF::Trine::Turtle::Parser], q<https://rt.cpan.org/Ticket/Display.html?id=77747>];
 		
-	$excuses{R2RMLTC0016e} =
-		[failed => qq [I'll puzzle this one out later!]];
-		
 	$excuses{DirectGraphTC0014} =
 	$excuses{DirectGraphTC0022} =
 	$excuses{DirectGraphTC0025} =
