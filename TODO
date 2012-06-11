@@ -1,3 +1,5 @@
 * print to handle option for process_turtle
 * rr:RefObjectMap, rr:parentTriplesMap, rr:joinCondition, rr:JoinCondition, rr:child, rr:parent needs lots more testing.
 * rr:defaultGraph is not understood.
+* Make sure $AUTHORITY is defined for each module
+* Make sure copyright is up to date (2012)
