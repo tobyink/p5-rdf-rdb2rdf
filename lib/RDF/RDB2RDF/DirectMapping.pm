@@ -139,7 +139,7 @@ sub layout
 				}
 			}
 			
-			my $sth = $dbh->statistics_info(undef, $schema, $table, 1, 0);
+			$sth = $dbh->statistics_info(undef, $schema, $table, 1, 0);
 			if ($sth)
 			{
 				my @r;

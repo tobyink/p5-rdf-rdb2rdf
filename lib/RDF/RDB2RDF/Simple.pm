@@ -153,11 +153,10 @@ sub process
 	return $model;
 }
 
-# make a template from a literal string
-sub mktemplate 
+sub _mktemplate 
 {
 	my ($self, $string) = @_;
-	$string =~ s!([\\{}])!\\\1!g;
+	$string =~ s! ( [\\{}] ) !\\$1!gx;
 	return $string;
 }
 
@@ -521,23 +520,23 @@ sub _export
 	
 	if (blessed($thingy) and $thingy->isa('RDF::Trine::Node::Resource'))
 	{
-		return $self->mktemplate($thingy->uri);
+		return $self->_mktemplate($thingy->uri);
 	}
 
 	if (blessed($thingy) and $thingy->isa('RDF::Trine::Node::BlankNode'))
 	{
-		return '_:'.$self->mktemplate($thingy->identifier);
+		return '_:'.$self->_mktemplate($thingy->identifier);
 	}
 
 	if (blessed($thingy) and $thingy->isa('RDF::Trine::Node::Literal'))
 	{
 		warn "This shouldn't happen!";
-		return $self->mktemplate($thingy->literal_value);
+		return $self->_mktemplate($thingy->literal_value);
 	}
 	
 	if (blessed($thingy) and $thingy->isa('RDF::Trine::Namespace'))
 	{
-		return $self->mktemplate($thingy->uri->uri);
+		return $self->_mktemplate($thingy->uri->uri);
 	}
 	
 	warn "This shouldn't happen either!" if ref $thingy;

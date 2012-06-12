@@ -100,16 +100,19 @@ sub run_earl
 	my @manifests = $self->manifests;
 
 	my ($rdf, $rdfs, $dcterms, $earl, $xsd, $doap) =
-		map { RDF::Trine::Namespace->new($_) }
-		qw[
-			http://www.w3.org/1999/02/22-rdf-syntax-ns#
-			http://www.w3.org/2000/01/rdf-schema#
-			http://purl.org/dc/terms/
-			http://www.w3.org/ns/earl#
-			http://www.w3.org/2001/XMLSchema#
-			http://usefulinc.com/ns/doap#
-		];
-	
+		do {
+			no warnings;
+			map { RDF::Trine::Namespace->new($_) }
+			qw[
+				http://www.w3.org/1999/02/22-rdf-syntax-ns#
+				http://www.w3.org/2000/01/rdf-schema#
+				http://purl.org/dc/terms/
+				http://www.w3.org/ns/earl#
+				http://www.w3.org/2001/XMLSchema#
+				http://usefulinc.com/ns/doap#
+			]
+		};
+		
 	my $model = shift || RDF::Trine::Model->new;
 	my $st    = sub { $model->add_statement(statement(@_)) };
 	my $date  = sub { literal(DateTime->now(time_zone=>'UTC')->iso8601.'Z', undef, $xsd->dateTime) };
