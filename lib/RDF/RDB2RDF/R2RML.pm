@@ -256,6 +256,8 @@ sub _r2rml_SubjectMapClass
 					{ $_->as_ntriples }
 			}
 		$r2rml->objects_for_predicate_list($smc, $rr->termType, $rr->termtype);
+	$termtype //= '';
+	
 	if ($mapping->{about} and $termtype =~ /^blank/i)
 	{
 		$mapping->{about} = sprintf('_:%s', $mapping->{about})

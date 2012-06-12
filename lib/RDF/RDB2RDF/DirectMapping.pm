@@ -88,6 +88,7 @@ sub layout
 			$rv->{$table}{keys}    ||= {};
 			$rv->{$table}{refs}    ||= {};
 			
+			no warnings;
 			$rv->{$table}{columns} = [
 				sort { $a->{ORDINAL_POSITION} <=> $b->{ORDINAL_POSITION} }
 				rowmap {
