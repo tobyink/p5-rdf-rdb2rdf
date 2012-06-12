@@ -12,9 +12,9 @@
 	:requires 
 		"Data::UUID" ,
 		"DBI" ,
-		"JSON" ,
+		"JSON 2.00" ,
 		"MIME::Base64" ,
-		"namespace::clean" ,
+		"namespace::clean 0.19" ,
 		"RDF::Trine 0.135" ,
 		"URI::Escape" .
 
