@@ -15,7 +15,7 @@ my:project
 	:homepage       <https://metacpan.org/release/RDF-RDB2RDF> ;
 	:download-page  <https://metacpan.org/release/RDF-RDB2RDF> ;
 	:bug-database   <http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF> ;
-	:repository     [ a :SVNRepository ; :browse <http://goddamn.co.uk/svn-web/perlmods/browse/RDF-RDB2RDF/> ] ;
+	:repository     [ a :HgRepository ; :browse <https://bitbucket.org/tobyink/p5-rdf-rdb2rdf> ] ;
 	:maintainer     toby:i ;
 	:developer      toby:i ;
 	:documenter     toby:i ;
@@ -30,6 +30,9 @@ my:project
 		[ rdfs:label "RDB2RDF" ] ,
 		[ rdfs:label "Direct Mapping" ] ,
 		[ rdfs:label "SQL" ] ,
+		[ rdfs:label "DBI" ] ,
+		[ rdfs:label "R2R" ] ,
+		[ rdfs:label "Semantic Web" ] ,
 		[ rdfs:label "RDBMS" ] ,
 		[ rdfs:label "Database" ] .
 
