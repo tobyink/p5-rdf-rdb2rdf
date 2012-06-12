@@ -17,7 +17,8 @@ use base qw[
 	RDF::RDB2RDF::DirectMapping::Store::Mixin::SuperGetPattern
 ];
 
-our $VERSION = '0.006';
+our $AUTHORITY = 'cpan:TOBYINK';
+our $VERSION   = '0.006';
 
 sub new
 {
@@ -715,6 +716,10 @@ sub _croak
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 NAME
 
 RDF::RDB2RDF::DirectMapping::Store - mapping-fu
@@ -735,7 +740,7 @@ Some queries are super-optimised; others are somewhat slower.
 
 =head2 A Read-Write Adventure!
 
-As of 0.006, there is experimental support for C<add_statement>,
+As of 0.006, there is very experimental support for C<add_statement>,
 C<remove_statement> and C<remove_statements>.
 
 Because data is stored in the database in a relational manner
@@ -793,13 +798,18 @@ optimized.)
 In this store though, C<remove_statements> may succeed when
 individual calls to C<remove_statement> would have succeeded.
 
+=head1 BUGS
+
+Please report any bugs to
+L<http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF>.
+
 =head1 SEE ALSO
 
-L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::DirectMapping>.
+L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::DirectMapping>, L<RDF::Trine::Store>.
 
 L<http://perlrdf.org/>.
 
-L<http://www.w3.org/TR/2011/WD-rdb-direct-mapping-20110920/>.
+L<http://www.w3.org/TR/2012/WD-rdb-direct-mapping-20120529/>.
 
 =head1 AUTHOR
 
@@ -807,7 +817,14 @@ Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2011 Toby Inkster
+Copyright 2011-2012 Toby Inkster
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
+
+=head1 DISCLAIMER OF WARRANTIES
+
+THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+

@@ -8,6 +8,9 @@ use Scalar::Util qw[blessed reftype];
 
 use namespace::clean;
 
+our $AUTHORITY = 'cpan:TOBYINK';
+our $VERSION   = '0.006';
+
 # This was removed from RDF::Trine::Store. :-(
 sub _SUPER_get_pattern
 {
@@ -178,3 +181,44 @@ sub _map_sort_data
 }
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+RDF::RDB2RDF::DirectMapping::Store::Mixin::SuperGetPattern - provides functionality that was removed from RDF::Trine::Store 0.140
+
+=head1 BUGS
+
+Please report any bugs to
+L<http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF>.
+
+=head1 SEE ALSO
+
+L<RDF::RDB2RDF>.
+
+L<http://www.perlrdf.org/>.
+
+=head1 AUTHOR
+
+Gregory Todd Williams E<lt>gwilliams@cpan.orgE<gt>.
+
+Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
+
+=head1 COPYRIGHT
+
+Copyright 2006-2012 Gregory Todd WIlliams.
+
+Copyright 2012 Toby Inkster.
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=head1 DISCLAIMER OF WARRANTIES
+
+THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+

@@ -12,7 +12,8 @@ use URI::Escape qw[uri_escape];
 
 use namespace::clean;
 
-our $VERSION = '0.006';
+our $AUTHORITY = 'cpan:TOBYINK';
+our $VERSION   = '0.006';
 
 sub datatyped_literal
 {
@@ -76,3 +77,40 @@ sub _dt_uri
 }
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+RDF::RDB2RDF::DatatypeMapper - mixin for converting SQL datatypes to RDF (XSD) datatypes
+
+=head1 BUGS
+
+Please report any bugs to
+L<http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF>.
+
+=head1 SEE ALSO
+
+L<RDF::RDB2RDF>.
+
+L<http://www.perlrdf.org/>.
+
+=head1 AUTHOR
+
+Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
+
+=head1 COPYRIGHT
+
+Copyright 2011-2012 Toby Inkster.
+
+This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+=head1 DISCLAIMER OF WARRANTIES
+
+THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+

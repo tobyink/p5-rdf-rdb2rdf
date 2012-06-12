@@ -21,7 +21,8 @@ use base qw[
 	RDF::RDB2RDF::DatatypeMapper
 ];
 
-our $VERSION = '0.006';
+our $AUTHORITY = 'cpan:TOBYINK';
+our $VERSION   = '0.006';
 
 sub new
 {
@@ -545,6 +546,10 @@ sub _export
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 NAME
 
 RDF::RDB2RDF::Simple - map relational database to RDF easily
@@ -779,6 +784,11 @@ Pretty much anywhere where a URI or literal value is expected, you can either
 give a string, or an L<RDF::Trine::Node>. In cases of strngs, they will be
 interpolated as templates. L<RDF::Trine::Node>s are not interpolated.
 
+=head1 BUGS
+
+Please report any bugs to
+L<http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF>.
+
 =head1 SEE ALSO
 
 L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::R2RML>.
@@ -791,7 +801,7 @@ Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2011 Toby Inkster
+Copyright 2011-2012 Toby Inkster
 
 This library is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

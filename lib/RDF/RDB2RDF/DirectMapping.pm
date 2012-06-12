@@ -19,7 +19,8 @@ use base qw[
 	RDF::RDB2RDF::DatatypeMapper
 ];
 
-our $VERSION = '0.006';
+our $AUTHORITY = 'cpan:TOBYINK';
+our $VERSION   = '0.006';
 
 sub new
 {
@@ -426,6 +427,10 @@ sub make_ref_dest_uri
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 NAME
 
 RDF::RDB2RDF::DirectMapping - map relational database to RDF directly
@@ -565,11 +570,14 @@ problems. Patches welcome.
 
 =back
 
+=head1 BUGS
+
+Please report any bugs to
+L<http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF>.
+
 =head1 SEE ALSO
 
-L<RDF::Trine>, L<RDF::RDB2RDF>.
-
-L<RDF::RDB2RDF::DirectMapping::Store>.
+L<RDF::Trine>, L<RDF::RDB2RDF>, L<RDF::RDB2RDF::DirectMapping::Store>.
 
 L<http://www.perlrdf.org/>.
 

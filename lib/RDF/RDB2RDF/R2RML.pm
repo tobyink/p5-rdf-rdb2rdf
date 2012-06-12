@@ -17,7 +17,8 @@ use base qw[
 	RDF::RDB2RDF::Simple
 ];
 
-our $VERSION = '0.006';
+our $AUTHORITY = 'cpan:TOBYINK';
+our $VERSION   = '0.006';
 
 sub new
 {
@@ -463,6 +464,10 @@ sub _r2rml_RefObjectMapClass
 
 1;
 
+__END__
+
+=encoding utf8
+
 =head1 NAME
 
 RDF::RDB2RDF::R2RML - map relational database to RDF using R2RML
@@ -475,7 +480,8 @@ RDF::RDB2RDF::R2RML - map relational database to RDF using R2RML
 =head1 DESCRIPTION
 
 This class offers support for W3C R2RML, based on the 29 May 2012 working
-draft. See the BUGS section below for a list on unimplemented areas.
+draft. See the COMPLIANCE AND COMPATIBILITY section below for a list on
+unimplemented areas.
 
 This is a subclass of RDF::RDB2RDF::Simple. Differences noted below...
 
@@ -539,6 +545,11 @@ with all things SQL, I wouldn't be surprised if there were one or two
 problems. Patches welcome.
 
 =back
+
+=head1 BUGS
+
+Please report any bugs to
+L<http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF>.
 
 =head1 SEE ALSO
 
