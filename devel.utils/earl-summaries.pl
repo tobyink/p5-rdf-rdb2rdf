@@ -3,6 +3,7 @@
 use HTML::HTML5::Builder ':standard';
 use PerlX::Perform;
 use RDF::Query;
+use RDF::RDB2RDF;
 use RDF::TrineX::Functions -all;
 
 my $model = model();
@@ -21,15 +22,15 @@ my $query = RDF::Query->new(<<'SPARQL');
 PREFIX dc:   <http://purl.org/dc/terms/>
 PREFIX doap: <http://usefulinc.com/ns/doap#>
 PREFIX earl: <http://www.w3.org/ns/earl#>
-SELECT ?case ?db ?outcome ?info
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?case ?db ?outcome ?info ?link
 WHERE {
 	?assert earl:test ?case .
 	?assert earl:subject [ dc:hasPart [ doap:name ?db ] ] .
 	?assert earl:result ?result .
 	?result earl:outcome ?outcome .
-	OPTIONAL {
-		?result earl:info ?info .
-	}
+	OPTIONAL { ?result earl:info ?info . }
+	OPTIONAL { ?result rdfs:seeAlso ?link . }
 }
 SPARQL
 
@@ -41,17 +42,21 @@ while (my $row = $results->next)
 	my $db               = $row->{db}->literal_value;
 	my (undef, $outcome) = $row->{outcome}->qname;
 	my $info             = perform { $_->literal_value } wherever $row->{info};
+	my $link             = perform { $_->uri } wherever $row->{link};
 	
 	$data{$case}{$db} = {
 		outcome     => $outcome,
 		info        => $info,
+		link        => $link,
 		case_uri    => $row->{case}->uri,
 	};
 }
 
+my $version = RDF::RDB2RDF->VERSION;
+
 print html(
 	head(
-		title('EARL Summaries for RDF-RDB2RDF'),
+		title("EARL Summaries for RDF-RDB2RDF $version"),
 		style(
 			-type => 'text/css',
 			q{
@@ -70,6 +75,13 @@ print html(
 					text-decoration: none;
 					color: white;
 				}
+				table td a:link,
+				table td a:visited {
+					text-decoration: none;
+					color: yellow;
+					font-size: smaller;
+					padding: 0.5em 0;
+				}
 				table td {
 					color: white;
 					background: #009;
@@ -87,7 +99,9 @@ print html(
 		),
 	),
 	body(
-		h1('EARL Summaries for RDF-RDB2RDF'),
+		h1("EARL Summaries for RDF-RDB2RDF $version"),
+		p("The following table shows how RDF-RDB2RDF $version fares against the RDB2RDF working group test suite, with PostgreSQL and SQLite databases."),
+		p("In most browsers, you should be able to hover over non-passing results to show a brief explanation. Some results have a question mark that can be clicked to reveal a relevant bug report. Clicking on the database column headings should take you to the full EARL report (in Turtle)."),
 		table(
 			thead(
 				&tr(
@@ -107,6 +121,11 @@ print html(
 								-class => $r->{outcome},
 								-title => $r->{info},
 								$r->{outcome},
+								(
+									defined $r->{link}
+										? (q[ ], a(-href => $r->{link}, '?'))
+										: ()
+								),
 							)
 						} qw(PostgreSQL SQLite)
 					)
