@@ -8,7 +8,7 @@ use base qw(Exporter);
 our @EXPORT    = qw(uri_escape uri_unescape uri_escape_utf8 uri_escape_optimistic);
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.006';
+our $VERSION   = '0.007';
 
 sub uri_escape_optimistic
 {

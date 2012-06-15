@@ -13,7 +13,7 @@ use URI::Escape qw[uri_escape];
 use namespace::clean;
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.006';
+our $VERSION   = '0.007';
 
 sub datatyped_literal
 {

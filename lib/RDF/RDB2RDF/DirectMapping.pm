@@ -20,7 +20,7 @@ use base qw[
 ];
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.006';
+our $VERSION   = '0.007';
 
 sub new
 {
@@ -381,7 +381,7 @@ sub make_ref_dest_uri
 	my %cols =
 		map { $_ => 1 }
 		map { @{ $_->{columns} } }
-		values $layout->{ $ref->{target_table} }{keys};	
+		values %{ $layout->{ $ref->{target_table} }{keys} };	
 	my $cols =
 		join q[, ],
 		map { $dbh->quote_identifier($_) }

@@ -86,3 +86,15 @@ my:v_0-006
 		dcs:item   [ rdfs:label "RDF::TrineX::Store::DirectMapping is now an alias for RDF::RDB2RDF::DirectMapping::Store." ; a dcs:Addition ]
 	] .
 
+my:project :release my:v_0-007 .
+my:v_0-007
+	a               :Version ;
+	dc:issued       "2012-06-15"^^xsd:date ; 
+	:revision       "0.007"^^xsd:string ;
+	:file-release   <http://backpan.cpan.org/authors/id/T/TO/TOBYINK/RDF-RDB2RDF-0.007.tar.gz> ;
+	rdfs:label      "The name's Bond... James Bond" ;
+	dcs:changeset [
+		dcs:versus my:v_0-006 ;
+		dcs:item   [ rdfs:label "Properly dereference hashref for Perl < 5.14." ; a dcs:Bugfix ]
+	] .
+
