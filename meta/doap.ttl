@@ -15,7 +15,7 @@ my:project
 	:homepage       <https://metacpan.org/release/RDF-RDB2RDF> ;
 	:download-page  <https://metacpan.org/release/RDF-RDB2RDF> ;
 	:bug-database   <http://rt.cpan.org/Dist/Display.html?Queue=RDF-RDB2RDF> ;
-	:repository     [ a :HgRepository ; :browse <https://bitbucket.org/tobyink/p5-rdf-rdb2rdf> ] ;
+	:repository     [ a :GitRepository ; :browse <https://github.com/tobyink/p5-rdf-rdb2rdf> ] ;
 	:maintainer     toby:i ;
 	:developer      toby:i ;
 	:documenter     toby:i ;
