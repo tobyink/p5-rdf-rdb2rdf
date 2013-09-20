@@ -12,6 +12,7 @@ use RDF::Trine qw[iri blank literal statement];
 use RDF::Trine::Namespace qw[RDF RDFS OWL XSD];
 use Scalar::Util qw[refaddr blessed];
 use URI::Escape::Optimistic qw[uri_escape_optimistic];
+use match::simple qw[match];
 
 use namespace::clean;
 use base qw[
@@ -190,7 +191,7 @@ sub process
 sub handle_table
 {
 	my ($self, $dbh, $model, $table, $where, $cols) = @_;
-	return if $table ~~ $self->ignore_tables;
+	return if match $table, $self->ignore_tables;
 	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};		
@@ -287,7 +288,7 @@ sub handle_table
 sub handle_table_rdfs
 {
 	my ($self, $dbh, $model, $table) = @_;
-	return if $table ~~ $self->ignore_tables;
+	return if match $table, $self->ignore_tables;
 	
 	$model = RDF::Trine::Model->temporary_model unless defined $model;
 	my $callback = (ref $model eq 'CODE')?$model:sub{$model->add_statement(@_)};		
@@ -467,7 +468,7 @@ The prefix defaults to the empty string - i.e. relative URIs.
 Three extra options are supported: C<rdfs> which controls whether extra Tbox
 statements are included in the mapping; C<warn_sql> carps statements to
 STDERR whenever the database is queried (useful for debugging);
-C<ignore_tables> specifies tables to ignore (smart match is used, so the
+C<ignore_tables> specifies tables to ignore (L<match::simple> is used, so the
 value of ignore_tables can be a string, regexp, coderef, or an arrayref
 of all of the above).
 

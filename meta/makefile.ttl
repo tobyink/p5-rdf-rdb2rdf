@@ -16,6 +16,7 @@
 		"MIME::Base64" ,
 		"namespace::clean 0.19" ,
 		"RDF::Trine 0.135" ,
+		"match::smart",
 		"URI::Escape" .
 
 _:main <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName> "lib/RDF/RDB2RDF.pm" .
