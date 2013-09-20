@@ -21,7 +21,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 
 []
-	a rr:TriplesMap;
+	a rr:TriplesMapClass;
 	rr:logicalTable [ rr:tableName "books" ];
 
 	rr:subjectMap [ rr:template "http://example.com/id/book/{book_id}";
@@ -33,7 +33,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 	[ 
 		rr:predicate rdfs:label; 
 		rr:predicateMap [ rr:constant dc:title ]; 
-		rr:objectMap    [ rr:column "title"; rrx:languageColumn "title_lang"; rr:language "en" ]
+		rr:objectMap    [ rr:column "title"; rr:language "en" ]
 	] ;
 
 	rr:predicateObjectMap
@@ -44,7 +44,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 .
 
 []
-	a rr:TriplesMap;
+	a rr:TriplesMapClass;
 	
 	rr:logicalTable [ rr:sqlQuery """
 	
@@ -85,7 +85,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 .
 
 []
-	a rr:TriplesMap;
+	a rr:TriplesMapClass;
 	rr:tableName "topics";
 
 	rr:subjectMap [ rr:template "http://example.com/id/topic/{topic_id}" ;
@@ -101,7 +101,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 .
 
 []
-	a rr:TriplesMap;
+	a rr:TriplesMapClass;
 	rr:tableName "book_authors";
 
 	rr:subjectMap [ rr:template "http://example.com/id/book/{book_id}" ;
@@ -117,7 +117,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 .
 
 []
-	a rr:TriplesMap;
+	a rr:TriplesMapClass;
 	rr:tableName "book_authors";
 
 	rr:subjectMap [ rr:template "http://example.com/id/author/{author_id}" ;
@@ -131,7 +131,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 .
 
 []
-	a rr:TriplesMap;
+	a rr:TriplesMapClass;
 	rr:tableName "book_topics";
 
 	rr:subjectMap [ rr:template "http://example.com/id/book/{book_id}" ;
@@ -201,14 +201,6 @@ is($model->count_statements(
 		literal('Zen and the Art of Motorcycle Maintenance: An Inquiry into Values', 'en'),
 		), 1,
 	'rr:predicate shortcut property'
-	);
-
-is($model->count_statements(
-		iri('http://example.com/id/book/2'),
-		iri('http://www.w3.org/2000/01/rdf-schema#label'),
-		literal('Cibo Italiano', 'it'),
-		), 1,
-	'set language using rrx:languageColumn'
 	);
 
 is($model->count_statements(
