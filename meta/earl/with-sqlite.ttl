@@ -1,915 +1,915 @@
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix doap: <http://usefulinc.com/ns/doap#> .
 @prefix case: <http://www.w3.org/2001/sw/rdb2rdf/test-cases/> .
-@prefix earl: <http://www.w3.org/ns/earl#> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix earl: <http://www.w3.org/ns/earl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-_:r1339446336r0 dcterms:hasPart [
+_:r1379679761r0 dcterms:hasPart [
 		doap:name "SQLite"
-	], <http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-006> ;
+	], <http://purl.org/NET/cpan-uri/dist/RDF-RDB2RDF/v_0-007> ;
 	doap:description "This resource is the aggregation of RDF-RDB2RDF with a relational database management system." ;
 	a earl:Software .
-_:r1339446336r1 doap:name "Test::RDB2RDF::Suite::SQLite" ;
+_:r1379679761r1 doap:name "Test::RDB2RDF::Suite::SQLite" ;
 	a earl:Software .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		earl:outcome earl:passed ;
-		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:36Z"^^xsd:dateTime
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0000 .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		dcterms:date "2012-06-11T20:25:36Z"^^xsd:dateTime ;
-		a earl:TestResult ;
-		earl:outcome earl:passed
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:dg0000 .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:36Z"^^xsd:dateTime ;
-		earl:outcome earl:passed
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0001a .
-_:r1339446337r10 dcterms:date "2012-06-11T20:25:37Z"^^xsd:dateTime ;
+_:r1379679762r10 dcterms:date "2013-09-20T12:22:42Z"^^xsd:dateTime ;
 	a earl:TestResult ;
 	earl:outcome earl:passed .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:37Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:42Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:dg0001 .
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0001a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
-	earl:result _:r1339446337r10 ;
-	earl:subject _:r1339446336r0 ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:42Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0001b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:42Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:38Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:dg0001 .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:42Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0000 .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result _:r1379679762r10 ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:dg0000 .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:43Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:38Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:43Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:43Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:38Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002c .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:38Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:43Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002d .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:43Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:38Z"^^xsd:dateTime ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002e .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:38Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:43Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002f .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:44Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:38Z"^^xsd:dateTime ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002g .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:39Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:44Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002h .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:44Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:39Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002i .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:44Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:39Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0002j .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:44Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:39Z"^^xsd:dateTime ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0002 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:44Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:39Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0003a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:39Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:45Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0003b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:45Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:40Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0003c .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:40Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:45Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0003 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:40Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:45Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0004a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:40Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:46Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0004b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:46Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:40Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0004 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:46Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:41Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0005a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:41Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:46Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0005b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:41Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:46Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0005 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:41Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:47Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0006a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:41Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:47Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0006 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:42Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:47Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:47Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:42Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:43Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:48Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007c .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:48Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:43Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007d .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:48Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:43Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007e .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:48Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:43Z"^^xsd:dateTime ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007f .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:43Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:48Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007g .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:43Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:49Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007h .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:44Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:49Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0007i .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:44Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:49Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0007 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:44Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0008a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:failed ;
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
+		a earl:TestResult ;
 		earl:info "RefObjectMap not fully implemented (yet)." ;
-		dcterms:date "2012-06-11T20:25:44Z"^^xsd:dateTime ;
-		a earl:TestResult
+		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0008b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:44Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0008c .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:44Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0008 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:failed ;
-		dcterms:date "2012-06-11T20:25:45Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:info "SQLite appears to datatype COUNT() columns as VARCHAR. Huh?"
+		earl:info "RefObjectMap not fully implemented (yet)." ;
+		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0009d .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		earl:info "Missing feature in DBD::SQLite." ;
-		earl:outcome earl:failed ;
-		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=50779> ;
-		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:45Z"^^xsd:dateTime
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:dg0009 .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:45Z"^^xsd:dateTime
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0010a .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		earl:outcome earl:failed ;
-		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:45Z"^^xsd:dateTime ;
-		earl:info "RefObjectMap not fully implemented (yet)."
-	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0009a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
+		a earl:TestResult ;
 		earl:info "RefObjectMap not fully implemented (yet)." ;
-		earl:outcome earl:failed ;
-		dcterms:date "2012-06-11T20:25:45Z"^^xsd:dateTime ;
-		a earl:TestResult
+		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0009b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:45Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0009c .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:46Z"^^xsd:dateTime ;
+		earl:info "SQLite appears to datatype COUNT() columns as VARCHAR. Huh?" ;
+		earl:outcome earl:failed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0009d .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:50Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=50779> ;
+		earl:info "Missing feature in DBD::SQLite." ;
+		earl:outcome earl:failed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:dg0009 .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:51Z"^^xsd:dateTime ;
+		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0010a .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:51Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0010b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:info "Bug in RDF::Trine::Turtle::Parser" ;
+		dcterms:date "2013-09-20T12:22:51Z"^^xsd:dateTime ;
+		a earl:TestResult ;
 		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=77747> ;
-		earl:outcome earl:failed ;
-		dcterms:date "2012-06-11T20:25:46Z"^^xsd:dateTime ;
-		a earl:TestResult
+		earl:info "Bug in RDF::Trine::Turtle::Parser" ;
+		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0010c .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:failed ;
-		earl:info "Bug in DBD::SQLite." ;
-		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=77724> ;
+		dcterms:date "2013-09-20T12:22:51Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:46Z"^^xsd:dateTime
+		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=77724> ;
+		earl:info "Bug in DBD::SQLite." ;
+		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0010 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:51Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:46Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0011a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:47Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:52Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0011b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:failed ;
-		dcterms:date "2012-06-11T20:25:47Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:52Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=50779> ;
-		earl:info "Missing feature in DBD::SQLite."
+		earl:info "Missing feature in DBD::SQLite." ;
+		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0011 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:47Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:53Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0012a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:48Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:22:53Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0012b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:53Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:48Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0012c .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:53Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:48Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0012d .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:49Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:54Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0012e .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:49Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:54Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0012 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:55Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:50Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0013a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:55Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:50Z"^^xsd:dateTime ;
 		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0013 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:55Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:50Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0014a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:info "RefObjectMap not fully implemented (yet)." ;
+		dcterms:date "2013-09-20T12:22:55Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:50Z"^^xsd:dateTime ;
+		earl:info "RefObjectMap not fully implemented (yet)." ;
 		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0014b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:22:55Z"^^xsd:dateTime ;
 		a earl:TestResult ;
 		earl:info "RefObjectMap not fully implemented (yet)." ;
-		earl:outcome earl:failed ;
-		dcterms:date "2012-06-11T20:25:50Z"^^xsd:dateTime
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0014c .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		dcterms:date "2012-06-11T20:25:50Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0014d .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:50Z"^^xsd:dateTime ;
-		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=50779> ;
-		earl:outcome earl:failed ;
-		earl:info "Missing feature in DBD::SQLite."
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:dg0014 .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		dcterms:date "2012-06-11T20:25:51Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0015a .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:51Z"^^xsd:dateTime
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0015b .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		dcterms:date "2012-06-11T20:25:51Z"^^xsd:dateTime ;
-		a earl:TestResult ;
-		earl:outcome earl:passed
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:dg0015 .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:52Z"^^xsd:dateTime ;
-		a earl:TestResult
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0016a .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		dcterms:date "2012-06-11T20:25:52Z"^^xsd:dateTime ;
-		a earl:TestResult ;
-		earl:outcome earl:passed
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0016b .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:53Z"^^xsd:dateTime ;
-		a earl:TestResult
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0016c .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		dcterms:date "2012-06-11T20:25:53Z"^^xsd:dateTime ;
-		a earl:TestResult ;
-		earl:outcome earl:passed
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0016d .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		a earl:TestResult ;
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:53Z"^^xsd:dateTime
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:tc0016e .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:53Z"^^xsd:dateTime ;
-		a earl:TestResult
-	] ;
-	earl:subject _:r1339446336r0 ;
-	earl:test case:dg0016 .
-[] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
-	earl:mode earl:automatic ;
-	earl:result [
-		earl:info "Foreign keys containing non-ASCII characters appear not to be reported when doing database introspection. Not sure if this is a DBD::SQLite problem, or a problem in SQLite itself." ;
-		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:54Z"^^xsd:dateTime ;
 		earl:outcome earl:failed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0014c .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:55Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0014d .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:56Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		rdfs:seeAlso <https://rt.cpan.org/Ticket/Display.html?id=50779> ;
+		earl:info "Missing feature in DBD::SQLite." ;
+		earl:outcome earl:failed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:dg0014 .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:56Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0015a .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:56Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0015b .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:56Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:dg0015 .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:57Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0016a .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:57Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0016b .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:58Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0016c .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:58Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0016d .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:58Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:tc0016e .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:58Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
+	] ;
+	earl:subject _:r1379679761r0 ;
+	earl:test case:dg0016 .
+[] a earl:Assertion ;
+	earl:assertedBy _:r1379679761r1 ;
+	earl:mode earl:automatic ;
+	earl:result [
+		dcterms:date "2013-09-20T12:22:59Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:info "Foreign keys containing non-ASCII characters appear not to be reported when doing database introspection. Not sure if this is a DBD::SQLite problem, or a problem in SQLite itself." ;
+		earl:outcome earl:failed
+	] ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0017 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
+		dcterms:date "2013-09-20T12:22:59Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:54Z"^^xsd:dateTime
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0018a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:54Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:59Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0018 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		dcterms:date "2012-06-11T20:25:54Z"^^xsd:dateTime ;
-		earl:outcome earl:passed ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:22:59Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0019a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:54Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:23:00Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0019b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:55Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:23:00Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0020a .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:passed ;
-		dcterms:date "2012-06-11T20:25:55Z"^^xsd:dateTime ;
-		a earl:TestResult
+		dcterms:date "2013-09-20T12:23:00Z"^^xsd:dateTime ;
+		a earl:TestResult ;
+		earl:outcome earl:passed
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:tc0020b .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:untested ;
-		dcterms:date "2012-06-11T20:25:55Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:23:00Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:info "SQLite doesn't like create.sql."
+		earl:info "SQLite doesn't like create.sql." ;
+		earl:outcome earl:untested
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0021 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:untested ;
-		dcterms:date "2012-06-11T20:25:55Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:23:00Z"^^xsd:dateTime ;
+		a earl:TestResult ;
 		earl:info "SQLite doesn't like create.sql." ;
-		a earl:TestResult
+		earl:outcome earl:untested
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0022 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:info "SQLite doesn't like create.sql." ;
+		dcterms:date "2013-09-20T12:23:01Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:outcome earl:untested ;
-		dcterms:date "2012-06-11T20:25:55Z"^^xsd:dateTime
+		earl:info "SQLite doesn't like create.sql." ;
+		earl:outcome earl:untested
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0023 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
-		earl:outcome earl:untested ;
-		dcterms:date "2012-06-11T20:25:55Z"^^xsd:dateTime ;
+		dcterms:date "2013-09-20T12:23:01Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		earl:info "SQLite doesn't like create.sql."
+		earl:info "SQLite doesn't like create.sql." ;
+		earl:outcome earl:untested
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0024 .
 [] a earl:Assertion ;
-	earl:assertedBy _:r1339446336r1 ;
+	earl:assertedBy _:r1379679761r1 ;
 	earl:mode earl:automatic ;
 	earl:result [
+		dcterms:date "2013-09-20T12:23:01Z"^^xsd:dateTime ;
 		a earl:TestResult ;
-		dcterms:date "2012-06-11T20:25:56Z"^^xsd:dateTime ;
-		earl:outcome earl:untested ;
-		earl:info "SQLite doesn't like create.sql."
+		earl:info "SQLite doesn't like create.sql." ;
+		earl:outcome earl:untested
 	] ;
-	earl:subject _:r1339446336r0 ;
+	earl:subject _:r1379679761r0 ;
 	earl:test case:dg0025 .
