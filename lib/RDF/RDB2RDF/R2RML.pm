@@ -67,13 +67,13 @@ sub _r2rml
 		
 	foreach my $tmc (@TMC)
 	{
-		$self->_r2rml_TriplesMapClass($r2rml, $tmc);
+		$self->_r2rml_TriplesMap($r2rml, $tmc);
 	}
 	
 	$self->{r2rml} = $r2rml;
 }
 
-sub _r2rml_TriplesMapClass
+sub _r2rml_TriplesMap
 {
 	my ($self, $r2rml, $tmc) = @_;
 	my $mapping = {};
@@ -436,7 +436,7 @@ sub _r2rml_RefObjectMapClass
 	PARENT: foreach my $ptm ($r2rml->objects($romc, $rr->parentTriplesMap))
 	{
 		next PARENT if $ptm->is_literal;
-		$parent = $self->_r2rml_TriplesMapClass($r2rml, $ptm);
+		$parent = $self->_r2rml_TriplesMap($r2rml, $ptm);
 		last PARENT if $parent;
 	}
 	return unless $parent;
