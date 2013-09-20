@@ -91,15 +91,16 @@ sub template
 		my ($value, $type);
 		if ($key =~ /^"(.+)"$/)
 		{
-			$value = ($data->{$1}  // '');
+			$value = ($data->{$1});
 			$type  = ($types->{$1} // 'varchar');
 		}
 		else
 		{
-			$value = ($data->{$key}  // $data->{lc $key}  // '');
+			$value = ($data->{$key}  // $data->{lc $key});
 			$type  = ($types->{$key} // $types->{lc $key} // '');
 		}
 		
+		return unless defined $value;  # Argh! return in a regexp!
 		$process->( $self->datatyped_literal($value, $type)->literal_value );
 	}gex;
 	
@@ -117,6 +118,8 @@ sub iri
 {
 	my ($self, $iri, $graph) = @_;
 	
+	return
+		unless defined $iri;
 	return $iri
 		if blessed($iri) && $iri->isa('RDF::Trine::Node');
 	return blank()
@@ -290,6 +293,7 @@ sub handle_row
 	
 	# ->{about}
 	my $subject = $self->_extract_subject_from_row($tmap, $row, $types);
+	return unless defined $subject;
 	
 	# ->{typeof}
 	foreach (@{ $tmap->{typeof} })
@@ -445,6 +449,7 @@ sub handle_map
 		{
 			$lsubject = $self->iri($self->template_irisafe($map->{about}, $row, $types), $lgraph);
 		}
+		return unless defined $lsubject;
 
 		my $st = $map->{rev}
 			? statement($value, $predicate, $lsubject) 
