@@ -74,7 +74,13 @@ sub template
 	{
 		return $template;
 	}
-	
+
+	if (blessed($template) and $template->isa('RDF::RDB2RDF::R2RML::_COL_'))
+	{
+		my $col = substr($template, 1, -1);
+		return $data->{$col};
+	}
+
 	$self->{uuid} = Data::UUID->new unless $self->{uuid};
 	$data->{'+uuid'} = $self->{uuid}->create_str;
 	
@@ -89,6 +95,7 @@ sub template
 		(my $key = $1)
 			=~ s/\\\}/\}/g;
 		my ($value, $type);
+				
 		if ($key =~ /^"(.+)"$/)
 		{
 			$value = ($data->{$1});
@@ -438,7 +445,8 @@ sub handle_map
 	
 	if (defined $predicate and defined $value)
 	{
-		unless (ref $predicate)
+		if (blessed($predicate) && $predicate->isa('RDF::RDB2RDF::R2RML::_COL_')
+		or not ref $predicate)
 		{
 			$predicate = $self->template_irisafe($predicate, +{ %row, '_' => $value }, $types);
 			$predicate = $self->iri($predicate, $lgraph) ;
@@ -523,6 +531,11 @@ sub _export
 		return [ map { ref $_ ? $self->_export($_) : $_ } @$thingy ];
 	}
 	
+	if (blessed($thingy) and $thingy->isa('RDF::RDB2RDF::R2RML::_COL_'))
+	{
+		return "$thingy";
+	}
+
 	if (blessed($thingy) and $thingy->isa('RDF::Trine::Node::Resource'))
 	{
 		return $self->_mktemplate($thingy->uri);

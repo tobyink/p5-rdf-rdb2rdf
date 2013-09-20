@@ -20,6 +20,14 @@ use base qw[
 our $AUTHORITY = 'cpan:TOBYINK';
 our $VERSION   = '0.008';
 
+sub _COL_
+{
+	package
+	RDF::RDB2RDF::R2RML::_COL_;
+	use overload fallback => 1, q[""] => sub { ${+shift} };
+	bless \$_[0];
+}
+
 sub new
 {
 	my ($class, $r2rml) = @_;
@@ -207,7 +215,7 @@ sub _r2rml_graph
 			map { sprintf('{%s}', $_->literal_value) }
 			grep { $_->is_literal }
 			$r2rml->objects($thing, $rr->column);
-		return $graph if $graph;
+		return _COL_ $graph if $graph;
 
 		($graph) =
 			map { $_->literal_value }
@@ -237,7 +245,7 @@ sub _r2rml_SubjectMap
 	unless ($mapping->{about})
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($smc, $rr->column);
-		$mapping->{about} = sprintf('{%s}', $col->literal_value) if $col;
+		$mapping->{about} = _COL_ sprintf('{%s}', $col->literal_value) if $col;
 		$mapping->{_about_is_column} = 1 if $col;
 	}
 	unless ($mapping->{about})
@@ -347,7 +355,7 @@ sub _r2rml_PredicateMap
 	unless ($p)
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($pmc, $rr->column);
-		$p = sprintf('{%s}', $col->literal_value) if $col;
+		$p = _COL_ sprintf('{%s}', $col->literal_value) if $col;
 	}
 	unless ($p)
 	{
@@ -373,7 +381,7 @@ sub _r2rml_ObjectMap
 	unless (defined $o)
 	{
 		my ($col) = grep { $_->is_literal } $r2rml->objects($omc, $rr->column);
-		$o        = sprintf('{%s}', $col->literal_value) if $col;
+		$o        = _COL_ sprintf('{%s}', $col->literal_value) if $col;
 		$column   = $col->literal_value if $col;
 	}
 	unless (defined $o)
@@ -461,7 +469,7 @@ sub _r2rml_RefObjectMap
 		on       => $joins,
 		resource => $parent->{about},
 		method   => $parent->{sql} ? 'subquery' : 'table',
-		};
+	};
 }
 
 1;
