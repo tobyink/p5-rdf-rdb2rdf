@@ -12,6 +12,7 @@ my $rdb2rdf = new_ok('RDF::RDB2RDF::R2RML' => [<<'TURTLE'], 'Mapping');
 @prefix owl:  <http://www.w3.org/2002/07/owl#> .
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 @prefix rr:   <http://www.w3.org/ns/r2rml#>.
+@prefix rrx:  <http://purl.org/r2rml-ext/>.
 @prefix exa:  <http://example.com/core#>.
 @prefix dept: <http://example.com/dept#>.
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
