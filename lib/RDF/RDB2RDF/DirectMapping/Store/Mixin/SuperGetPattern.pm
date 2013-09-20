@@ -9,7 +9,7 @@ use Scalar::Util qw[blessed reftype];
 use namespace::clean;
 
 our $AUTHORITY = 'cpan:TOBYINK';
-our $VERSION   = '0.007';
+our $VERSION   = '0.008';
 
 # This was removed from RDF::Trine::Store. :-(
 sub _SUPER_get_pattern
