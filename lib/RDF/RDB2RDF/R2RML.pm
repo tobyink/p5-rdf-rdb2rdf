@@ -159,7 +159,7 @@ sub _r2rml_TriplesMap
 	foreach ($r2rml->objects($tmc, $rr->subjectMap))
 	{
 		next if $_->is_literal;
-		$self->_r2rml_SubjectMapClass($r2rml, $_, $mapping);
+		$self->_r2rml_SubjectMap($r2rml, $_, $mapping);
 		last;
 	}
 	
@@ -171,7 +171,7 @@ sub _r2rml_TriplesMap
 	foreach ($r2rml->objects($tmc, $rr->predicateObjectMap))
 	{
 		next if $_->is_literal;
-		$self->_r2rml_PredicateObjectMapClass($r2rml, $_, $mapping);
+		$self->_r2rml_PredicateObjectMap($r2rml, $_, $mapping);
 	}	
 
 	my $key = $tablename;
@@ -219,7 +219,7 @@ sub _r2rml_graph
 	return;
 }
 
-sub _r2rml_SubjectMapClass
+sub _r2rml_SubjectMap
 {
 	my ($self, $r2rml, $smc, $mapping) = @_;
 	
@@ -265,7 +265,7 @@ sub _r2rml_SubjectMapClass
 	}
 }
 
-sub _r2rml_PredicateObjectMapClass
+sub _r2rml_PredicateObjectMap
 {
 	my ($self, $r2rml, $pomc, $mapping) = @_;
 	
@@ -277,7 +277,7 @@ sub _r2rml_PredicateObjectMapClass
 	foreach ($r2rml->objects($pomc, $rr->predicateMap))
 	{
 		next if $_->is_literal;
-		push @predicates, $self->_r2rml_PredicateMapClass($r2rml, $_);
+		push @predicates, $self->_r2rml_PredicateMap($r2rml, $_);
 	}
 
 	push @predicates,
@@ -290,7 +290,7 @@ sub _r2rml_PredicateObjectMapClass
 	foreach ($r2rml->objects($pomc, $rr->objectMap))
 	{
 		next if $_->is_literal;
-		my $obj = $self->_r2rml_ObjectMapClass($r2rml, $_);
+		my $obj = $self->_r2rml_ObjectMap($r2rml, $_);
 		push @objects, $obj if defined $obj;
 	}
 
@@ -321,7 +321,7 @@ sub _r2rml_PredicateObjectMapClass
 	foreach ($r2rml->objects($pomc, $rr->refObjectMap))
 	{
 		next if $_->is_literal;
-		my $obj = $self->_r2rml_RefObjectMapClass($r2rml, $_);
+		my $obj = $self->_r2rml_RefObjectMap($r2rml, $_);
 		push @objects, $obj if defined $obj;
 	}
 
@@ -339,7 +339,7 @@ sub _r2rml_PredicateObjectMapClass
 	}
 }
 
-sub _r2rml_PredicateMapClass
+sub _r2rml_PredicateMap
 {
 	my ($self, $r2rml, $pmc) = @_;
 	
@@ -358,7 +358,7 @@ sub _r2rml_PredicateMapClass
 	return ($p);
 }
 
-sub _r2rml_ObjectMapClass
+sub _r2rml_ObjectMap
 {
 	my ($self, $r2rml, $omc) = @_;
 	
@@ -428,7 +428,7 @@ sub _r2rml_ObjectMapClass
 	return $map;
 }
 
-sub _r2rml_RefObjectMapClass
+sub _r2rml_RefObjectMap
 {
 	my ($self, $r2rml, $romc) = @_;
 		
