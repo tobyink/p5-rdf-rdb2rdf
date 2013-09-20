@@ -91,15 +91,15 @@ sub template
 		my ($value, $type);
 		if ($key =~ /^"(.+)"$/)
 		{
-			$value = ($data->{$1}  // '');
+			$value = ($data->{$1});
 			$type  = ($types->{$1} // 'varchar');
 		}
 		else
 		{
-			$value = ($data->{$key}  // $data->{lc $key}  // '');
+			$value = ($data->{$key}  // $data->{lc $key});
 			$type  = ($types->{$key} // $types->{lc $key} // '');
 		}
-		
+		return undef if !defined($value);
 		$process->( $self->datatyped_literal($value, $type)->literal_value );
 	}gex;
 	
@@ -116,7 +116,9 @@ sub template_irisafe
 sub iri
 {
 	my ($self, $iri, $graph) = @_;
-	
+
+	return undef 
+		if !defined($iri);
 	return $iri
 		if blessed($iri) && $iri->isa('RDF::Trine::Node');
 	return blank()
@@ -290,6 +292,7 @@ sub handle_row
 	
 	# ->{about}
 	my $subject = $self->_extract_subject_from_row($tmap, $row, $types);
+	return if !defined($subject);
 	
 	# ->{typeof}
 	foreach (@{ $tmap->{typeof} })
@@ -355,15 +358,24 @@ sub handle_map
 	my $tmap     = $mappings->{$table};	
 	my %row      = %$row;
 	my $column   = $map->{column};
-	
-	my ($predicate, $value, $loose);
+	my $langCol  = $map->{langCol};
+
+	my ($predicate, $value, $langVal, $loose);
 	if ($column =~ /^"(.+)"$/)
 		{ $column = $1; $value = $row{$column} }
 	elsif (exists $row{$column})
 		{ $loose = 1; $value = $row{$column} }
 	elsif (exists $row{lc $column})
 		{ $loose = 1; $value = $row{lc $column} }
+	return if !defined($value);
 	
+	if ($langCol =~ /^"(.+)"$/)
+		{ $langCol = $1; $langVal = $row{$langCol} }
+	elsif (exists $row{$langCol})
+		{ $loose = 1; $langVal = $row{$langCol} }
+	elsif (exists $row{lc $langCol})
+		{ $loose = 1; $langVal = $row{lc $langCol} }
+
 	my $lgraph = defined $map->{graph}
 		? $self->iri($self->template_irisafe($map->{graph}, $row, $types))
 		: $graph;
@@ -396,6 +408,7 @@ sub handle_map
 		if ($map->{resource})
 		{
 			$value = $self->template_irisafe($map->{resource}, +{ %row, '_' => $value }, $types);
+			return if !defined($value);
 		}
 		$value = $self->iri($value, $lgraph);
 	}
@@ -408,8 +421,13 @@ sub handle_map
 		{
 			$value = $self->template($map->{content}, +{ %row, '_' => $value }, $types);
 		}
-		
-		if ($map->{lang})
+		return if !defined($value);
+
+		if ($langVal)
+		{
+			$value = literal($value, $langVal);
+		}
+		elsif ($map->{lang})
 		{
 			$value = literal($value, $map->{lang});
 		}
@@ -445,6 +463,7 @@ sub handle_map
 		{
 			$lsubject = $self->iri($self->template_irisafe($map->{about}, $row, $types), $lgraph);
 		}
+		return if !defined($lsubject);
 
 		my $st = $map->{rev}
 			? statement($value, $predicate, $lsubject) 
@@ -753,6 +772,10 @@ triple. An example can be seen in the "book_authors" mapping above for
 foaf:made.
 
 For literals "lang" and "datatype" further qualify them.
+In case you need to assign the language dynamically (note this must be a valid IANA language tag),
+use something like this:
+
+       title    => [{property => $dc->title, langCol => 'title_lang'}],
 
 Usually, the contents of the database field are used. For example:
 

@@ -11,6 +11,7 @@ use Scalar::Util qw[blessed];
 use Storable qw[dclone];
 
 our $rr = RDF::Trine::Namespace->new('http://www.w3.org/ns/r2rml#');
+our $rrx = RDF::Trine::Namespace->new('http://purl.org/r2rml-ext/');
 
 use namespace::clean;
 use base qw[
@@ -41,6 +42,7 @@ sub process_turtle
 		$r2rml =~ s/^/# /gm;
 		$rv = "# R2RML\n#\n${r2rml}\n${rv}";
 	}
+	$rv
 }
 
 sub _r2rml
@@ -362,7 +364,7 @@ sub _r2rml_ObjectMapClass
 {
 	my ($self, $r2rml, $omc) = @_;
 	
-	my ($datatype, $language, $termtype, $column);
+	my ($datatype, $language, $languageColumn, $termtype, $column);
 	my ($o) = map {
 			if ($_->is_resource)   { $termtype = 'IRI'; $_->value; }
 			elsif ($_->is_blank)   { $termtype = 'BlankNode'; $_->as_ntriples; }
@@ -392,6 +394,10 @@ sub _r2rml_ObjectMapClass
 		grep {  $_->is_literal }
 		$r2rml->objects($omc, $rr->language)
 		unless $language;
+	($languageColumn) =
+		map { $_->literal_value }
+		grep { $_->is_literal }
+		$r2rml->objects($omc, $rrx->languageColumn);
 	($termtype) =
 		map {
 				if ($_->as_ntriples =~ /(uri|iri|blank|blanknode|literal).?$/i)
@@ -402,9 +408,9 @@ sub _r2rml_ObjectMapClass
 		$r2rml->objects_for_predicate_list($omc, $rr->termType, $rr->termtype)
 		unless $termtype;
 	
-	$termtype ||= 'Literal' if $datatype || $language || defined $column;
+
+	$termtype ||= 'Literal' if $datatype || $language || $languageColumn || defined $column;
 	$termtype ||= 'IRI';
-	
 	$o = sprintf('_:%s', $o)
 		if (!ref $o) && $termtype =~ /^blank/i && $o !~ /^_:/;
 		
@@ -423,6 +429,7 @@ sub _r2rml_ObjectMapClass
 	
 	$map->{datatype} = $datatype if $datatype;
 	$map->{lang}     = $language if $language;
+	$map->{langCol}  = $languageColumn if $languageColumn;
 	$map->{kind}     = ($termtype =~ /literal/i) ? 'property' : 'rel';
 
 	return $map;
@@ -547,6 +554,42 @@ with all things SQL, I wouldn't be surprised if there were one or two
 problems. Patches welcome.
 
 =back
+
+=head2 Language Extension
+
+rr:language allows you to assign only a constant language tag. 
+We've implemented an extension in case you need to assign the language dynamically (from a column).
+It's defined as a property rrx:languageColumn:
+
+    @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+    @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+    @prefix owl:  <http://www.w3.org/2002/07/owl#>.
+    @prefix rr:   <http://www.w3.org/ns/r2rml#>.
+    @prefix rrx:  <http://purl.org/r2rml-ext/>.
+     
+    rrx:languageColumn a owl:DatatypeProperty;
+      rdfs:domain rr:TermMap;
+      rdfs:range rdf:Literal;
+      rdfs:comment "Specifies the language of a literal, to be retrieved from a column. rr:language can be used as constant default)".
+
+This can be used in R2RML scripts like so:
+
+		@prefix rr:   <http://www.w3.org/ns/r2rml#>.
+		@prefix rrx:  <http://purl.org/r2rml-ext/>.
+		@prefix bibo: <http://purl.org/ontology/bibo/>.
+		@prefix dc:   <http://purl.org/dc/elements/1.1/>.
+
+		[] rr:logicalTable [rr:tableName "books"];
+		  rr:subjectMap [rr:class bibo:Book; rr:template "book/{book_id}"];
+		  rr:predicateObjectMap [
+		    rr:predicate dc:title;
+		    rr:objectMap [
+		      rr:column "title";
+		      rrx:languageColumn "title_lang";
+          rr:language "en"  # default
+		   ]].
+
+Please note this must be a valid IANA language tag.
 
 =head1 BUGS
 
