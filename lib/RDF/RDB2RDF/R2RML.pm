@@ -10,7 +10,8 @@ use RDF::Trine::Namespace qw[rdf rdfs owl xsd];
 use Scalar::Util qw[blessed];
 use Storable qw[dclone];
 
-our $rr = RDF::Trine::Namespace->new('http://www.w3.org/ns/r2rml#');
+our $rr  = RDF::Trine::Namespace->new('http://www.w3.org/ns/r2rml#');
+our $rrx = RDF::Trine::Namespace->new('http://purl.org/r2rml-ext/');
 
 use namespace::clean;
 use base qw[
@@ -370,7 +371,7 @@ sub _r2rml_ObjectMap
 {
 	my ($self, $r2rml, $omc) = @_;
 	
-	my ($datatype, $language, $termtype, $column);
+	my ($datatype, $lang_col, $language, $termtype, $column);
 	my ($o) = map {
 			if ($_->is_resource)   { $termtype = 'IRI'; $_->value; }
 			elsif ($_->is_blank)   { $termtype = 'BlankNode'; $_->as_ntriples; }
@@ -400,6 +401,10 @@ sub _r2rml_ObjectMap
 		grep {  $_->is_literal }
 		$r2rml->objects($omc, $rr->language)
 		unless $language;
+	($lang_col) =
+		map { $_->literal_value }
+		grep {  $_->is_literal }
+		$r2rml->objects($omc, $rrx->languageColumn);
 	($termtype) =
 		map {
 				if ($_->as_ntriples =~ /(uri|iri|blank|blanknode|literal).?$/i)
@@ -410,7 +415,7 @@ sub _r2rml_ObjectMap
 		$r2rml->objects_for_predicate_list($omc, $rr->termType, $rr->termtype)
 		unless $termtype;
 	
-	$termtype ||= 'Literal' if $datatype || $language || defined $column;
+	$termtype ||= 'Literal' if $datatype || $language || $lang_col || defined $column;
 	$termtype ||= 'IRI';
 	
 	$o = sprintf('_:%s', $o)
@@ -432,6 +437,7 @@ sub _r2rml_ObjectMap
 	$map->{datatype} = $datatype if $datatype;
 	$map->{lang}     = $language if $language;
 	$map->{kind}     = ($termtype =~ /literal/i) ? 'property' : 'rel';
+	$map->{lang_col} = $lang_col if $lang_col;
 
 	return $map;
 }
@@ -555,6 +561,36 @@ with all things SQL, I wouldn't be surprised if there were one or two
 problems. Patches welcome.
 
 =back
+
+=head2 Language Extension
+
+rr:language allows you to assign only a constant language tag. This module
+implements an extension in case you need to assign the language dynamically
+(from a table or view column). It's defined as a property rrx:languageColumn:
+
+   @prefix rr:   <http://www.w3.org/ns/r2rml#>.
+   @prefix rrx:  <http://purl.org/r2rml-ext/>.
+   @prefix bibo: <http://purl.org/ontology/bibo/>.
+   @prefix dc:   <http://purl.org/dc/elements/1.1/>.
+   
+   []
+      rr:logicalTable [
+         rr:tableName "books";
+      ];
+      rr:subjectMap [
+         rr:class bibo:Book;
+         rr:template "book/{book_id}";
+      ];
+      rr:predicateObjectMap [
+         rr:predicate dc:title;
+         rr:objectMap [
+            rr:column "title";
+            rrx:languageColumn "title_lang";
+            rr:language "en";   # fallback for nulls
+         ];
+      ].
+
+Please note this must be a valid IANA language tag.
 
 =head1 BUGS
 

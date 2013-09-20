@@ -367,13 +367,22 @@ sub handle_map
 	my %row      = %$row;
 	my $column   = $map->{column};
 	
-	my ($predicate, $value, $loose);
+	my ($predicate, $value, $lang, $loose);
 	if ($column =~ /^"(.+)"$/)
 		{ $column = $1; $value = $row{$column} }
 	elsif (exists $row{$column})
 		{ $loose = 1; $value = $row{$column} }
 	elsif (exists $row{lc $column})
 		{ $loose = 1; $value = $row{lc $column} }
+	
+	if (my $lang_col = $map->{lang_col})
+	{
+		if ($lang_col =~ /^"(.+)"$/)
+			{ $lang = $row{$1} }
+		elsif (defined $lang_col)
+			{ $lang = $row{$lang_col} // $row{lc $lang_col} }
+	}
+	$lang //= $map->{lang};
 	
 	my $lgraph = defined $map->{graph}
 		? $self->iri($self->template_irisafe($map->{graph}, $row, $types))
@@ -420,9 +429,9 @@ sub handle_map
 			$value = $self->template($map->{content}, +{ %row, '_' => $value }, $types);
 		}
 		
-		if ($map->{lang})
+		if ($lang)
 		{
-			$value = literal($value, $map->{lang});
+			$value = literal($value, $lang);
 		}
 		else
 		{
