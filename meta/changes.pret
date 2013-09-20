@@ -1,0 +1,69 @@
+`RDF-RDB2RDF 0.001 cpan:TOBYINK`
+	issued       2011-09-15;
+	label        "Initial release"@en.
+
+`RDF-RDB2RDF 0.002 cpan:TOBYINK`
+	issued       2011-09-23;
+	changeset [
+		item [ label "Allow 'process' method to take a callback."@en ; a dcs:Addition ];
+		item [ label "Support 20 Sept 2011 Working Draft of R2RML"@en ; a dcs:Update ];
+	].
+
+`RDF-RDB2RDF 0.003 cpan:TOBYINK`
+	issued       2011-09-27;
+	changeset [
+		item [ label "Include more test cases, inspired by RDB2RDF Working Group's tests."@en ; a dcs:Tests ];
+		item [ label "Include RDF::RDB2RDF::DirectMapping class."@en ; a dcs:Addition ];
+		item [ label "Include RDF::RDB2RDF::DirectMapping::Store class."@en ; a dcs:Addition ];
+		item [ label "Fix blank node scoping in R2RML mapping."@en ; a dcs:Bugfix ];
+		item [ label "Various fixes."@en ; a dcs:Bugfix ];
+	].
+
+`RDF-RDB2RDF 0.004 cpan:TOBYINK`
+	issued       2011-10-20;
+	changeset [
+		item [ label "Further optimise RDF::RDB2RDF::DirectMapping::Store::get_statements allowing it to narrow down the list of columns to select from the database when fewer than '*' are needed."@en ];
+		item [ label "Optimise RDF::RDB2RDF::DirectMapping::Store::get_pattern in cases when all statements with the pattern share a common subject."@en  ];
+		item [ label "Provide warn_sql option for RDF::RDB2RDF::DirectMapping."@en  ];
+		item [ label "Document handle_table and handle_table_rdfs methods for RDF::RDB2RDF::DirectMapping."@en ; a dcs:Documentation ];
+		item [ label "Module::Package::RDF"; a dcs:Packaging ];
+		item [ label "use 5.010" ; a dcs:Update ];
+	].
+
+`RDF-RDB2RDF 0.005 cpan:TOBYINK`
+	issued       2011-11-10;
+	changeset [
+		item [ label "Template substitutions that will result in URIs now correctly uri_encode substituted values." ];
+		item [ label "Handle SQL datatypes better." ];
+		item [ label "Provide ignore_tables option for DirectMapping." ; a dcs:Addition ];
+	].
+
+`RDF-RDB2RDF 0.006 cpan:TOBYINK`
+	issued       2012-06-12;
+	changeset [
+		item [ label "Reduce dependencies (parent.pm, common::sense, DBIx::Admin::TableInfo, etc)."@en ; a dcs:Packaging ];
+		item [ label "RDB2RDF Working Group tests are now 'xt'."@en ; a dcs:Packaging ];
+		item [ label "A number of small changes to fix compliance issues with R2RML and Direct Mapping test suites." ];
+		item [ label "RDF::RDB2RDF::DirectMapping::Store supports new_with_config." ; a dcs:Addition ];
+		item [ label "RDF::TrineX::Store::DirectMapping is now an alias for RDF::RDB2RDF::DirectMapping::Store." ; a dcs:Addition ];
+	].
+
+`RDF-RDB2RDF 0.007 cpan:TOBYINK`
+	issued       2012-06-15;
+	label        "The name's Bond... James Bond" ;
+	changeset [
+		item [ label "Properly dereference hashref for Perl < 5.14." ; a dcs:Bugfix ];
+	].
+
+`RDF-RDB2RDF 0.008 cpan:TOBYINK`
+	issued       2013-09-20;
+	changeset [
+		item [ label "Author test cases cope better with newer RDF::Trine versions which are less tolerant of ill-formed IRIs." ; a dcs:Update, dcs:Bugfix ];
+		item [ label "Support rrx:languageColumn."; dcs:thanks <urn:uuid:f4453a77-69eb-4062-b78c-d6e836f7483d>; a dcs:Addition ];
+		item [ label "Correctly skip generating triples when fields are null."; dcs:thanks <urn:uuid:f4453a77-69eb-4062-b78c-d6e836f7483d>; dcs:fixes RT#88815; a dcs:Bugfix ];
+		item [ label "Avoid IRI-encoding things that are already fully-formed IRIs."; dcs:thanks <urn:uuid:f4453a77-69eb-4062-b78c-d6e836f7483d>; dcs:fixes RT#88816; a dcs:Bugfix ];
+		item [ label "Misc refactoring and tidying." ];
+		item [ label "Stop using smart match operator and given/when (which each provoke warnings in Perl 5.18.x) in favour of match::simple and for/if respectively."; a dcs:Update ];
+		item [ label "Use Dist::Inkt."; a dcs:Packaging ];
+	].
+
