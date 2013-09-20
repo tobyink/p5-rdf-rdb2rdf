@@ -337,7 +337,7 @@ sub make_key_uri
 	return if grep { !defined $data->{$_} } @$columns;
 	
 	return $self->prefix .
-		$table . "/" .
+		uri_escape_optimistic($table) . "/" .
 		(join ';', map
 			{ sprintf('%s=%s', uri_escape_optimistic($_), uri_escape_optimistic($data->{$_})); }
 			@$columns);
@@ -348,7 +348,7 @@ sub make_ref_uri
 	my ($self, $table, $ref) = @_;
 	
 	return $self->prefix .
-		$table . "#ref-" .
+		uri_escape_optimistic($table) . "#ref-" .
 		(join ';', map
 			{ uri_escape_optimistic($_); }
 			@{$ref->{columns}});
@@ -365,7 +365,7 @@ sub make_ref_dest_uri_OLD
 	}
 	
 	return $self->prefix .
-		$ref->{target_table} . "/" .
+		uri_escape_optimistic($ref->{target_table}) . "/" .
 		(join ';', map
 			{ sprintf('%s=%s', uri_escape_optimistic($_), uri_escape_optimistic($data->{$map->{$_}})); }
 			@{$ref->{target_columns}});

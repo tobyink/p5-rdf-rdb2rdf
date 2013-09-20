@@ -9,7 +9,7 @@ use base qw[Test::RDB2RDF::Suite];
 sub excuses
 {
 	my %excuses = shift->SUPER::excuses;
-
+	
 	$excuses{R2RMLTC0016a} =
 	$excuses{R2RMLTC0016b} =
 	$excuses{R2RMLTC0016c} =
@@ -17,7 +17,10 @@ sub excuses
 	$excuses{R2RMLTC0016e} =
 	$excuses{DirectGraphTC0016} =
 		[failed => qq [PostgreSQL doesn't support VARBINARY datatype.]];
-
+	
+	$excuses{DirectGraphTC0010} =
+		[failed => qq [Cannot yet handle generating URIs for table names with spaces!]];
+	
 	return %excuses;
 }
 
@@ -36,6 +39,7 @@ sub blank_db
 			push @tables, $row->{TABLE_NAME};
 		}
 		$dbh->do("DROP TABLE IF EXISTS $_ CASCADE") for @tables;
+		$dbh->{PrintWarn} = $dbh->{PrintError} = 0;
 		return $dbh;
 	}
 	

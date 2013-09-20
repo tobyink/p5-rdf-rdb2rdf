@@ -33,12 +33,12 @@ sub excuses
 
 	$excuses{R2RMLTC0010c} =
 		[failed => qq [Bug in RDF::Trine::Turtle::Parser], q<https://rt.cpan.org/Ticket/Display.html?id=77747>];
-		
+	
 	$excuses{DirectGraphTC0014} =
 	$excuses{DirectGraphTC0022} =
 	$excuses{DirectGraphTC0025} =
 		[cantTell => qq [RDF-RDB2RDF prefers to skolemize where possible, so graphs don't match (they have IRIs where blank nodes are expected).]];
-
+	
 	return %excuses;
 }
 
@@ -55,6 +55,7 @@ sub blank_db
 	
 	my $dbh = DBI->connect("dbi:SQLite:dbname=:memory:");
 	$dbh->do('PRAGMA foreign_keys = ON;');
+	$dbh->{PrintWarn} = $dbh->{PrintError} = 0;
 	return $dbh;
 }
 
@@ -83,7 +84,7 @@ sub run_tap
 					skip sprintf("%s: %s", $test->identifier, $excuses{$test->identifier}[1]), 1
 						if exists $excuses{$test->identifier};
 					
-					ok($test->successful, $test->id_and_title) or die;
+					ok($test->successful, $test->id_and_title);
 				}
 			}
 		}		
